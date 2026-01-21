@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="es" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lección 2.1 - Iluminación Natural - RTVE</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    * {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .gradient-header {
+      background: linear-gradient(135deg, #f97316 0%, #fb923c 50%, #fdba74 100%);
+    }
+    
+    .video-player {
+      position: relative;
+      background: #000;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    }
+    
+    .video-thumbnail {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    }
+    
+    .play-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      background: rgba(249, 115, 22, 0.95);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 32px rgba(249, 115, 22, 0.4);
+    }
+    
+    .play-button:hover {
+      transform: translate(-50%, -50%) scale(1.1);
+      background: rgba(249, 115, 22, 1);
+    }
+    
+    .play-icon {
+      width: 0;
+      height: 0;
+      border-left: 24px solid white;
+      border-top: 16px solid transparent;
+      border-bottom: 16px solid transparent;
+      margin-left: 6px;
+    }
+    
+    .video-controls {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+      padding: 20px;
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 3px;
+      cursor: pointer;
+      margin-bottom: 12px;
+      position: relative;
+    }
+    
+    .progress-filled {
+      height: 100%;
+      background: #f97316;
+      border-radius: 3px;
+      width: 35%;
+      position: relative;
+    }
+    
+    .progress-filled::after {
+      content: '';
+      position: absolute;
+      right: -6px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 14px;
+      height: 14px;
+      background: #f97316;
+      border-radius: 50%;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .control-btn {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      padding: 8px;
+      transition: all 0.2s ease;
+      border-radius: 8px;
+    }
+    
+    .control-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .content-section {
+      animation: fadeInUp 0.6s ease-out forwards;
+      opacity: 0;
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+    .delay-5 { animation-delay: 0.5s; }
+    
+    .highlight {
+      background: linear-gradient(120deg, #fef3c7 0%, #fde68a 100%);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    
+    .concept-card {
+      transition: all 0.3s ease;
+    }
+    
+    .concept-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    }
+    
+    .toc-item {
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    
+    .toc-item:hover {
+      background: #fef3c7;
+      transform: translateX(4px);
+    }
+    
+    .toc-item.active {
+      background: #fed7aa;
+      border-left: 3px solid #f97316;
+      font-weight: 700;
+    }
+    
+    .sticky-sidebar {
+      position: sticky;
+      top: 100px;
+      max-height: calc(100vh - 120px);
+      overflow-y: auto;
+    }
+    
+    .sticky-sidebar::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .sticky-sidebar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 3px;
+    }
+    
+    .sticky-sidebar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+    
+    .sticky-sidebar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-gradient-to-br from-orange-50 via-white to-amber-50 overflow-auto">
+  <div class="w-full h-full"><!-- Header con progreso -->
+   <header class="gradient-header text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6"><!-- Breadcrumb -->
+     <div class="flex items-center gap-2 text-sm mb-4 text-white/80"><a href="#" class="hover:text-white transition-colors">Mis cursos</a>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg><a href="#" class="hover:text-white transition-colors">RTVE</a>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg><a href="#" class="hover:text-white transition-colors">Ambientación</a>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg><span class="text-white font-semibold">Lección 2.1</span>
+     </div>
+     <div class="flex items-center justify-between mb-6">
+      <div>
+       <p class="text-sm font-semibold mb-2 text-white/90">UNIDAD 2: ILUMINACIÓN</p>
+       <h1 class="text-3xl font-black">Lección 2.1: Iluminación Natural en Sets</h1>
+      </div>
+      <div class="text-right">
+       <p class="text-sm text-white/80 mb-1">Progreso de la lección</p>
+       <div class="flex items-center gap-3">
+        <div class="w-32 bg-white/30 rounded-full h-2">
+         <div class="bg-white h-2 rounded-full" style="width: 65%"></div>
+        </div><span class="text-2xl font-black">65%</span>
+       </div>
+      </div>
+     </div><!-- Barra de progreso inferior -->
+     <div class="bg-white/20 rounded-full h-1 w-full">
+      <div class="bg-white h-1 rounded-full transition-all duration-500" style="width: 65%"></div>
+     </div>
+    </div>
+   </header><!-- Contenido principal -->
+   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid lg:grid-cols-4 gap-8"><!-- Contenido de la lección -->
+     <div class="lg:col-span-3 space-y-8"><!-- Video principal -->
+      <section class="content-section delay-1">
+       <div class="video-player aspect-video"><!-- Thumbnail del video -->
+        <div class="video-thumbnail flex items-center justify-center">
+         <svg class="w-full h-full opacity-20" viewbox="0 0 800 450" fill="none"><rect x="100" y="100" width="600" height="250" rx="8" fill="url(#videoGrad)" /> <circle cx="400" cy="225" r="60" fill="rgba(249, 115, 22, 0.3)" /> <path d="M385 210 L385 240 L410 225 Z" fill="rgba(249, 115, 22, 0.5)" /> <defs>
+           <lineargradient id="videoGrad" x1="100" y1="100" x2="700" y2="350">
+            <stop offset="0%" stop-color="#475569" />
+            <stop offset="100%" stop-color="#1e293b" />
+           </lineargradient>
+          </defs>
+         </svg>
+        </div><!-- Botón de play -->
+        <div class="play-button">
+         <div class="play-icon"></div>
+        </div><!-- Controles del video -->
+        <div class="video-controls">
+         <div class="progress-bar">
+          <div class="progress-filled"></div>
+         </div>
+         <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4"><button class="control-btn">
+            <svg class="w-6 h-6" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+            </svg></button> <span class="text-white text-sm font-semibold">4:32 / 12:48</span>
+          </div>
+          <div class="flex items-center gap-2"><button class="control-btn">
+            <svg class="w-6 h-6" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd" />
+            </svg></button> <button class="control-btn">
+            <svg class="w-6 h-6" fill="currentColor" viewbox="0 0 20 20"><path d="M2 4.25A2.25 2.25 0 014.25 2h11.5A2.25 2.25 0 0118 4.25v8.5A2.25 2.25 0 0115.75 15h-3.105a3.501 3.501 0 001.1 1.677A.75.75 0 0113.26 18H6.74a.75.75 0 01-.484-1.323A3.501 3.501 0 007.355 15H4.25A2.25 2.25 0 012 12.75v-8.5z" />
+            </svg></button> <button class="control-btn">
+            <svg class="w-6 h-6" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
+            </svg></button>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="mt-4 flex items-center justify-between">
+        <p class="text-sm text-gray-600"><span class="font-semibold">⏱️ Duración:</span> 12 min 48 seg</p><button class="text-sm font-semibold text-orange-600 hover:text-orange-700 flex items-center gap-2">
+         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+         </svg> Descargar video </button>
+       </div>
+      </section><!-- Introducción -->
+      <section class="content-section delay-2 bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
+       <h2 class="text-2xl font-black text-gray-900 mb-4 flex items-center gap-3"><span class="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center text-orange-600"> 📋 </span> Introducción</h2>
+       <div class="prose max-w-none">
+        <p class="text-gray-700 leading-relaxed mb-4">La <span class="highlight">iluminación natural</span> es uno de los recursos más valiosos en la producción audiovisual. En esta lección aprenderás a aprovechar la luz del sol para crear ambientes realistas y emotivos en tus producciones.</p>
+        <p class="text-gray-700 leading-relaxed">Dominar las técnicas de iluminación natural te permitirá reducir costos de producción, crear atmósferas más auténticas y trabajar de manera más eficiente en exteriores y espacios con ventanas.</p>
+       </div>
+      </section><!-- Objetivos de aprendizaje -->
+      <section class="content-section delay-3 bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl p-8 border border-orange-200">
+       <h2 class="text-2xl font-black text-gray-900 mb-6 flex items-center gap-3"><span class="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center text-white"> 🎯 </span> Objetivos de aprendizaje</h2>
+       <div class="grid md:grid-cols-2 gap-4">
+        <div class="flex items-start gap-3">
+         <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">
+          1
+         </div>
+         <p class="text-gray-700 font-medium">Comprender las características de la luz natural en diferentes momentos del día</p>
+        </div>
+        <div class="flex items-start gap-3">
+         <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">
+          2
+         </div>
+         <p class="text-gray-700 font-medium">Identificar y controlar la calidad de la luz (dura vs suave)</p>
+        </div>
+        <div class="flex items-start gap-3">
+         <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">
+          3
+         </div>
+         <p class="text-gray-700 font-medium">Utilizar modificadores de luz para adaptar la iluminación natural</p>
+        </div>
+        <div class="flex items-start gap-3">
+         <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">
+          4
+         </div>
+         <p class="text-gray-700 font-medium">Aplicar técnicas de balance de blancos según la temperatura de color</p>
+        </div>
+       </div>
+      </section><!-- Conceptos clave -->
+      <section class="content-section delay-4">
+       <h2 class="text-2xl font-black text-gray-900 mb-6 flex items-center gap-3"><span class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600"> 💡 </span> Conceptos clave</h2>
+       <div class="grid md:grid-cols-2 gap-6 mb-8">
+        <div class="concept-card bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+         <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center text-2xl">
+           ☀️
+          </div>
+          <h3 class="text-xl font-black text-gray-900">Luz dura</h3>
+         </div>
+         <p class="text-gray-700 leading-relaxed">Luz directa del sol que produce sombras definidas y alto contraste. Ideal para crear dramatismo y definir texturas.</p>
+        </div>
+        <div class="concept-card bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+         <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-xl flex items-center justify-center text-2xl">
+           ☁️
+          </div>
+          <h3 class="text-xl font-black text-gray-900">Luz suave</h3>
+         </div>
+         <p class="text-gray-700 leading-relaxed">Luz difusa (día nublado o sombra) que genera sombras suaves y menor contraste. Perfecta para retratos y tomas delicadas.</p>
+        </div>
+        <div class="concept-card bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+         <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-orange-400 to-pink-500 rounded-xl flex items-center justify-center text-2xl">
+           🌅
+          </div>
+          <h3 class="text-xl font-black text-gray-900">Golden Hour</h3>
+         </div>
+         <p class="text-gray-700 leading-relaxed">La primera y última hora de luz solar del día. Produce tonos cálidos y luz suave horizontal, ideal para escenas emotivas.</p>
+        </div>
+        <div class="concept-card bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+         <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-indigo-500 rounded-xl flex items-center justify-center text-2xl">
+           🌡️
+          </div>
+          <h3 class="text-xl font-black text-gray-900">Temperatura de color</h3>
+         </div>
+         <p class="text-gray-700 leading-relaxed">Medida en Kelvin (K). Luz solar directa: 5500K (neutra). Sombra: 7000K (fría). Atardecer: 3000K (cálida).</p>
+        </div>
+       </div>
+      </section><!-- Diagrama técnico -->
+      <section class="content-section delay-5 bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
+       <h2 class="text-2xl font-black text-gray-900 mb-6 flex items-center gap-3"><span class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600"> 📐 </span> Ángulos de iluminación solar</h2>
+       <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-8">
+        <svg class="w-full h-64" viewbox="0 0 800 300" fill="none"><!-- Horizonte --> <line x1="0" y1="200" x2="800" y2="200" stroke="#94a3b8" stroke-width="2" stroke-dasharray="8 4" /> <!-- Sol mediodía (alto) --> <circle cx="150" cy="80" r="30" fill="#fbbf24" opacity="0.9" /> <text x="150" y="50" text-anchor="middle" class="text-xs font-bold" fill="#374151">
+          12:00 PM
+         </text> <text x="150" y="145" text-anchor="middle" class="text-xs" fill="#6b7280">
+          Luz dura
+         </text> <text x="150" y="160" text-anchor="middle" class="text-xs" fill="#6b7280">
+          Alto contraste
+         </text> <path d="M150 110 L150 190" stroke="#fbbf24" stroke-width="3" stroke-dasharray="4 2" /> <!-- Sol tarde (medio) --> <circle cx="400" cy="120" r="30" fill="#fb923c" opacity="0.9" /> <text x="400" y="90" text-anchor="middle" class="text-xs font-bold" fill="#374151">
+          4:00 PM
+         </text> <text x="400" y="175" text-anchor="middle" class="text-xs" fill="#6b7280">
+          Luz suave
+         </text> <text x="400" y="190" text-anchor="middle" class="text-xs" fill="#6b7280">
+          Contraste medio
+         </text> <path d="M400 150 L350 195" stroke="#fb923c" stroke-width="3" stroke-dasharray="4 2" /> <!-- Sol atardecer (bajo) --> <circle cx="650" cy="180" r="30" fill="#f97316" opacity="0.9" /> <text x="650" y="150" text-anchor="middle" class="text-xs font-bold" fill="#374151">
+          6:30 PM
+         </text> <text x="650" y="235" text-anchor="middle" class="text-xs" fill="#6b7280">
+          Golden Hour
+         </text> <text x="650" y="250" text-anchor="middle" class="text-xs" fill="#6b7280">
+          Luz cálida
+         </text> <path d="M650 210 L580 200" stroke="#f97316" stroke-width="3" stroke-dasharray="4 2" /> <!-- Sujeto/objeto --> <rect x="140" y="190" width="20" height="40" fill="#6366f1" rx="2" /> <circle cx="150" cy="185" r="8" fill="#818cf8" /> <rect x="340" y="190" width="20" height="40" fill="#6366f1" rx="2" /> <circle cx="350" cy="185" r="8" fill="#818cf8" /> <rect x="570" y="190" width="20" height="40" fill="#6366f1" rx="2" /> <circle cx="580" cy="185" r="8" fill="#818cf8" />
+        </svg>
+       </div>
+       <div class="mt-6 bg-amber-50 border-l-4 border-amber-500 p-4 rounded-lg">
+        <div class="flex gap-3"><span class="text-2xl">⚠️</span>
+         <div>
+          <p class="font-bold text-gray-900 mb-1">Nota importante</p>
+          <p class="text-gray-700 text-sm">El ángulo del sol varía según la ubicación geográfica y la estación del año. Siempre realiza un scouting previo del location.</p>
+         </div>
+        </div>
+       </div>
+      </section><!-- Ejemplo práctico -->
+      <section class="content-section delay-5 bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
+       <h2 class="text-2xl font-black text-gray-900 mb-6 flex items-center gap-3"><span class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center text-green-600"> ✅ </span> Ejemplo práctico: Entrevista exterior</h2>
+       <div class="space-y-6">
+        <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200">
+         <h4 class="font-black text-gray-900 mb-3 flex items-center gap-2"><span class="text-green-600">✓</span> Setup correcto</h4>
+         <ul class="space-y-2 text-gray-700">
+          <li class="flex items-start gap-2"><span class="text-green-600 mt-1">•</span> <span><strong>Posición del talento:</strong> De espaldas al sol o en sombra uniforme</span></li>
+          <li class="flex items-start gap-2"><span class="text-green-600 mt-1">•</span> <span><strong>Hora:</strong> Golden hour (7:00-9:00 AM o 5:00-7:00 PM)</span></li>
+          <li class="flex items-start gap-2"><span class="text-green-600 mt-1">•</span> <span><strong>Modificador:</strong> Reflector para rellenar sombras del rostro</span></li>
+          <li class="flex items-start gap-2"><span class="text-green-600 mt-1">•</span> <span><strong>Balance de blancos:</strong> 5500K (luz día) o preset "Daylight"</span></li>
+         </ul>
+        </div>
+        <div class="bg-gradient-to-r from-red-50 to-rose-50 rounded-xl p-6 border border-red-200">
+         <h4 class="font-black text-gray-900 mb-3 flex items-center gap-2"><span class="text-red-600">✗</span> Errores comunes</h4>
+         <ul class="space-y-2 text-gray-700">
+          <li class="flex items-start gap-2"><span class="text-red-600 mt-1">•</span> <span>Grabar al mediodía con sol cenital (sombras duras en ojos)</span></li>
+          <li class="flex items-start gap-2"><span class="text-red-600 mt-1">•</span> <span>Colocar al talento mirando directamente al sol (ojos entrecerrados)</span></li>
+          <li class="flex items-start gap-2"><span class="text-red-600 mt-1">•</span> <span>No considerar el movimiento del sol durante la grabación</span></li>
+          <li class="flex items-start gap-2"><span class="text-red-600 mt-1">•</span> <span>Mezclar luz natural con luz artificial de diferente temperatura</span></li>
+         </ul>
+        </div>
+       </div>
+      </section><!-- Navegación -->
+      <div class="flex items-center justify-between pt-8 border-t border-gray-200"><button class="flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg> Lección anterior </button> <button class="flex items-center gap-2 px-6 py-3 bg-orange-600 text-white font-bold rounded-xl hover:bg-orange-700 transition-all shadow-lg shadow-orange-200"> Marcar como completada 
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg></button> <button class="flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-all"> Siguiente lección 
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg></button>
+      </div>
+     </div><!-- Sidebar -->
+     <aside class="lg:col-span-1"><!-- Índice de contenido -->
+      <div class="sticky-sidebar bg-white rounded-2xl p-6 border border-gray-200 shadow-sm mb-6">
+       <h3 class="font-black text-gray-900 mb-4 flex items-center gap-2">
+        <svg class="w-5 h-5 text-orange-600" fill="currentColor" viewbox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+        </svg> En esta lección</h3>
+       <nav class="space-y-1"><a href="#" class="toc-item active block px-4 py-2 text-sm rounded-lg"> 📹 Video principal </a> <a href="#" class="toc-item block px-4 py-2 text-sm text-gray-700 rounded-lg"> 📋 Introducción </a> <a href="#" class="toc-item block px-4 py-2 text-sm text-gray-700 rounded-lg"> 🎯 Objetivos </a> <a href="#" class="toc-item block px-4 py-2 text-sm text-gray-700 rounded-lg"> 💡 Conceptos clave </a> <a href="#" class="toc-item block px-4 py-2 text-sm text-gray-700 rounded-lg"> 📐 Ángulos solares </a> <a href="#" class="toc-item block px-4 py-2 text-sm text-gray-700 rounded-lg"> ✅ Ejemplo práctico </a>
+       </nav>
+      </div><!-- Recursos adicionales -->
+      <div class="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-6 border border-orange-200 mb-6">
+       <h3 class="font-black text-gray-900 mb-4 flex items-center gap-2">
+        <svg class="w-5 h-5 text-orange-600" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+        </svg> Recursos</h3>
+       <div class="space-y-3"><a href="#" class="block p-3 bg-white rounded-lg hover:bg-orange-100 transition-colors">
+         <div class="flex items-center gap-3"><span class="text-2xl">📄</span>
+          <div class="flex-1">
+           <p class="text-sm font-bold text-gray-900">Guía PDF</p>
+           <p class="text-xs text-gray-600">Tabla de temperaturas</p>
+          </div>
+         </div></a> <a href="#" class="block p-3 bg-white rounded-lg hover:bg-orange-100 transition-colors">
+         <div class="flex items-center gap-3"><span class="text-2xl">📊</span>
+          <div class="flex-1">
+           <p class="text-sm font-bold text-gray-900">Infografía</p>
+           <p class="text-xs text-gray-600">Modificadores de luz</p>
+          </div>
+         </div></a> <a href="#" class="block p-3 bg-white rounded-lg hover:bg-orange-100 transition-colors">
+         <div class="flex items-center gap-3"><span class="text-2xl">🔗</span>
+          <div class="flex-1">
+           <p class="text-sm font-bold text-gray-900">Enlaces útiles</p>
+           <p class="text-xs text-gray-600">Apps de tracking solar</p>
+          </div>
+         </div></a>
+       </div>
+      </div><!-- Notas -->
+      <div class="bg-blue-50 rounded-2xl p-6 border border-blue-200">
+       <h3 class="font-black text-gray-900 mb-3 flex items-center gap-2">
+        <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewbox="0 0 20 20"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+        </svg> Mis notas</h3><textarea class="w-full h-32 p-3 text-sm border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Escribe tus notas aquí..."></textarea> <button class="w-full mt-3 px-4 py-2 bg-orange-600 text-white font-bold rounded-lg hover:bg-orange-700 transition-colors"> Guardar nota </button>
+      </div>
+     </aside>
+    </div>
+   </main>
+  </div>
+  <script>
+    // Inicializar Element SDK
+    const defaultConfig = {
+      primary_color: '#f97316',
+      secondary_color: '#fb923c',
+      accent_color: '#fdba74',
+      background_color: '#fffbeb',
+      text_color: '#1f2937',
+      lesson_title: 'Lección 2.1: Iluminación Natural en Sets',
+      unit_name: 'UNIDAD 2: ILUMINACIÓN'
+    };
+    
+    async function onConfigChange(config) {
+      const primaryColor = config.primary_color || defaultConfig.primary_color;
+      const secondaryColor = config.secondary_color || defaultConfig.secondary_color;
+      const accentColor = config.accent_color || defaultConfig.accent_color;
+      const bgColor = config.background_color || defaultConfig.background_color;
+      
+      document.body.style.background = `linear-gradient(to bottom right, ${bgColor}, #fef3c7, white)`;
+      
+      const gradientHeader = document.querySelector('.gradient-header');
+      if (gradientHeader) {
+        gradientHeader.style.background = `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 50%, ${accentColor} 100%)`;
+      }
+      
+      const lessonTitle = document.querySelector('h1');
+      if (lessonTitle) {
+        lessonTitle.textContent = config.lesson_title || defaultConfig.lesson_title;
+      }
+      
+      const unitName = document.querySelector('p.text-sm.font-semibold.mb-2');
+      if (unitName) {
+        unitName.textContent = config.unit_name || defaultConfig.unit_name;
+      }
+    }
+    
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig: defaultConfig,
+        onConfigChange: onConfigChange,
+        mapToCapabilities: (config) => ({
+          recolorables: [
+            {
+              get: () => config.primary_color || defaultConfig.primary_color,
+              set: (value) => {
+                config.primary_color = value;
+                window.elementSdk.setConfig({ primary_color: value });
+              }
+            },
+            {
+              get: () => config.secondary_color || defaultConfig.secondary_color,
+              set: (value) => {
+                config.secondary_color = value;
+                window.elementSdk.setConfig({ secondary_color: value });
+              }
+            },
+            {
+              get: () => config.accent_color || defaultConfig.accent_color,
+              set: (value) => {
+                config.accent_color = value;
+                window.elementSdk.setConfig({ accent_color: value });
+              }
+            },
+            {
+              get: () => config.background_color || defaultConfig.background_color,
+              set: (value) => {
+                config.background_color = value;
+                window.elementSdk.setConfig({ background_color: value });
+              }
+            },
+            {
+              get: () => config.text_color || defaultConfig.text_color,
+              set: (value) => {
+                config.text_color = value;
+                window.elementSdk.setConfig({ text_color: value });
+              }
+            }
+          ],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ['lesson_title', config.lesson_title || defaultConfig.lesson_title],
+          ['unit_name', config.unit_name || defaultConfig.unit_name]
+        ])
+      });
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c07aa85938bcbba',t:'MTc2ODgzOTY5Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

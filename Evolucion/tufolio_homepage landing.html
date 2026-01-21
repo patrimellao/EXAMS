@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="es" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tufolio - Prepara tus oposiciones</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    * {
+      font-family: 'Merriweather', serif;
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #14B8A6 0%, #0891B2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .gradient-bg-primary {
+      background: linear-gradient(135deg, #14B8A6 0%, #0891B2 100%);
+    }
+    .gradient-bg-secondary {
+      background: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);
+    }
+    .gradient-bg-accent {
+      background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+    }
+    .card-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card-hover:hover {
+      transform: translateY(-8px);
+    }
+    .btn-bounce {
+      transition: all 0.2s ease;
+    }
+    .btn-bounce:hover {
+      transform: scale(1.05);
+    }
+    .btn-bounce:active {
+      transform: scale(0.98);
+    }
+    .floating {
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    .pulse-ring {
+      animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    @keyframes pulse-ring {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .slide-in {
+      animation: slideIn 0.8s ease-out forwards;
+      opacity: 0;
+    }
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+    .delay-5 { animation-delay: 0.5s; }
+    .mascot-wave {
+      animation: wave 2.5s ease-in-out infinite;
+      transform-origin: 70% 70%;
+    }
+    @keyframes wave {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(20deg); }
+      75% { transform: rotate(-10deg); }
+    }
+    .progress-bar {
+      background: linear-gradient(90deg, #6C757D 0%, #212529 100%);
+    }
+    .testimonial-card {
+      background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+    }
+    .category-badge {
+      transition: all 0.3s ease;
+    }
+    .category-badge:hover {
+      transform: scale(1.1);
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-slate-50 overflow-auto">
+  <div id="app-wrapper" class="w-full h-full"><!-- Navigation -->
+   <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+     <div class="flex justify-between items-center h-16">
+      <div class="flex items-center gap-2">
+       <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-600 to-slate-900 flex items-center justify-center shadow-lg">
+        <svg class="w-6 h-6 text-white" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /> <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /> <line x1="12" y1="3" x2="12" y2="21" /> <line x1="6" y1="8" x2="6" y2="8.01" /> <line x1="6" y1="12" x2="6" y2="12.01" /> <line x1="18" y1="8" x2="18" y2="8.01" /> <line x1="18" y1="12" x2="18" y2="12.01" />
+        </svg>
+       </div><span class="text-2xl font-black text-slate-800">tufolio<span class="text-slate-600">.es</span></span>
+      </div>
+      <div class="hidden md:flex items-center gap-8"><a href="#categorias" class="text-slate-600 hover:text-orange-600 font-semibold transition-colors">Oposiciones</a> <a href="#como-funciona" class="text-slate-600 hover:text-orange-600 font-semibold transition-colors">Cómo funciona</a> <a href="#precios" class="text-slate-600 hover:text-orange-600 font-semibold transition-colors">Precios</a> <a href="#blog" class="text-slate-600 hover:text-orange-600 font-semibold transition-colors">Blog</a>
+      </div>
+      <div class="flex items-center gap-3"><button class="hidden sm:block px-4 py-2 text-slate-600 font-bold hover:bg-slate-50 rounded-xl transition-colors"> Iniciar sesión </button> <button class="px-5 py-2.5 bg-slate-600 text-white font-bold rounded-xl hover:bg-slate-700 transition-colors shadow-lg shadow-slate-600/30 btn-bounce"> Registrarse </button>
+      </div>
+     </div>
+    </div>
+   </nav><!-- Hero Section -->
+   <section class="pt-24 pb-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-slate-50">
+    <div class="max-w-7xl mx-auto">
+     <div class="grid lg:grid-cols-2 gap-12 items-center">
+      <div class="slide-in">
+       <div class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-teal-50 to-cyan-50 rounded-full mb-6 border border-teal-200"><span class="w-2 h-2 bg-teal-500 rounded-full pulse-ring"></span> <span class="text-teal-700 font-semibold text-sm">+2.000 nuevas plazas convocadas</span>
+       </div>
+       <h1 id="hero-title" class="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-800 leading-tight mb-6">¡Tu plaza te espera!</h1>
+       <p id="hero-subtitle" class="text-xl text-slate-600 mb-8 leading-relaxed">Prepara tus oposiciones de la mano de más de 10.000 piezas de contenido, video tutoriales, éxamenes e información actualizada.</p>
+       <div class="flex flex-col sm:flex-row gap-4"><button id="cta-button" class="px-8 py-4 gradient-bg-primary text-white font-bold text-lg rounded-2xl hover:opacity-90 transition-all shadow-xl shadow-orange-500/30 btn-bounce flex items-center justify-center gap-2"> <span>Empieza gratis</span>
+         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+         </svg></button> <button class="px-8 py-4 bg-white text-slate-700 font-bold text-lg rounded-2xl hover:bg-slate-50 transition-all border-2 border-teal-200 flex items-center justify-center gap-2">
+         <svg class="w-5 h-5 text-teal-600" fill="currentColor" viewbox="0 0 24 24"><path d="M8 5v14l11-7z" />
+         </svg><span>Ver demo</span> </button>
+       </div>
+      </div><!-- Hero Illustration -->
+      <div class="relative slide-in delay-2">
+       <div class="relative z-10"><!-- Phone mockup with app -->
+        <div class="bg-slate-800 rounded-[3rem] p-3 shadow-2xl max-w-sm mx-auto">
+         <div class="bg-white rounded-[2.5rem] overflow-hidden"><!-- App Header -->
+          <div class="gradient-bg-primary px-6 py-4">
+           <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+             <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center pulse-ring"><span class="text-lg">🔥</span>
+             </div><span class="text-white font-bold">Racha: 15 días</span>
+            </div>
+            <div class="flex items-center gap-1"><span class="text-yellow-300 text-lg floating">���</span> <span class="text-white font-bold">2,450</span>
+            </div>
+           </div>
+          </div><!-- App Content -->
+          <div class="p-6">
+           <div class="text-center mb-6">
+            <div class="w-20 h-20 mx-auto mb-3 floating">
+             <svg viewbox="0 0 100 100" class="w-full h-full"><circle cx="50" cy="50" r="45" fill="#FEF3C7" /> <circle cx="35" cy="40" r="6" fill="#1F2937" /> <circle cx="65" cy="40" r="6" fill="#1F2937" /> <circle cx="37" cy="38" r="2" fill="white" /> <circle cx="67" cy="38" r="2" fill="white" /> <path d="M35 60 Q50 75 65 60" stroke="#1F2937" stroke-width="4" fill="none" stroke-linecap="round" /> <ellipse cx="25" cy="55" rx="8" ry="5" fill="#FECACA" /> <ellipse cx="75" cy="55" rx="8" ry="5" fill="#FECACA" /> <path d="M50 5 L53 15 L63 15 L55 22 L58 32 L50 26 L42 32 L45 22 L37 15 L47 15 Z" fill="#FBBF24" />
+             </svg>
+            </div>
+            <h3 class="font-bold text-slate-800 text-lg">¡Nivel completado!</h3>
+            <p class="text-slate-500 text-sm">Constitución Española - Título I</p>
+           </div>
+           <div class="space-y-3 mb-6">
+            <div class="flex justify-between text-sm"><span class="text-slate-600">Progreso del módulo</span> <span class="font-bold text-slate-600">78%</span>
+            </div>
+            <div class="h-3 bg-slate-200 rounded-full overflow-hidden">
+             <div class="h-full progress-bar rounded-full" style="width: 78%"></div>
+            </div>
+           </div>
+           <div class="grid grid-cols-3 gap-3 mb-6">
+            <div class="bg-slate-50 rounded-xl p-3 text-center">
+             <div class="text-2xl mb-1">
+              ✅
+             </div>
+             <div class="text-xs text-slate-600">
+              15/20
+             </div>
+             <div class="text-xs font-bold text-slate-600">
+              Aciertos
+             </div>
+            </div>
+            <div class="bg-blue-50 rounded-xl p-3 text-center">
+             <div class="text-2xl mb-1">
+              ⏱️
+             </div>
+             <div class="text-xs text-slate-600">
+              4:32
+             </div>
+             <div class="text-xs font-bold text-blue-600">
+              Tiempo
+             </div>
+            </div>
+            <div class="bg-amber-50 rounded-xl p-3 text-center">
+             <div class="text-2xl mb-1">
+              ⚡
+             </div>
+             <div class="text-xs text-slate-600">
+              +120
+             </div>
+             <div class="text-xs font-bold text-amber-600">
+              XP
+             </div>
+            </div>
+           </div><button class="w-full py-3 bg-slate-600 text-white font-bold rounded-xl hover:bg-slate-700 transition-colors"> Siguiente lección </button>
+          </div>
+         </div>
+        </div>
+       </div><!-- Decorative elements -->
+       <div class="absolute top-10 -left-10 w-20 h-20 bg-gradient-to-br from-orange-300 to-red-300 rounded-full opacity-40 floating" style="animation-delay: 0.5s"></div>
+       <div class="absolute bottom-20 -right-5 w-16 h-16 bg-gradient-to-br from-pink-300 to-rose-300 rounded-full opacity-40 floating" style="animation-delay: 1s"></div>
+       <div class="absolute top-1/2 -right-10 w-12 h-12 bg-gradient-to-br from-yellow-300 to-amber-300 rounded-full opacity-40 floating" style="animation-delay: 1.5s"></div>
+       <div class="absolute bottom-10 -left-5 w-14 h-14 bg-gradient-to-br from-orange-300 to-amber-300 rounded-full opacity-30 floating" style="animation-delay: 2s"></div>
+      </div>
+     </div>
+    </div>
+   </section><!-- Stats Section -->
+   <section class="py-12 px-4 sm:px-6 lg:px-8 bg-white border-y border-slate-200">
+    <div class="max-w-7xl mx-auto">
+     <div class="grid grid-cols-3 gap-8">
+      <div class="text-center slide-in delay-1">
+       <div id="stat-1" class="text-3xl sm:text-4xl font-black bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent mb-2">
+        +2.000
+       </div>
+       <div class="text-slate-600 font-semibold">
+        Plazas convocadas
+       </div>
+      </div>
+      <div class="text-center slide-in delay-2">
+       <div id="stat-2" class="text-3xl sm:text-4xl font-black bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent mb-2">
+        +100
+       </div>
+       <div class="text-slate-600 font-semibold">
+        Horas de video tutoriales
+       </div>
+      </div>
+      <div class="text-center slide-in delay-3">
+       <div id="stat-3" class="text-3xl sm:text-4xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+        +100.000
+       </div>
+       <div class="text-slate-600 font-semibold">
+        Preguntas tipo test
+       </div>
+      </div>
+     </div>
+    </div>
+   </section><!-- Categories Section -->
+   <section id="categorias" class="py-20 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+     <div class="text-center mb-12 slide-in">
+      <h2 class="text-3xl sm:text-4xl font-black text-slate-800 mb-4">Encuentra tu oposición</h2>
+      <p class="text-xl text-slate-600 max-w-2xl mx-auto">Más de 150 oposiciones organizadas por categorías. Temario oficial actualizado y simulacros reales.</p>
+     </div>
+     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"><!-- Category 1 - RTVE -->
+      <div class="bg-white rounded-2xl p-6 border-2 border-teal-200 card-hover cursor-pointer hover:border-teal-500 hover:shadow-xl hover:shadow-teal-500/20 slide-in delay-1 relative overflow-hidden">
+       <div class="absolute -top-10 -right-10 w-24 h-24 bg-gradient-to-br from-teal-400/20 to-cyan-400/20 rounded-full"></div>
+       <div class="w-14 h-14 gradient-bg-primary rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-teal-500/30 relative"><span class="text-3xl">📺</span>
+       </div>
+       <h3 class="font-bold text-lg text-slate-800 mb-2">RTVE</h3>
+       <p class="text-slate-500 text-sm mb-4">Informaci����n y contenidos, Gestión, Ambientación y más</p>
+       <div class="flex items-center gap-2 text-teal-600 font-semibold text-sm"><span>Ver contenido</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+       </div>
+      </div><!-- Category 2-7 - Próximamente -->
+      <div class="bg-slate-100 rounded-2xl p-6 border-2 border-slate-200 opacity-60 slide-in delay-2">
+       <div class="w-14 h-14 bg-slate-200 rounded-2xl flex items-center justify-center mb-4"><span class="text-3xl">🏛️</span>
+       </div>
+       <h3 class="font-bold text-lg text-slate-500 mb-2">Administración</h3>
+       <p class="text-slate-400 text-sm mb-4">AGE, CCAA, Ayuntamientos</p>
+       <div class="flex items-center gap-2 text-slate-400 font-semibold text-sm"><span>Próximamente</span>
+       </div>
+      </div>
+      <div class="bg-slate-100 rounded-2xl p-6 border-2 border-slate-200 opacity-60 slide-in delay-3">
+       <div class="w-14 h-14 bg-slate-200 rounded-2xl flex items-center justify-center mb-4"><span class="text-3xl">🚔</span>
+       </div>
+       <h3 class="font-bold text-lg text-slate-500 mb-2">Seguridad</h3>
+       <p class="text-slate-400 text-sm mb-4">Policía, Guardia Civil, Bomberos</p>
+       <div class="flex items-center gap-2 text-slate-400 font-semibold text-sm"><span>Próximamente</span>
+       </div>
+      </div>
+      <div class="bg-slate-100 rounded-2xl p-6 border-2 border-slate-200 opacity-60 slide-in delay-4">
+       <div class="w-14 h-14 bg-slate-200 rounded-2xl flex items-center justify-center mb-4"><span class="text-3xl">🏥</span>
+       </div>
+       <h3 class="font-bold text-lg text-slate-500 mb-2">Sanidad</h3>
+       <p class="text-slate-400 text-sm mb-4">Enfermería, Auxiliares, TCAE</p>
+       <div class="flex items-center gap-2 text-slate-400 font-semibold text-sm"><span>Próximamente</span>
+       </div>
+      </div>
+      <div class="bg-slate-100 rounded-2xl p-6 border-2 border-slate-200 opacity-60 slide-in delay-1">
+       <div class="w-14 h-14 bg-slate-200 rounded-2xl flex items-center justify-center mb-4"><span class="text-3xl">📚</span>
+       </div>
+       <h3 class="font-bold text-lg text-slate-500 mb-2">Educación</h3>
+       <p class="text-slate-400 text-sm mb-4">Maestros, Profesores, PT</p>
+       <div class="flex items-center gap-2 text-slate-400 font-semibold text-sm"><span>Próximamente</span>
+       </div>
+      </div>
+      <div class="bg-slate-100 rounded-2xl p-6 border-2 border-slate-200 opacity-60 slide-in delay-2">
+       <div class="w-14 h-14 bg-slate-200 rounded-2xl flex items-center justify-center mb-4"><span class="text-3xl">💼</span>
+       </div>
+       <h3 class="font-bold text-lg text-slate-500 mb-2">Hacienda</h3>
+       <p class="text-slate-400 text-sm mb-4">AEAT, Inspectores, Técnicos</p>
+       <div class="flex items-center gap-2 text-slate-400 font-semibold text-sm"><span>Próximamente</span>
+       </div>
+      </div>
+      <div class="bg-slate-100 rounded-2xl p-6 border-2 border-slate-200 opacity-60 slide-in delay-3">
+       <div class="w-14 h-14 bg-slate-200 rounded-2xl flex items-center justify-center mb-4"><span class="text-3xl">📮</span>
+       </div>
+       <h3 class="font-bold text-lg text-slate-500 mb-2">Correos</h3>
+       <p class="text-slate-400 text-sm mb-4">Personal laboral, Reparto</p>
+       <div class="flex items-center gap-2 text-slate-400 font-semibold text-sm"><span>Próximamente</span>
+       </div>
+      </div>
+      <div class="bg-slate-100 rounded-2xl p-6 border-2 border-slate-200 opacity-60 slide-in delay-4">
+       <div class="w-14 h-14 bg-slate-200 rounded-2xl flex items-center justify-center mb-4"><span class="text-3xl">⚖️</span>
+       </div>
+       <h3 class="font-bold text-lg text-slate-500 mb-2">Justicia</h3>
+       <p class="text-slate-400 text-sm mb-4">Auxilio, Tramitación, Gestión</p>
+       <div class="flex items-center gap-2 text-slate-400 font-semibold text-sm"><span>Próximamente</span>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section><!-- How it Works Section -->
+   <section id="como-funciona" class="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-slate-50 to-white">
+    <div class="max-w-7xl mx-auto">
+     <div class="text-center mb-16 slide-in">
+      <h2 class="text-3xl sm:text-4xl font-black text-slate-800 mb-4">¿Cómo funciona?</h2>
+      <p class="text-xl text-slate-600 max-w-2xl mx-auto">Un método probado que combina la ciencia del aprendizaje con la diversión de los videojuegos.</p>
+     </div>
+     <div class="grid md:grid-cols-3 gap-8"><!-- Step 1 -->
+      <div class="relative slide-in delay-1">
+       <div class="bg-white rounded-3xl p-8 shadow-xl border border-orange-100 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-orange-100 to-amber-100 rounded-bl-full opacity-70"></div>
+        <div class="relative">
+         <div class="w-12 h-12 gradient-bg-primary rounded-xl flex items-center justify-center text-white font-black text-xl mb-6 shadow-lg shadow-orange-500/30">
+          1
+         </div>
+         <div class="text-4xl mb-4">
+          🎯
+         </div>
+         <h3 id="feature-1" class="font-bold text-xl text-slate-800 mb-3">Aprende jugando</h3>
+         <p class="text-slate-600">Lecciones cortas de 5 minutos diseñadas como un juego. Gana puntos, sube de nivel y desbloquea logros mientras aprendes.</p>
+        </div>
+       </div>
+      </div><!-- Step 2 -->
+      <div class="relative slide-in delay-2">
+       <div class="bg-white rounded-3xl p-8 shadow-xl border border-yellow-100 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-yellow-100 to-amber-100 rounded-bl-full opacity-70"></div>
+        <div class="relative">
+         <div class="w-12 h-12 gradient-bg-secondary rounded-xl flex items-center justify-center text-white font-black text-xl mb-6 shadow-lg shadow-yellow-500/30">
+          2
+         </div>
+         <div class="text-4xl mb-4">
+          📝
+         </div>
+         <h3 id="feature-2" class="font-bold text-xl text-slate-800 mb-3">Tests ilimitados</h3>
+         <p class="text-slate-600">Miles de preguntas tipo test de exámenes reales. Simulacros cronometrados que replican el examen oficial.</p>
+        </div>
+       </div>
+      </div><!-- Step 3 -->
+      <div class="relative slide-in delay-3">
+       <div class="bg-white rounded-3xl p-8 shadow-xl border border-pink-100 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-pink-100 to-rose-100 rounded-bl-full opacity-70"></div>
+        <div class="relative">
+         <div class="w-12 h-12 gradient-bg-accent rounded-xl flex items-center justify-center text-white font-black text-xl mb-6 shadow-lg shadow-pink-500/30">
+          3
+         </div>
+         <div class="text-4xl mb-4">
+          📖
+         </div>
+         <h3 id="feature-3" class="font-bold text-xl text-slate-800 mb-3">Temario actualizado</h3>
+         <p class="text-slate-600">Contenido revisado por expertos y actualizado con cada cambio legislativo. Nunca estudies información obsoleta.</p>
+        </div>
+       </div>
+      </div>
+     </div><!-- Features Grid -->
+     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
+      <div class="flex items-center gap-4 p-4 bg-white rounded-xl border-2 border-orange-200 slide-in delay-1 card-hover">
+       <div class="w-12 h-12 bg-gradient-to-br from-orange-400 to-red-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-orange-500/30"><span class="text-2xl">🔥</span>
+       </div>
+       <div>
+        <h4 class="font-bold text-slate-800">Rachas diarias</h4>
+        <p class="text-sm text-slate-500">Mantén tu motivación</p>
+       </div>
+      </div>
+      <div class="flex items-center gap-4 p-4 bg-white rounded-xl border-2 border-amber-200 slide-in delay-2 card-hover">
+       <div class="w-12 h-12 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-amber-500/30"><span class="text-2xl">🏆</span>
+       </div>
+       <div>
+        <h4 class="font-bold text-slate-800">Rankings</h4>
+        <p class="text-sm text-slate-500">Compite con otros</p>
+       </div>
+      </div>
+      <div class="flex items-center gap-4 p-4 bg-white rounded-xl border-2 border-blue-200 slide-in delay-3 card-hover">
+       <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/30"><span class="text-2xl">📊</span>
+       </div>
+       <div>
+        <h4 class="font-bold text-slate-800">Estadísticas</h4>
+        <p class="text-sm text-slate-500">Mide tu progreso</p>
+       </div>
+      </div>
+      <div class="flex items-center gap-4 p-4 bg-white rounded-xl border-2 border-purple-200 slide-in delay-4 card-hover">
+       <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-500/30"><span class="text-2xl">💬</span>
+       </div>
+       <div>
+        <h4 class="font-bold text-slate-800">Comunidad</h4>
+        <p class="text-sm text-slate-500">Nunca estudies solo</p>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section><!-- Pricing Section -->
+   <section id="precios" class="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-slate-50 to-white">
+    <div class="max-w-5xl mx-auto">
+     <div class="text-center mb-12 slide-in">
+      <h2 class="text-3xl sm:text-4xl font-black text-slate-800 mb-4">Planes que se adaptan a ti</h2>
+      <p class="text-xl text-slate-600">Empieza gratis, actualiza cuando quieras</p>
+     </div>
+     <div class="grid md:grid-cols-3 gap-8"><!-- Free Plan -->
+      <div class="bg-white rounded-3xl p-8 border-2 border-slate-200 card-hover slide-in delay-1">
+       <div class="text-center mb-6">
+        <h3 class="font-bold text-xl text-slate-800 mb-2">Gratis</h3>
+        <div class="text-4xl font-black text-slate-800">
+         0€
+        </div>
+        <div class="text-slate-500">
+         Para siempre
+        </div>
+       </div>
+       <ul class="space-y-3 mb-8">
+        <li class="flex items-center gap-3 text-slate-600"><span class="text-green-500">✓</span> <span>5 lecciones diarias</span></li>
+        <li class="flex items-center gap-3 text-slate-600"><span class="text-green-500">✓</span> <span>Tests básicos</span></li>
+        <li class="flex items-center gap-3 text-slate-600"><span class="text-green-500">✓</span> <span>1 oposición</span></li>
+        <li class="flex items-center gap-3 text-slate-400"><span>✗</span> <span>Sin simulacros</span></li>
+        <li class="flex items-center gap-3 text-slate-400"><span>✗</span> <span>Sin estadísticas</span></li>
+       </ul><button class="w-full py-3 border-2 border-slate-300 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-colors"> Empezar gratis </button>
+      </div><!-- Pro Mensual Plan -->
+      <div class="gradient-bg-primary rounded-3xl p-8 card-hover shadow-xl shadow-orange-500/40 relative slide-in delay-2 transform scale-105">
+       <div class="absolute -top-4 left-1/2 transform -translate-x-1/2"><span class="px-4 py-1 gradient-bg-secondary text-white font-bold text-sm rounded-full shadow-lg">MÁS POPULAR</span>
+       </div>
+       <div class="text-center mb-6">
+        <h3 class="font-bold text-xl text-white mb-2">Pro</h3>
+        <div class="text-4xl font-black text-white">
+         25€
+        </div>
+        <div class="text-orange-100">
+         al mes
+        </div>
+       </div>
+       <ul class="space-y-3 mb-8">
+        <li class="flex items-center gap-3 text-white"><span>✓</span> <span>Lecciones ilimitadas</span></li>
+        <li class="flex items-center gap-3 text-white"><span>✓</span> <span>Todos los tests</span></li>
+        <li class="flex items-center gap-3 text-white"><span>✓</span> <span>Todas las oposiciones</span></li>
+        <li class="flex items-center gap-3 text-white"><span>✓</span> <span>Simulacros ilimitados</span></li>
+        <li class="flex items-center gap-3 text-white"><span>✓</span> <span>Estadísticas avanzadas</span></li>
+       </ul><button class="w-full py-3 bg-white text-orange-600 font-bold rounded-xl hover:bg-orange-50 transition-colors shadow-lg btn-bounce"> Empezar prueba gratis </button>
+      </div><!-- Pro Anual Plan -->
+      <div class="bg-white rounded-3xl p-8 border-2 border-slate-200 card-hover slide-in delay-3">
+       <div class="text-center mb-6">
+        <h3 class="font-bold text-xl text-slate-800 mb-2">Pro Anual</h3>
+        <div class="text-4xl font-black text-slate-800">
+         200€
+        </div>
+        <div class="text-slate-500">
+         al año
+        </div>
+        <div class="text-sm text-orange-600 font-semibold mt-2">
+         ¡Ahorra 100€!
+        </div>
+       </div>
+       <ul class="space-y-3 mb-8">
+        <li class="flex items-center gap-3 text-slate-600"><span class="text-green-500">✓</span> <span>Lecciones ilimitadas</span></li>
+        <li class="flex items-center gap-3 text-slate-600"><span class="text-green-500">✓</span> <span>Todos los tests</span></li>
+        <li class="flex items-center gap-3 text-slate-600"><span class="text-green-500">✓</span> <span>Todas las oposiciones</span></li>
+        <li class="flex items-center gap-3 text-slate-600"><span class="text-green-500">✓</span> <span>Simulacros ilimitados</span></li>
+        <li class="flex items-center gap-3 text-slate-600"><span class="text-green-500">✓</span> <span>Estadísticas avanzadas</span></li>
+       </ul><button class="w-full py-3 border-2 border-slate-300 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-colors"> Suscribirme ahora </button>
+      </div>
+     </div>
+    </div>
+   </section><!-- CTA Section -->
+   <section class="py-20 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+     <div class="gradient-bg-primary rounded-3xl p-8 sm:p-12 text-center relative overflow-hidden slide-in shadow-2xl shadow-orange-500/30">
+      <div class="absolute top-0 left-0 w-40 h-40 bg-white/10 rounded-full -translate-x-1/2 -translate-y-1/2 floating"></div>
+      <div class="absolute bottom-0 right-0 w-60 h-60 bg-white/10 rounded-full translate-x-1/3 translate-y-1/3 floating" style="animation-delay: 1s"></div>
+      <div class="absolute top-1/2 left-1/4 w-32 h-32 bg-amber-400/20 rounded-full floating" style="animation-delay: 0.5s"></div>
+      <div class="relative">
+       <div class="text-6xl mb-6 floating">
+        🎓
+       </div>
+       <h2 class="text-3xl sm:text-4xl font-black text-white mb-4">Tu plaza te está esperando</h2>
+       <p class="text-xl text-orange-50 mb-8 max-w-2xl mx-auto">Únete a más de 50.000 opositores que ya están preparando su futuro con tufolio. Empieza gratis hoy.</p>
+       <div class="flex flex-col sm:flex-row gap-4 justify-center"><button class="px-8 py-4 bg-white text-orange-600 font-bold text-lg rounded-2xl hover:bg-orange-50 transition-all shadow-xl btn-bounce"> Crear cuenta gratis </button> <button class="px-8 py-4 bg-transparent text-white font-bold text-lg rounded-2xl hover:bg-white/10 transition-all border-2 border-white/50 btn-bounce"> Saber más </button>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section><!-- Footer -->
+   <footer class="bg-slate-900 text-white py-16 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+      <div>
+       <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-600 to-slate-900 flex items-center justify-center">
+         <svg class="w-6 h-6 text-white" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /> <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /> <line x1="12" y1="3" x2="12" y2="21" /> <line x1="6" y1="8" x2="6" y2="8.01" /> <line x1="6" y1="12" x2="6" y2="12.01" /> <line x1="18" y1="8" x2="18" y2="8.01" /> <line x1="18" y1="12" x2="18" y2="12.01" />
+         </svg>
+        </div><span class="text-xl font-black">tufolio<span class="text-slate-400">.es</span></span>
+       </div>
+       <p class="text-slate-400 text-sm">La forma más efectiva y divertida de preparar tus oposiciones.</p>
+      </div>
+      <div>
+       <h4 class="font-bold mb-4">Oposiciones</h4>
+       <ul class="space-y-2 text-slate-400 text-sm">
+        <li><a href="#" class="hover:text-white transition-colors">Justicia</a></li>
+        <li><a href="#" class="hover:text-white transition-colors">Administración</a></li>
+        <li><a href="#" class="hover:text-white transition-colors">Seguridad</a></li>
+        <li><a href="#" class="hover:text-white transition-colors">Sanidad</a></li>
+        <li><a href="#" class="hover:text-white transition-colors">Ver todas</a></li>
+       </ul>
+      </div>
+      <div>
+       <h4 class="font-bold mb-4">Recursos</h4>
+       <ul class="space-y-2 text-slate-400 text-sm">
+        <li><a href="#" class="hover:text-white transition-colors">Blog</a></li>
+        <li><a href="#" class="hover:text-white transition-colors">Convocatorias</a></li>
+        <li><a href="#" class="hover:text-white transition-colors">Comunidad</a></li>
+        <li><a href="#" class="hover:text-white transition-colors">Ayuda</a></li>
+       </ul>
+      </div>
+      <div>
+       <h4 class="font-bold mb-4">Legal</h4>
+       <ul class="space-y-2 text-slate-400 text-sm">
+        <li><a href="#" class="hover:text-white transition-colors">Términos</a></li>
+        <li><a href="#" class="hover:text-white transition-colors">Privacidad</a></li>
+        <li><a href="#" class="hover:text-white transition-colors">Cookies</a></li>
+       </ul>
+      </div>
+     </div>
+     <div class="border-t border-slate-800 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="text-slate-400 text-sm">
+       © 2024 tufolio.es. Todos los derechos reservados.
+      </div>
+      <div class="flex gap-4"><a href="#" class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-slate-700 transition-colors">
+        <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24">
+         <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
+        </svg></a> <a href="#" class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-slate-700 transition-colors">
+        <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24">
+         <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+        </svg></a> <a href="#" class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-slate-700 transition-colors">
+        <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24">
+         <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
+        </svg></a>
+      </div>
+     </div>
+    </div>
+   </footer>
+  </div>
+  <script>
+    const defaultConfig = {
+      hero_title: '¡Tu plaza te espera!',
+      hero_subtitle: 'Prepara tus oposiciones de la mano de más de 10.000 piezas de contenido, video tutoriales, éxamenes e información actualizada.',
+      cta_button_text: 'Empieza gratis',
+      feature_1_title: 'Aprende jugando',
+      feature_2_title: 'Tests ilimitados',
+      feature_3_title: 'Temario actualizado',
+      stat_1_number: '+2.000',
+      stat_2_number: '+100',
+      stat_3_number: '+100.000',
+      background_color: '#f8fafc',
+      surface_color: '#ffffff',
+      text_color: '#1e293b',
+      primary_action_color: '#0f172a',
+      secondary_action_color: '#475569',
+      font_family: 'Merriweather',
+      font_size: 16
+    };
+
+    async function onConfigChange(config) {
+      const heroTitle = document.getElementById('hero-title');
+      if (heroTitle) heroTitle.innerHTML = config.hero_title || defaultConfig.hero_title;
+
+      const heroSubtitle = document.getElementById('hero-subtitle');
+      if (heroSubtitle) heroSubtitle.textContent = config.hero_subtitle || defaultConfig.hero_subtitle;
+
+      const ctaButton = document.getElementById('cta-button');
+      if (ctaButton) {
+        const span = ctaButton.querySelector('span');
+        if (span) span.textContent = config.cta_button_text || defaultConfig.cta_button_text;
+      }
+
+      const feature1 = document.getElementById('feature-1');
+      if (feature1) feature1.textContent = config.feature_1_title || defaultConfig.feature_1_title;
+
+      const feature2 = document.getElementById('feature-2');
+      if (feature2) feature2.textContent = config.feature_2_title || defaultConfig.feature_2_title;
+
+      const feature3 = document.getElementById('feature-3');
+      if (feature3) feature3.textContent = config.feature_3_title || defaultConfig.feature_3_title;
+
+      const stat1 = document.getElementById('stat-1');
+      if (stat1) stat1.textContent = config.stat_1_number || defaultConfig.stat_1_number;
+
+      const stat2 = document.getElementById('stat-2');
+      if (stat2) stat2.textContent = config.stat_2_number || defaultConfig.stat_2_number;
+
+      const stat3 = document.getElementById('stat-3');
+      if (stat3) stat3.textContent = config.stat_3_number || defaultConfig.stat_3_number;
+
+      // Apply colors
+      const bgColor = config.background_color || defaultConfig.background_color;
+      const surfaceColor = config.surface_color || defaultConfig.surface_color;
+      const textColor = config.text_color || defaultConfig.text_color;
+      const primaryColor = config.primary_action_color || defaultConfig.primary_action_color;
+      const secondaryColor = config.secondary_action_color || defaultConfig.secondary_action_color;
+
+      document.body.style.backgroundColor = bgColor;
+      
+      document.querySelectorAll('.bg-white').forEach(el => {
+        el.style.backgroundColor = surfaceColor;
+      });
+
+      document.querySelectorAll('.text-slate-800').forEach(el => {
+        el.style.color = textColor;
+      });
+
+      document.querySelectorAll('.bg-slate-600').forEach(el => {
+        el.style.backgroundColor = primaryColor;
+      });
+
+      document.querySelectorAll('.text-slate-600').forEach(el => {
+        el.style.color = primaryColor;
+      });
+
+      document.querySelectorAll('.text-slate-700').forEach(el => {
+        el.style.color = secondaryColor;
+      });
+
+      // Apply font
+      const fontFamily = config.font_family || defaultConfig.font_family;
+      const baseFontStack = 'serif';
+      document.body.style.fontFamily = `${fontFamily}, ${baseFontStack}`;
+
+      // Apply font size
+      const baseSize = config.font_size || defaultConfig.font_size;
+      document.body.style.fontSize = `${baseSize}px`;
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [
+          {
+            get: () => config.background_color || defaultConfig.background_color,
+            set: (value) => {
+              config.background_color = value;
+              if (window.elementSdk) window.elementSdk.setConfig({ background_color: value });
+            }
+          },
+          {
+            get: () => config.surface_color || defaultConfig.surface_color,
+            set: (value) => {
+              config.surface_color = value;
+              if (window.elementSdk) window.elementSdk.setConfig({ surface_color: value });
+            }
+          },
+          {
+            get: () => config.text_color || defaultConfig.text_color,
+            set: (value) => {
+              config.text_color = value;
+              if (window.elementSdk) window.elementSdk.setConfig({ text_color: value });
+            }
+          },
+          {
+            get: () => config.primary_action_color || defaultConfig.primary_action_color,
+            set: (value) => {
+              config.primary_action_color = value;
+              if (window.elementSdk) window.elementSdk.setConfig({ primary_action_color: value });
+            }
+          },
+          {
+            get: () => config.secondary_action_color || defaultConfig.secondary_action_color,
+            set: (value) => {
+              config.secondary_action_color = value;
+              if (window.elementSdk) window.elementSdk.setConfig({ secondary_action_color: value });
+            }
+          }
+        ],
+        borderables: [],
+        fontEditable: {
+          get: () => config.font_family || defaultConfig.font_family,
+          set: (value) => {
+            config.font_family = value;
+            if (window.elementSdk) window.elementSdk.setConfig({ font_family: value });
+          }
+        },
+        fontSizeable: {
+          get: () => config.font_size || defaultConfig.font_size,
+          set: (value) => {
+            config.font_size = value;
+            if (window.elementSdk) window.elementSdk.setConfig({ font_size: value });
+          }
+        }
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ['hero_title', config.hero_title || defaultConfig.hero_title],
+        ['hero_subtitle', config.hero_subtitle || defaultConfig.hero_subtitle],
+        ['cta_button_text', config.cta_button_text || defaultConfig.cta_button_text],
+        ['feature_1_title', config.feature_1_title || defaultConfig.feature_1_title],
+        ['feature_2_title', config.feature_2_title || defaultConfig.feature_2_title],
+        ['feature_3_title', config.feature_3_title || defaultConfig.feature_3_title],
+        ['stat_1_number', config.stat_1_number || defaultConfig.stat_1_number],
+        ['stat_2_number', config.stat_2_number || defaultConfig.stat_2_number],
+        ['stat_3_number', config.stat_3_number || defaultConfig.stat_3_number]
+      ]);
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c07ad1055fccbba',t:'MTc2ODgzOTgwMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

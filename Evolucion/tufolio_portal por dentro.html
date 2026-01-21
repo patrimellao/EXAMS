@@ -1,0 +1,1214 @@
+<!doctype html>
+<html lang="es" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tufolio - Plataforma de Oposiciones</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    * {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    
+    .gradient-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .nav-item {
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    
+    .nav-item:hover {
+      background-color: rgba(102, 126, 234, 0.1);
+      transform: translateX(4px);
+    }
+    
+    .nav-item.active {
+      background-color: rgba(102, 126, 234, 0.15);
+      color: #667eea;
+      font-weight: 700;
+    }
+    
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 70%;
+      background: #667eea;
+      border-radius: 0 4px 4px 0;
+    }
+    
+    .page-content {
+      display: none;
+    }
+    
+    .page-content.active {
+      display: block;
+    }
+    
+    .stat-card {
+      transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    }
+    
+    .oposicion-card {
+      transition: all 0.3s ease;
+    }
+    
+    .oposicion-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    }
+    
+    .news-card {
+      transition: all 0.3s ease;
+    }
+    
+    .news-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .news-image {
+      transition: all 0.3s ease;
+    }
+    
+    .news-card:hover .news-image {
+      transform: scale(1.05);
+    }
+    
+    .filter-btn {
+      transition: all 0.2s ease;
+    }
+    
+    .filter-btn.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      font-weight: 700;
+    }
+    
+    .blog-card {
+      transition: all 0.3s ease;
+    }
+    
+    .blog-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .blog-image {
+      transition: all 0.3s ease;
+    }
+    
+    .blog-card:hover .blog-image {
+      transform: scale(1.05);
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.6s ease-out forwards;
+      opacity: 0;
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+    .delay-5 { animation-delay: 0.5s; }
+    .delay-6 { animation-delay: 0.6s; }
+    
+    .toggle-checkbox:checked {
+      background-color: #667eea;
+      border-color: #667eea;
+    }
+    
+    .toggle-checkbox:checked + .toggle-label {
+      transform: translateX(1.5rem);
+    }
+    
+    .input-field:focus, .search-input:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      border-color: #667eea;
+    }
+    
+    .profile-photo {
+      transition: all 0.3s ease;
+    }
+    
+    .profile-photo:hover {
+      transform: scale(1.05);
+    }
+    
+    .success-message {
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-gray-50 overflow-auto">
+  <div id="app-wrapper" class="w-full h-full flex"><!-- Sidebar -->
+   <aside class="hidden lg:flex flex-col w-72 bg-white border-r border-gray-200 h-full fixed">
+    <div class="p-6 border-b border-gray-200"><a href="#" class="flex items-center gap-2" onclick="navigateTo('inicio', event)">
+      <div class="w-11 h-11 rounded-xl gradient-primary flex items-center justify-center shadow-lg">
+       <svg class="w-6 h-6 text-white" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /> <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+       </svg>
+      </div><span id="brand-name" class="text-2xl font-black text-gray-800">tufolio</span> </a>
+    </div>
+    <nav class="flex-1 p-4 overflow-y-auto">
+     <div class="space-y-1"><a href="#" class="nav-item active flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700" data-page="inicio" onclick="navigateTo('inicio', event)">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+       </svg><span>Inicio</span> </a> <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700" data-page="oposiciones" onclick="navigateTo('oposiciones', event)">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+       </svg><span>Oposiciones</span> </a> <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700" data-page="noticias" onclick="navigateTo('noticias', event)">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+       </svg><span>Noticias</span> </a> <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700" data-page="blog" onclick="navigateTo('blog', event)">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+       </svg><span>Blog</span> </a> <a href="#" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700" data-page="configuracion" onclick="navigateTo('configuracion', event)">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+       </svg><span>Configuración</span> </a>
+     </div>
+    </nav><!-- User Profile -->
+    <div class="p-4 border-t border-gray-200">
+     <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors">
+      <div class="w-11 h-11 gradient-primary rounded-full flex items-center justify-center text-white font-bold text-lg">
+       JP
+      </div>
+      <div class="flex-1 min-w-0">
+       <div id="user-name" class="font-bold text-gray-900 truncate">
+        Juan Pérez
+       </div>
+       <div id="user-level" class="text-sm text-gray-500 truncate">
+        Nivel 12 ⭐ 2,450 XP
+       </div>
+      </div>
+     </div>
+    </div>
+   </aside><!-- Main Content -->
+   <main class="flex-1 lg:ml-72 w-full"><!-- Header -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-40">
+     <div class="px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex items-center justify-between">
+       <div class="flex-1 max-w-2xl">
+        <div class="relative" id="search-container"><input type="text" id="search-input" placeholder="Buscar..." class="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 search-input transition-all" oninput="handleSearch()">
+         <svg class="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+         </svg>
+        </div>
+       </div>
+       <div class="flex items-center gap-3 ml-4"><button class="relative p-3 rounded-xl hover:bg-gray-100 transition-colors">
+         <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+         </svg><span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span> </button> <button class="lg:hidden p-3 rounded-xl hover:bg-gray-100 transition-colors">
+         <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+         </svg></button>
+       </div>
+      </div>
+     </div>
+    </header><!-- PÁGINA INICIO -->
+    <div id="page-inicio" class="page-content active">
+     <div class="px-4 sm:px-6 lg:px-8 py-8">
+      <div class="mb-8 fade-in">
+       <h1 id="home-title" class="text-4xl font-black text-gray-900 mb-2">¡Hola, Juan! 👋</h1>
+       <p id="home-subtitle" class="text-lg text-gray-600">Bienvenido de nuevo a tu espacio de estudio</p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+       <div class="stat-card bg-white rounded-2xl p-6 border border-gray-200 fade-in delay-1">
+        <div class="flex items-center justify-between mb-4">
+         <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
+          <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+         </div><span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full">+12%</span>
+        </div>
+        <h3 class="text-3xl font-black text-gray-900 mb-1">24h 30m</h3>
+        <p class="text-sm text-gray-600 font-semibold">Horas estudiadas</p>
+       </div>
+       <div class="stat-card bg-white rounded-2xl p-6 border border-gray-200 fade-in delay-2">
+        <div class="flex items-center justify-between mb-4">
+         <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
+          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+         </div><span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full">+8</span>
+        </div>
+        <h3 class="text-3xl font-black text-gray-900 mb-1">142/200</h3>
+        <p class="text-sm text-gray-600 font-semibold">Temas completados</p>
+       </div>
+       <div class="stat-card bg-white rounded-2xl p-6 border border-gray-200 fade-in delay-3">
+        <div class="flex items-center justify-between mb-4">
+         <div class="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
+          <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+         </div><span class="text-xs font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-full">Racha</span>
+        </div>
+        <h3 class="text-3xl font-black text-gray-900 mb-1">15 días</h3>
+        <p class="text-sm text-gray-600 font-semibold">Sin faltar</p>
+       </div>
+       <div class="stat-card bg-white rounded-2xl p-6 border border-gray-200 fade-in delay-4">
+        <div class="flex items-center justify-between mb-4">
+         <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
+          <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+         </div><span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">Top 10%</span>
+        </div>
+        <h3 class="text-3xl font-black text-gray-900 mb-1">87%</h3>
+        <p class="text-sm text-gray-600 font-semibold">Precisión tests</p>
+       </div>
+      </div>
+      <div class="grid lg:grid-cols-3 gap-6">
+       <div class="lg:col-span-2">
+        <div class="bg-white rounded-2xl p-6 border border-gray-200 fade-in delay-5">
+         <h2 class="text-2xl font-black text-gray-900 mb-6">Continúa donde lo dejaste</h2>
+         <div class="space-y-4">
+          <div class="flex items-center gap-4 p-4 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors border border-gray-100">
+           <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-purple-400 to-pink-500 flex-shrink-0"></div>
+           <div class="flex-1 min-w-0">
+            <h3 class="font-bold text-gray-900 mb-1">Tema 23: Derecho Administrativo</h3>
+            <p class="text-sm text-gray-600 mb-2">Última sesión: Hace 2 horas</p>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+             <div class="bg-purple-600 h-2 rounded-full" style="width: 65%"></div>
+            </div>
+           </div>
+          </div>
+          <div class="flex items-center gap-4 p-4 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors border border-gray-100">
+           <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-400 to-cyan-500 flex-shrink-0"></div>
+           <div class="flex-1 min-w-0">
+            <h3 class="font-bold text-gray-900 mb-1">Test de repaso - Bloque 3</h3>
+            <p class="text-sm text-gray-600 mb-2">45 preguntas pendientes</p>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+             <div class="bg-blue-600 h-2 rounded-full" style="width: 40%"></div>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div>
+        <div class="bg-white rounded-2xl p-6 border border-gray-200 fade-in delay-6">
+         <h2 class="text-2xl font-black text-gray-900 mb-6">Objetivos semanales</h2>
+         <div class="space-y-4">
+          <div>
+           <div class="flex items-center justify-between mb-2"><span class="text-sm font-bold text-gray-700">Estudiar 20 horas</span> <span class="text-sm font-bold text-purple-600">16/20h</span>
+           </div>
+           <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-purple-600 h-2 rounded-full" style="width: 80%"></div>
+           </div>
+          </div>
+          <div>
+           <div class="flex items-center justify-between mb-2"><span class="text-sm font-bold text-gray-700">Completar 10 temas</span> <span class="text-sm font-bold text-blue-600">7/10</span>
+           </div>
+           <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-blue-600 h-2 rounded-full" style="width: 70%"></div>
+           </div>
+          </div>
+          <div>
+           <div class="flex items-center justify-between mb-2"><span class="text-sm font-bold text-gray-700">Hacer 5 tests</span> <span class="text-sm font-bold text-green-600">5/5 ✓</span>
+           </div>
+           <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-green-600 h-2 rounded-full" style="width: 100%"></div>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div><!-- PÁGINA OPOSICIONES -->
+    <div id="page-oposiciones" class="page-content">
+     <div class="px-4 sm:px-6 lg:px-8 py-8">
+      <div class="mb-8 fade-in">
+       <h1 class="text-4xl font-black text-gray-900 mb-2">Explora oposiciones</h1>
+       <p class="text-lg text-gray-600">Encuentra la oposición perfecta para ti</p>
+      </div>
+      <div class="flex items-center gap-3 mb-8 overflow-x-auto pb-2 fade-in"><button class="filter-btn active px-5 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl whitespace-nowrap" onclick="filterOposiciones('all', event)"> Todas </button> <button class="filter-btn px-5 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl whitespace-nowrap" onclick="filterOposiciones('administracion', event)"> Administración </button> <button class="filter-btn px-5 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl whitespace-nowrap" onclick="filterOposiciones('justicia', event)"> Justicia </button> <button class="filter-btn px-5 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl whitespace-nowrap" onclick="filterOposiciones('seguridad', event)"> Seguridad </button>
+      </div>
+      <div id="oposiciones-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+       <article class="oposicion-card bg-white rounded-2xl overflow-hidden border border-gray-200 fade-in delay-1" data-category="administracion">
+        <div class="p-6">
+         <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-full">Administración</span> <span class="text-xs text-gray-500">📊 1,200 plazas</span>
+         </div>
+         <h3 class="text-xl font-black text-gray-900 mb-2">RTVE - Radio Televisión Española</h3>
+         <p class="text-sm text-gray-600 mb-4">Acceso al cuerpo de RTVE con oportunidades en diferentes categorías profesionales.</p>
+         <div class="flex items-center justify-between"><span class="text-xs text-gray-500 font-semibold">⏱️ Plazo: 30 días</span> <button class="text-purple-600 font-bold text-sm hover:text-purple-700 transition-colors"> Ver más → </button>
+         </div>
+        </div>
+       </article>
+       <article class="oposicion-card bg-white rounded-2xl overflow-hidden border border-gray-200 fade-in delay-2" data-category="justicia">
+        <div class="p-6">
+         <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">Justicia</span> <span class="text-xs text-gray-500">📊 800 plazas</span>
+         </div>
+         <h3 class="text-xl font-black text-gray-900 mb-2">Auxilio Judicial</h3>
+         <p class="text-sm text-gray-600 mb-4">Cuerpo de Auxilio Judicial de la Administración de Justicia. Gran demanda.</p>
+         <div class="flex items-center justify-between"><span class="text-xs text-gray-500 font-semibold">⏱️ Plazo: 45 días</span> <button class="text-purple-600 font-bold text-sm hover:text-purple-700 transition-colors"> Ver más → </button>
+         </div>
+        </div>
+       </article>
+       <article class="oposicion-card bg-white rounded-2xl overflow-hidden border border-gray-200 fade-in delay-3" data-category="administracion">
+        <div class="p-6">
+         <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-full">Administración</span> <span class="text-xs text-gray-500">📊 2,500 plazas</span>
+         </div>
+         <h3 class="text-xl font-black text-gray-900 mb-2">Hacienda - Agencia Tributaria</h3>
+         <p class="text-sm text-gray-600 mb-4">Uno de los procesos más demandados con excelentes condiciones laborales.</p>
+         <div class="flex items-center justify-between"><span class="text-xs text-gray-500 font-semibold">⏱️ Plazo: 60 días</span> <button class="text-purple-600 font-bold text-sm hover:text-purple-700 transition-colors"> Ver más → </button>
+         </div>
+        </div>
+       </article>
+       <article class="oposicion-card bg-white rounded-2xl overflow-hidden border border-gray-200 fade-in delay-4" data-category="administracion">
+        <div class="p-6">
+         <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-full">Administración</span> <span class="text-xs text-gray-500">📊 3,000 plazas</span>
+         </div>
+         <h3 class="text-xl font-black text-gray-900 mb-2">Correos y Telégrafos</h3>
+         <p class="text-sm text-gray-600 mb-4">Personal de reparto y atención al cliente. Proceso abierto durante todo el año.</p>
+         <div class="flex items-center justify-between"><span class="text-xs text-gray-500 font-semibold">⏱️ Plazo: Abierto</span> <button class="text-purple-600 font-bold text-sm hover:text-purple-700 transition-colors"> Ver más → </button>
+         </div>
+        </div>
+       </article>
+       <article class="oposicion-card bg-white rounded-2xl overflow-hidden border border-gray-200 fade-in delay-5" data-category="seguridad">
+        <div class="p-6">
+         <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full">Seguridad</span> <span class="text-xs text-gray-500">📊 1,500 plazas</span>
+         </div>
+         <h3 class="text-xl font-black text-gray-900 mb-2">Policía Nacional</h3>
+         <p class="text-sm text-gray-600 mb-4">Accede al Cuerpo Nacional de Policía. Requisitos físicos y teóricos.</p>
+         <div class="flex items-center justify-between"><span class="text-xs text-gray-500 font-semibold">⏱️ Plazo: 30 días</span> <button class="text-purple-600 font-bold text-sm hover:text-purple-700 transition-colors"> Ver más → </button>
+         </div>
+        </div>
+       </article>
+       <article class="oposicion-card bg-white rounded-2xl overflow-hidden border border-gray-200 fade-in delay-6" data-category="seguridad">
+        <div class="p-6">
+         <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full">Seguridad</span> <span class="text-xs text-gray-500">📊 2,000 plazas</span>
+         </div>
+         <h3 class="text-xl font-black text-gray-900 mb-2">Guardia Civil</h3>
+         <p class="text-sm text-gray-600 mb-4">Ingreso en el Instituto Armado. Formación completa durante el proceso.</p>
+         <div class="flex items-center justify-between"><span class="text-xs text-gray-500 font-semibold">⏱️ Plazo: 45 días</span> <button class="text-purple-600 font-bold text-sm hover:text-purple-700 transition-colors"> Ver más → </button>
+         </div>
+        </div>
+       </article>
+      </div>
+     </div>
+    </div><!-- PÁGINA NOTICIAS -->
+    <div id="page-noticias" class="page-content">
+     <div class="px-4 sm:px-6 lg:px-8 py-8">
+      <div class="mb-8 fade-in">
+       <h1 class="text-4xl font-black text-gray-900 mb-2">Últimas noticias</h1>
+       <p class="text-lg text-gray-600">Mantente al día con las novedades en oposiciones</p>
+      </div>
+      <div class="flex items-center gap-3 mb-8 overflow-x-auto pb-2 fade-in"><button class="filter-btn active px-5 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl whitespace-nowrap" onclick="filterNews('all', event)"> Todas </button> <button class="filter-btn px-5 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl whitespace-nowrap" onclick="filterNews('convocatorias', event)"> Convocatorias </button> <button class="filter-btn px-5 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl whitespace-nowrap" onclick="filterNews('normativa', event)"> Normativa </button> <button class="filter-btn px-5 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl whitespace-nowrap" onclick="filterNews('consejos', event)"> Consejos </button>
+      </div>
+      <div class="mb-6 fade-in">
+       <p class="text-sm text-gray-600">Mostrando <span id="news-results-count" class="font-bold text-gray-900">9</span> artículos</p>
+      </div>
+      <div id="news-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+       <article class="news-card bg-white rounded-2xl overflow-hidden border border-gray-200 fade-in delay-1" data-category="convocatorias" data-title="nueva convocatoria rtve plazas radio televisión">
+        <div class="overflow-hidden">
+         <div class="news-image w-full h-48 bg-gradient-to-br from-red-400 to-pink-500"></div>
+        </div>
+        <div class="p-6">
+         <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full">Convocatoria</span> <span class="text-xs text-gray-500">Hace 2 horas</span>
+         </div>
+         <h3 class="text-xl font-black text-gray-900 mb-2">Nueva convocatoria RTVE para 2024</h3>
+         <p class="text-sm text-gray-600 mb-4">Se esperan más de 150 plazas para diferentes categorías. Conoce todos los detalles de esta importante convocatoria.</p>
+         <div class="flex items-center justify-between"><span class="text-xs text-gray-500 font-semibold">📖 5 min lectura</span> <button class="text-purple-600 font-bold text-sm hover:text-purple-700 transition-colors"> Leer más → </button>
+         </div>
+        </div>
+       </article>
+       <article class="news-card bg-white rounded-2xl overflow-hidden border border-gray-200 fade-in delay-2" data-category="normativa" data-title="cambios exámenes justicia auxilio judicial tramitación">
+        <div class="overflow-hidden">
+         <div class="news-image w-full h-48 bg-gradient-to-br from-blue-400 to-indigo-500"></div>
+        </div>
+        <div class="p-6">
+         <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">Normativa</span> <span class="text-xs text-gray-500">Hace 5 horas</span>
+         </div>
+         <h3 class="text-xl font-black text-gray-900 mb-2">Cambios en los exámenes de Justicia</h3>
+         <p class="text-sm text-gray-600 mb-4">Actualización importante sobre el formato de examen para Auxilio Judicial y Tramitación Procesal.</p>
+         <div class="flex items-center justify-between"><span class="text-xs text-gray-500 font-semibold">📖 4 min lectura</span> <button class="text-purple-600 font-bold text-sm hover:text-purple-700 transition-colors"> Leer más → </button>
+         </div>
+        </div>
+       </article>
+       <article class="news-card bg-white rounded-2xl overflow-hidden border border-gray-200 fade-in delay-3" data-category="consejos" data-title="guía completa preparar oposiciones técnicas estudio">
+        <div class="overflow-hidden">
+         <div class="news-image w-full h-48 bg-gradient-to-br from-green-400 to-emerald-500"></div>
+        </div>
+        <div class="p-6">
+         <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">Consejos</span> <span class="text-xs text-gray-500">Hace 1 día</span>
+         </div>
+         <h3 class="text-xl font-black text-gray-900 mb-2">Guía completa para preparar oposiciones</h3>
+         <p class="text-sm text-gray-600 mb-4">Las mejores técnicas de estudio y planificación para aumentar tus posibilidades de éxito.</p>
+         <div class="flex items-center justify-between"><span class="text-xs text-gray-500 font-semibold">📖 8 min lectura</span> <button class="text-purple-600 font-bold text-sm hover:text-purple-700 transition-colors"> Leer más → </button>
+         </div>
+        </div>
+       </article>
+       <article class="news-card bg-white rounded-2xl overflow-hidden border border-gray-200 fade-in delay-4" data-category="convocatorias" data-title="hacienda agencia tributaria oposiciones plazas">
+        <div class="overflow-hidden">
+         <div class="news-image w-full h-48 bg-gradient-to-br from-yellow-400 to-orange-500"></div>
+        </div>
+        <div class="p-6">
+         <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full">Convocatoria</span> <span class="text-xs text-gray-500">Hace 1 día</span>
+         </div>
+         <h3 class="text-xl font-black text-gray-900 mb-2">Hacienda anuncia nuevas plazas</h3>
+         <p class="text-sm text-gray-600 mb-4">La Agencia Tributaria prepara una gran oferta de empleo público para los próximos meses.</p>
+         <div class="flex items-center justify-between"><span class="text-xs text-gray-500 font-semibold">📖 3 min lectura</span> <button class="text-purple-600 font-bold text-sm hover:text-purple-700 transition-colors"> Leer más → </button>
+         </div>
+        </div>
+       </article>
+       <article class="news-card bg-white rounded-2xl overflow-hidden border border-gray-200 fade-in delay-5" data-category="consejos" data-title="técnicas memorización retención información estudio">
+        <div class="overflow-hidden">
+         <div class="news-image w-full h-48 bg-gradient-to-br from-purple-400 to-pink-500"></div>
+        </div>
+        <div class="p-6">
+         <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">Consejos</span> <span class="text-xs text-gray-500">Hace 2 días</span>
+         </div>
+         <h3 class="text-xl font-black text-gray-900 mb-2">Técnicas de memorización efectivas</h3>
+         <p class="text-sm text-gray-600 mb-4">Descubre métodos probados para mejorar tu retención de información y optimizar tu estudio.</p>
+         <div class="flex items-center justify-between"><span class="text-xs text-gray-500 font-semibold">📖 6 min lectura</span> <button class="text-purple-600 font-bold text-sm hover:text-purple-700 transition-colors"> Leer más → </button>
+         </div>
+        </div>
+       </article>
+       <article class="news-card bg-white rounded-2xl overflow-hidden border border-gray-200 fade-in delay-6" data-category="normativa" data-title="reforma ley administración pública cambios">
+        <div class="overflow-hidden">
+         <div class="news-image w-full h-48 bg-gradient-to-br from-cyan-400 to-blue-500"></div>
+        </div>
+        <div class="p-6">
+         <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">Normativa</span> <span class="text-xs text-gray-500">Hace 3 días</span>
+         </div>
+         <h3 class="text-xl font-black text-gray-900 mb-2">Reforma de la Ley de Administración</h3>
+         <p class="text-sm text-gray-600 mb-4">Conoce los cambios normativos que afectarán a las próximas convocatorias de oposiciones.</p>
+         <div class="flex items-center justify-between"><span class="text-xs text-gray-500 font-semibold">📖 7 min lectura</span> <button class="text-purple-600 font-bold text-sm hover:text-purple-700 transition-colors"> Leer más → </button>
+         </div>
+        </div>
+       </article>
+       <article class="news-card bg-white rounded-2xl overflow-hidden border border-gray-200 fade-in delay-1" data-category="convocatorias" data-title="correos plazas reparto atención cliente">
+        <div class="overflow-hidden">
+         <div class="news-image w-full h-48 bg-gradient-to-br from-amber-400 to-yellow-500"></div>
+        </div>
+        <div class="p-6">
+         <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full">Convocatoria</span> <span class="text-xs text-gray-500">Hace 3 días</span>
+         </div>
+         <h3 class="text-xl font-black text-gray-900 mb-2">Correos abre proceso selectivo</h3>
+         <p class="text-sm text-gray-600 mb-4">Más de 1.000 plazas disponibles para personal de reparto y atención al cliente.</p>
+         <div class="flex items-center justify-between"><span class="text-xs text-gray-500 font-semibold">📖 4 min lectura</span> <button class="text-purple-600 font-bold text-sm hover:text-purple-700 transition-colors"> Leer más → </button>
+         </div>
+        </div>
+       </article>
+       <article class="news-card bg-white rounded-2xl overflow-hidden border border-gray-200 fade-in delay-2" data-category="consejos" data-title="gestión ansiedad estrés examen oposiciones">
+        <div class="overflow-hidden">
+         <div class="news-image w-full h-48 bg-gradient-to-br from-teal-400 to-cyan-500"></div>
+        </div>
+        <div class="p-6">
+         <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">Consejos</span> <span class="text-xs text-gray-500">Hace 4 días</span>
+         </div>
+         <h3 class="text-xl font-black text-gray-900 mb-2">Cómo gestionar la ansiedad pre-examen</h3>
+         <p class="text-sm text-gray-600 mb-4">Estrategias psicológicas para mantener la calma y rendir al máximo el día del examen.</p>
+         <div class="flex items-center justify-between"><span class="text-xs text-gray-500 font-semibold">📖 5 min lectura</span> <button class="text-purple-600 font-bold text-sm hover:text-purple-700 transition-colors"> Leer más → </button>
+         </div>
+        </div>
+       </article>
+       <article class="news-card bg-white rounded-2xl overflow-hidden border border-gray-200 fade-in delay-3" data-category="normativa" data-title="baremo méritos puntuación oposiciones actualización">
+        <div class="overflow-hidden">
+         <div class="news-image w-full h-48 bg-gradient-to-br from-violet-400 to-purple-500"></div>
+        </div>
+        <div class="p-6">
+         <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">Normativa</span> <span class="text-xs text-gray-500">Hace 5 días</span>
+         </div>
+         <h3 class="text-xl font-black text-gray-900 mb-2">Actualización del baremo de méritos</h3>
+         <p class="text-sm text-gray-600 mb-4">Nuevos criterios de puntuación que debes conocer para la fase de concurso.</p>
+         <div class="flex items-center justify-between"><span class="text-xs text-gray-500 font-semibold">📖 6 min lectura</span> <button class="text-purple-600 font-bold text-sm hover:text-purple-700 transition-colors"> Leer más → </button>
+         </div>
+        </div>
+       </article>
+      </div>
+     </div>
+    </div><!-- PÁGINA BLOG -->
+    <div id="page-blog" class="page-content">
+     <div class="px-4 sm:px-6 lg:px-8 py-8">
+      <div class="mb-8 fade-in">
+       <h1 class="text-4xl font-black text-gray-900 mb-2">Blog de Oposiciones</h1>
+       <p class="text-lg text-gray-600">Artículos, consejos y recursos para tu preparación</p>
+      </div>
+      <div class="flex items-center gap-3 mb-8 overflow-x-auto pb-2 fade-in"><button class="filter-btn active px-5 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl whitespace-nowrap" onclick="filterBlog('all', event)"> Todos </button> <button class="filter-btn px-5 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl whitespace-nowrap" onclick="filterBlog('guias', event)"> Guías </button> <button class="filter-btn px-5 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl whitespace-nowrap" onclick="filterBlog('experiencias', event)"> Experiencias </button> <button class="filter-btn px-5 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl whitespace-nowrap" onclick="filterBlog('recursos', event)"> Recursos </button>
+      </div>
+      <div class="mb-6 fade-in">
+       <p class="text-sm text-gray-600">Mostrando <span id="blog-results-count" class="font-bold text-gray-900">9</span> artículos</p>
+      </div>
+      <div id="blog-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+       <article class="blog-card bg-white rounded-2xl overflow-hidden border border-gray-200 fade-in delay-1" data-category="guias" data-title="planificación estudio oposiciones calendario horarios">
+        <div class="overflow-hidden">
+         <div class="blog-image w-full h-48 bg-gradient-to-br from-indigo-400 to-purple-500"></div>
+        </div>
+        <div class="p-6">
+         <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-full">Guía</span> <span class="text-xs text-gray-500">15 Mar 2024</span>
+         </div>
+         <h3 class="text-xl font-black text-gray-900 mb-2">Cómo planificar tu estudio de oposiciones</h3>
+         <p class="text-sm text-gray-600 mb-4">Aprende a crear un calendario de estudio efectivo que maximice tu rendimiento y evite el agotamiento.</p>
+         <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+           <div class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-pink-500"></div><span class="text-xs font-semibold text-gray-700">Ana García</span>
+          </div><button class="text-purple-600 font-bold text-sm hover:text-purple-700 transition-colors"> Leer → </button>
+         </div>
+        </div>
+       </article>
+       <article class="blog-card bg-white rounded-2xl overflow-hidden border border-gray-200 fade-in delay-2" data-category="experiencias" data-title="mi experiencia aprobando justicia auxilio judicial">
+        <div class="overflow-hidden">
+         <div class="blog-image w-full h-48 bg-gradient-to-br from-emerald-400 to-teal-500"></div>
+        </div>
+        <div class="p-6">
+         <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">Experiencia</span> <span class="text-xs text-gray-500">12 Mar 2024</span>
+         </div>
+         <h3 class="text-xl font-black text-gray-900 mb-2">Mi experiencia aprobando Justicia</h3>
+         <p class="text-sm text-gray-600 mb-4">Historia real de cómo preparé y aprobé las oposiciones de Auxilio Judicial en mi segundo intento.</p>
+         <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+           <div class="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-emerald-500"></div><span class="text-xs font-semibold text-gray-700">Carlos López</span>
+          </div><button class="text-purple-600 font-bold text-sm hover:text-purple-700 transition-colors"> Leer → </button>
+         </div>
+        </div>
+       </article>
+       <article class="blog-card bg-white rounded-2xl overflow-hidden border border-gray-200 fade-in delay-3" data-category="recursos" data-title="mejores aplicaciones apps estudiar oposiciones productividad">
+        <div class="overflow-hidden">
+         <div class="blog-image w-full h-48 bg-gradient-to-br from-blue-400 to-cyan-500"></div>
+        </div>
+        <div class="p-6">
+         <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">Recursos</span> <span class="text-xs text-gray-500">10 Mar 2024</span>
+         </div>
+         <h3 class="text-xl font-black text-gray-900 mb-2">Las mejores apps para estudiar oposiciones</h3>
+         <p class="text-sm text-gray-600 mb-4">Descubre las aplicaciones más útiles para organizar tu estudio, hacer tests y mejorar tu productividad.</p>
+         <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+           <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500"></div><span class="text-xs font-semibold text-gray-700">Laura Martín</span>
+          </div><button class="text-purple-600 font-bold text-sm hover:text-purple-700 transition-colors"> Leer → </button>
+         </div>
+        </div>
+       </article>
+       <article class="blog-card bg-white rounded-2xl overflow-hidden border border-gray-200 fade-in delay-4" data-category="guias" data-title="técnica pomodoro estudiar concentración descansos">
+        <div class="overflow-hidden">
+         <div class="blog-image w-full h-48 bg-gradient-to-br from-rose-400 to-red-500"></div>
+        </div>
+        <div class="p-6">
+         <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-full">Guía</span> <span class="text-xs text-gray-500">8 Mar 2024</span>
+         </div>
+         <h3 class="text-xl font-black text-gray-900 mb-2">La técnica Pomodoro aplicada al estudio</h3>
+         <p class="text-sm text-gray-600 mb-4">Aumenta tu concentración y productividad usando esta técnica de gestión del tiempo probada.</p>
+         <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+           <div class="w-8 h-8 rounded-full bg-gradient-to-br from-red-400 to-pink-500"></div><span class="text-xs font-semibold text-gray-700">Miguel Ruiz</span>
+          </div><button class="text-purple-600 font-bold text-sm hover:text-purple-700 transition-colors"> Leer → </button>
+         </div>
+        </div>
+       </article>
+       <article class="blog-card bg-white rounded-2xl overflow-hidden border border-gray-200 fade-in delay-5" data-category="experiencias" data-title="conciliar trabajo estudio oposiciones gestión tiempo">
+        <div class="overflow-hidden">
+         <div class="blog-image w-full h-48 bg-gradient-to-br from-amber-400 to-orange-500"></div>
+        </div>
+        <div class="p-6">
+         <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">Experiencia</span> <span class="text-xs text-gray-500">5 Mar 2024</span>
+         </div>
+         <h3 class="text-xl font-black text-gray-900 mb-2">Cómo conciliar trabajo y estudio</h3>
+         <p class="text-sm text-gray-600 mb-4">Consejos prácticos para estudiar oposiciones mientras trabajas a jornada completa.</p>
+         <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+           <div class="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500"></div><span class="text-xs font-semibold text-gray-700">Sandra Díaz</span>
+          </div><button class="text-purple-600 font-bold text-sm hover:text-purple-700 transition-colors"> Leer → </button>
+         </div>
+        </div>
+       </article>
+       <article class="blog-card bg-white rounded-2xl overflow-hidden border border-gray-200 fade-in delay-6" data-category="recursos" data-title="temarios actualizados dónde encontrar legales boe">
+        <div class="overflow-hidden">
+         <div class="blog-image w-full h-48 bg-gradient-to-br from-violet-400 to-purple-500"></div>
+        </div>
+        <div class="p-6">
+         <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">Recursos</span> <span class="text-xs text-gray-500">3 Mar 2024</span>
+         </div>
+         <h3 class="text-xl font-black text-gray-900 mb-2">Dónde encontrar temarios actualizados</h3>
+         <p class="text-sm text-gray-600 mb-4">Los mejores sitios web y recursos gratuitos para mantenerte al día con los cambios legales.</p>
+         <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+           <div class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-violet-500"></div><span class="text-xs font-semibold text-gray-700">Pedro Sánchez</span>
+          </div><button class="text-purple-600 font-bold text-sm hover:text-purple-700 transition-colors"> Leer → </button>
+         </div>
+        </div>
+       </article>
+       <article class="blog-card bg-white rounded-2xl overflow-hidden border border-gray-200 fade-in delay-1" data-category="guias" data-title="alimentación dieta cerebro rendimiento estudio">
+        <div class="overflow-hidden">
+         <div class="blog-image w-full h-48 bg-gradient-to-br from-lime-400 to-green-500"></div>
+        </div>
+        <div class="p-6">
+         <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-full">Guía</span> <span class="text-xs text-gray-500">1 Mar 2024</span>
+         </div>
+         <h3 class="text-xl font-black text-gray-900 mb-2">Alimentación para un mejor rendimiento</h3>
+         <p class="text-sm text-gray-600 mb-4">Qué comer para mejorar tu concentración, memoria y energía durante la preparación.</p>
+         <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+           <div class="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-lime-500"></div><span class="text-xs font-semibold text-gray-700">Elena Torres</span>
+          </div><button class="text-purple-600 font-bold text-sm hover:text-purple-700 transition-colors"> Leer → </button>
+         </div>
+        </div>
+       </article>
+       <article class="blog-card bg-white rounded-2xl overflow-hidden border border-gray-200 fade-in delay-2" data-category="experiencias" data-title="fracasé primera vez aprendí lecciones oposiciones">
+        <div class="overflow-hidden">
+         <div class="blog-image w-full h-48 bg-gradient-to-br from-pink-400 to-rose-500"></div>
+        </div>
+        <div class="p-6">
+         <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full">Experiencia</span> <span class="text-xs text-gray-500">28 Feb 2024</span>
+         </div>
+         <h3 class="text-xl font-black text-gray-900 mb-2">Por qué fracasé la primera vez (y qué aprendí)</h3>
+         <p class="text-sm text-gray-600 mb-4">Errores comunes que cometí en mi primera oposición y cómo los superé para aprobar.</p>
+         <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+           <div class="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-purple-500"></div><span class="text-xs font-semibold text-gray-700">Roberto Vega</span>
+          </div><button class="text-purple-600 font-bold text-sm hover:text-purple-700 transition-colors"> Leer → </button>
+         </div>
+        </div>
+       </article>
+       <article class="blog-card bg-white rounded-2xl overflow-hidden border border-gray-200 fade-in delay-3" data-category="recursos" data-title="canales youtube podcasts oposiciones contenido audiovisual">
+        <div class="overflow-hidden">
+         <div class="blog-image w-full h-48 bg-gradient-to-br from-cyan-400 to-blue-500"></div>
+        </div>
+        <div class="p-6">
+         <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">Recursos</span> <span class="text-xs text-gray-500">25 Feb 2024</span>
+         </div>
+         <h3 class="text-xl font-black text-gray-900 mb-2">Canales de YouTube y podcasts imprescindibles</h3>
+         <p class="text-sm text-gray-600 mb-4">Contenido audiovisual de calidad para complementar tu estudio y aprovechar tiempos muertos.</p>
+         <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+           <div class="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500"></div><span class="text-xs font-semibold text-gray-700">Marta Jiménez</span>
+          </div><button class="text-purple-600 font-bold text-sm hover:text-purple-700 transition-colors"> Leer → </button>
+         </div>
+        </div>
+       </article>
+      </div>
+     </div>
+    </div><!-- PÁGINA CONFIGURACIÓN -->
+    <div id="page-configuracion" class="page-content">
+     <div class="px-4 sm:px-6 lg:px-8 py-8 max-w-4xl">
+      <section class="mb-8 fade-in delay-1">
+       <div class="bg-white rounded-2xl p-6 border border-gray-200">
+        <h2 class="text-2xl font-black text-gray-900 mb-6">Perfil de Usuario</h2>
+        <div class="flex flex-col sm:flex-row gap-6 mb-6">
+         <div class="flex flex-col items-center gap-3">
+          <div class="w-24 h-24 gradient-primary rounded-full flex items-center justify-center text-white font-bold text-3xl profile-photo cursor-pointer">
+           JP
+          </div><button class="text-sm text-purple-600 font-semibold hover:text-purple-700 transition-colors"> Cambiar foto </button>
+         </div>
+         <div class="flex-1 space-y-4">
+          <div><label for="name" class="block text-sm font-bold text-gray-700 mb-2">Nombre completo</label> <input type="text" id="name" value="Juan Pérez" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl input-field transition-all">
+          </div>
+          <div><label for="email" class="block text-sm font-bold text-gray-700 mb-2">Email</label> <input type="email" id="email" value="juan.perez@email.com" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl input-field transition-all">
+          </div>
+          <div><label for="phone" class="block text-sm font-bold text-gray-700 mb-2">Teléfono</label> <input type="tel" id="phone" value="+34 612 345 678" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl input-field transition-all">
+          </div>
+         </div>
+        </div>
+        <div id="profile-message" class="hidden mb-4 p-4 bg-green-50 border border-green-200 rounded-xl">
+         <p class="text-sm text-green-700 font-semibold">✓ Perfil actualizado correctamente</p>
+        </div><button onclick="saveProfile()" class="px-6 py-3 gradient-primary text-white font-bold rounded-xl hover:opacity-90 transition-opacity"> Guardar cambios </button>
+       </div>
+      </section>
+      <section class="mb-8 fade-in delay-2">
+       <div class="bg-white rounded-2xl p-6 border border-gray-200">
+        <h2 class="text-2xl font-black text-gray-900 mb-6">Preferencias de Estudio</h2>
+        <div class="space-y-4">
+         <div><label for="oposicion" class="block text-sm font-bold text-gray-700 mb-2">Oposición objetivo</label> <select id="oposicion" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl input-field transition-all"> <option>RTVE - Radio Televisión Española</option> <option>Justicia - Auxilio Judicial</option> <option>Hacienda - Agencia Tributaria</option> <option>Correos - Personal de Reparto</option> <option>Policía Nacional</option> <option>Guardia Civil</option> </select>
+         </div>
+         <div><label for="nivel" class="block text-sm font-bold text-gray-700 mb-2">Nivel de dificultad preferido</label> <select id="nivel" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl input-field transition-all"> <option>Principiante</option> <option>Intermedio</option> <option>Avanzado</option> </select>
+         </div>
+         <div><label for="horas" class="block text-sm font-bold text-gray-700 mb-2">Horas de estudio diarias</label> <input type="number" id="horas" value="4" min="1" max="12" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl input-field transition-all">
+         </div>
+        </div>
+        <div id="preferences-message" class="hidden mt-4 p-4 bg-green-50 border border-green-200 rounded-xl">
+         <p class="text-sm text-green-700 font-semibold">✓ Preferencias guardadas correctamente</p>
+        </div><button onclick="savePreferences()" class="mt-6 px-6 py-3 gradient-primary text-white font-bold rounded-xl hover:opacity-90 transition-opacity"> Guardar preferencias </button>
+       </div>
+      </section>
+      <section class="mb-8 fade-in delay-3">
+       <div class="bg-white rounded-2xl p-6 border border-gray-200">
+        <h2 class="text-2xl font-black text-gray-900 mb-6">Notificaciones</h2>
+        <div class="space-y-4">
+         <div class="flex items-center justify-between py-3 border-b border-gray-100">
+          <div>
+           <h3 class="font-bold text-gray-900">Notificaciones por email</h3>
+           <p class="text-sm text-gray-600">Recibe actualizaciones en tu correo</p>
+          </div>
+          <div class="relative"><input type="checkbox" id="email-notifications" class="toggle-checkbox sr-only" checked onchange="toggleNotification('email-notifications')"> <label for="email-notifications" class="block w-14 h-8 bg-gray-300 rounded-full cursor-pointer relative"> <span class="toggle-label absolute left-1 top-1 w-6 h-6 bg-white rounded-full transition-transform"></span> </label>
+          </div>
+         </div>
+         <div class="flex items-center justify-between py-3 border-b border-gray-100">
+          <div>
+           <h3 class="font-bold text-gray-900">Notificaciones push</h3>
+           <p class="text-sm text-gray-600">Alertas en tu navegador</p>
+          </div>
+          <div class="relative"><input type="checkbox" id="push-notifications" class="toggle-checkbox sr-only" onchange="toggleNotification('push-notifications')"> <label for="push-notifications" class="block w-14 h-8 bg-gray-300 rounded-full cursor-pointer relative"> <span class="toggle-label absolute left-1 top-1 w-6 h-6 bg-white rounded-full transition-transform"></span> </label>
+          </div>
+         </div>
+         <div class="flex items-center justify-between py-3">
+          <div>
+           <h3 class="font-bold text-gray-900">Recordatorios de estudio</h3>
+           <p class="text-sm text-gray-600">Te avisamos cuando toque estudiar</p>
+          </div>
+          <div class="relative"><input type="checkbox" id="study-reminders" class="toggle-checkbox sr-only" checked onchange="toggleNotification('study-reminders')"> <label for="study-reminders" class="block w-14 h-8 bg-gray-300 rounded-full cursor-pointer relative"> <span class="toggle-label absolute left-1 top-1 w-6 h-6 bg-white rounded-full transition-transform"></span> </label>
+          </div>
+         </div>
+        </div>
+       </div>
+      </section>
+      <section class="mb-8 fade-in delay-4">
+       <div class="bg-white rounded-2xl p-6 border border-gray-200">
+        <h2 class="text-2xl font-black text-gray-900 mb-6">Seguridad y Privacidad</h2>
+        <div class="space-y-4 mb-6">
+         <div><label for="current-password" class="block text-sm font-bold text-gray-700 mb-2">Contraseña actual</label> <input type="password" id="current-password" placeholder="••••••••" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl input-field transition-all">
+         </div>
+         <div><label for="new-password" class="block text-sm font-bold text-gray-700 mb-2">Nueva contraseña</label> <input type="password" id="new-password" placeholder="••••••••" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl input-field transition-all">
+         </div>
+         <div><label for="confirm-password" class="block text-sm font-bold text-gray-700 mb-2">Confirmar contraseña</label> <input type="password" id="confirm-password" placeholder="••••••••" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl input-field transition-all">
+         </div>
+        </div>
+        <div id="security-message" class="hidden mb-4 p-4 bg-green-50 border border-green-200 rounded-xl">
+         <p class="text-sm text-green-700 font-semibold">✓ Contraseña actualizada correctamente</p>
+        </div><button onclick="changePassword()" class="px-6 py-3 gradient-primary text-white font-bold rounded-xl hover:opacity-90 transition-opacity"> Cambiar contraseña </button>
+        <div class="mt-6 pt-6 border-t border-gray-200">
+         <div class="flex items-center justify-between">
+          <div>
+           <h3 class="font-bold text-gray-900">Autenticación de dos factores</h3>
+           <p class="text-sm text-gray-600">Añade una capa extra de seguridad</p>
+          </div><button class="px-4 py-2 border-2 border-purple-600 text-purple-600 font-semibold rounded-xl hover:bg-purple-50 transition-colors"> Activar </button>
+         </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-gray-200">
+         <div class="flex items-center justify-between">
+          <div>
+           <h3 class="font-bold text-gray-900">Sesiones activas</h3>
+           <p class="text-sm text-gray-600">Gestiona tus dispositivos conectados</p>
+          </div><button class="px-4 py-2 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors"> Ver sesiones </button>
+         </div>
+        </div>
+       </div>
+      </section>
+      <section class="mb-8">
+       <div class="bg-red-50 rounded-2xl p-6 border-2 border-red-200">
+        <h2 class="text-xl font-black text-red-900 mb-4">Zona de peligro</h2>
+        <div class="space-y-4">
+         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+           <h3 class="font-bold text-red-900">Cerrar sesión</h3>
+           <p class="text-sm text-red-700">Cierra tu sesión en este dispositivo</p>
+          </div><button onclick="logout()" class="px-6 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-colors whitespace-nowrap"> Cerrar sesión </button>
+         </div>
+         <div class="pt-4 border-t border-red-200">
+          <div id="delete-confirm" class="hidden mb-4 p-4 bg-white border-2 border-red-300 rounded-xl">
+           <p class="text-sm text-red-900 font-bold mb-3">⚠️ ¿Estás seguro? Esta acción no se puede deshacer.</p>
+           <div class="flex gap-3"><button onclick="confirmDelete()" class="flex-1 px-4 py-2 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition-colors"> Sí, eliminar </button> <button onclick="cancelDelete()" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-300 transition-colors"> Cancelar </button>
+           </div>
+          </div>
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+           <div>
+            <h3 class="font-bold text-red-900">Eliminar cuenta</h3>
+            <p class="text-sm text-red-700">Elimina permanentemente tu cuenta y todos tus datos</p>
+           </div><button onclick="deleteAccount()" class="px-6 py-3 bg-white border-2 border-red-600 text-red-600 font-bold rounded-xl hover:bg-red-50 transition-colors whitespace-nowrap"> Eliminar cuenta </button>
+          </div>
+         </div>
+        </div>
+       </div>
+      </section>
+     </div>
+    </div>
+   </main>
+  </div>
+  <script>
+    const defaultConfig = {
+      brand_name: 'tufolio',
+      user_name: 'Juan Pérez',
+      user_level: 'Nivel 12 ⭐ 2,450 XP',
+      home_title: '¡Hola, Juan! 👋',
+      home_subtitle: 'Bienvenido de nuevo a tu espacio de estudio',
+      background_color: '#F9FAFB',
+      card_color: '#FFFFFF',
+      text_color: '#111827',
+      primary_color: '#667EEA',
+      accent_color: '#764BA2',
+      font_family: 'Plus Jakarta Sans',
+      font_size: 16
+    };
+
+    let currentPage = 'inicio';
+    let currentOposicionCategory = 'all';
+    let currentNewsCategory = 'all';
+    let currentBlogCategory = 'all';
+
+    function navigateTo(page, event) {
+      event.preventDefault();
+      
+      document.querySelectorAll('.page-content').forEach(p => {
+        p.classList.remove('active');
+      });
+      
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      
+      const targetPage = document.getElementById(`page-${page}`);
+      if (targetPage) {
+        targetPage.classList.add('active');
+        currentPage = page;
+      }
+      
+      event.currentTarget.classList.add('active');
+      
+      const searchInput = document.getElementById('search-input');
+      if (page === 'noticias') {
+        searchInput.placeholder = 'Buscar noticias...';
+      } else if (page === 'blog') {
+        searchInput.placeholder = 'Buscar en el blog...';
+      } else if (page === 'oposiciones') {
+        searchInput.placeholder = 'Buscar oposiciones...';
+      } else {
+        searchInput.placeholder = 'Buscar...';
+      }
+    }
+
+    function handleSearch() {
+      const searchValue = document.getElementById('search-input').value.toLowerCase();
+      
+      if (currentPage === 'noticias') {
+        filterNewsContent(searchValue);
+      } else if (currentPage === 'blog') {
+        filterBlogContent(searchValue);
+      } else if (currentPage === 'oposiciones') {
+        filterOposicionesContent(searchValue);
+      }
+    }
+
+    function filterOposiciones(category, event) {
+      currentOposicionCategory = category;
+      
+      document.querySelectorAll('#page-oposiciones .filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.currentTarget.classList.add('active');
+      
+      filterOposicionesContent();
+    }
+
+    function filterOposicionesContent(searchValue = '') {
+      const articles = document.querySelectorAll('#oposiciones-grid .oposicion-card');
+      
+      articles.forEach(article => {
+        const articleCategory = article.getAttribute('data-category');
+        const matchesCategory = currentOposicionCategory === 'all' || articleCategory === currentOposicionCategory;
+        
+        if (matchesCategory) {
+          article.style.display = 'block';
+        } else {
+          article.style.display = 'none';
+        }
+      });
+    }
+
+    function filterNews(category, event) {
+      currentNewsCategory = category;
+      
+      document.querySelectorAll('#page-noticias .filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.currentTarget.classList.add('active');
+      
+      filterNewsContent();
+    }
+
+    function filterNewsContent(searchValue = '') {
+      const searchInput = document.getElementById('search-input').value.toLowerCase();
+      const articles = document.querySelectorAll('#news-grid .news-card');
+      let visibleCount = 0;
+      
+      articles.forEach(article => {
+        const articleCategory = article.getAttribute('data-category');
+        const articleTitle = article.getAttribute('data-title');
+        
+        const matchesCategory = currentNewsCategory === 'all' || articleCategory === currentNewsCategory;
+        const matchesSearch = searchInput === '' || articleTitle.includes(searchInput);
+        
+        if (matchesCategory && matchesSearch) {
+          article.style.display = 'block';
+          visibleCount++;
+        } else {
+          article.style.display = 'none';
+        }
+      });
+      
+      const resultsCount = document.getElementById('news-results-count');
+      if (resultsCount) {
+        resultsCount.textContent = visibleCount;
+      }
+    }
+
+    function filterBlog(category, event) {
+      currentBlogCategory = category;
+      
+      document.querySelectorAll('#page-blog .filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.currentTarget.classList.add('active');
+      
+      filterBlogContent();
+    }
+
+    function filterBlogContent(searchValue = '') {
+      const searchInput = document.getElementById('search-input').value.toLowerCase();
+      const articles = document.querySelectorAll('#blog-grid .blog-card');
+      let visibleCount = 0;
+      
+      articles.forEach(article => {
+        const articleCategory = article.getAttribute('data-category');
+        const articleTitle = article.getAttribute('data-title');
+        
+        const matchesCategory = currentBlogCategory === 'all' || articleCategory === currentBlogCategory;
+        const matchesSearch = searchInput === '' || articleTitle.includes(searchInput);
+        
+        if (matchesCategory && matchesSearch) {
+          article.style.display = 'block';
+          visibleCount++;
+        } else {
+          article.style.display = 'none';
+        }
+      });
+      
+      const resultsCount = document.getElementById('blog-results-count');
+      if (resultsCount) {
+        resultsCount.textContent = visibleCount;
+      }
+    }
+
+    function saveProfile() {
+      const message = document.getElementById('profile-message');
+      message.classList.remove('hidden');
+      message.classList.add('success-message');
+      
+      setTimeout(() => {
+        message.classList.add('hidden');
+      }, 3000);
+    }
+
+    function savePreferences() {
+      const message = document.getElementById('preferences-message');
+      message.classList.remove('hidden');
+      message.classList.add('success-message');
+      
+      setTimeout(() => {
+        message.classList.add('hidden');
+      }, 3000);
+    }
+
+    function toggleNotification(id) {
+      console.log('Notification toggled:', id);
+    }
+
+    function changePassword() {
+      const currentPassword = document.getElementById('current-password').value;
+      const newPassword = document.getElementById('new-password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+      
+      const message = document.getElementById('security-message');
+      
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        message.classList.remove('hidden', 'bg-green-50', 'border-green-200');
+        message.classList.add('bg-red-50', 'border-red-200');
+        message.innerHTML = '<p class="text-sm text-red-700 font-semibold">✗ Por favor completa todos los campos</p>';
+        
+        setTimeout(() => {
+          message.classList.add('hidden');
+        }, 3000);
+        return;
+      }
+      
+      if (newPassword !== confirmPassword) {
+        message.classList.remove('hidden', 'bg-green-50', 'border-green-200');
+        message.classList.add('bg-red-50', 'border-red-200');
+        message.innerHTML = '<p class="text-sm text-red-700 font-semibold">✗ Las contraseñas no coinciden</p>';
+        
+        setTimeout(() => {
+          message.classList.add('hidden');
+        }, 3000);
+        return;
+      }
+      
+      message.classList.remove('hidden', 'bg-red-50', 'border-red-200');
+      message.classList.add('bg-green-50', 'border-green-200', 'success-message');
+      message.innerHTML = '<p class="text-sm text-green-700 font-semibold">✓ Contraseña actualizada correctamente</p>';
+      
+      document.getElementById('current-password').value = '';
+      document.getElementById('new-password').value = '';
+      document.getElementById('confirm-password').value = '';
+      
+      setTimeout(() => {
+        message.classList.add('hidden');
+      }, 3000);
+    }
+
+    function logout() {
+      console.log('Logging out...');
+    }
+
+    function deleteAccount() {
+      document.getElementById('delete-confirm').classList.remove('hidden');
+    }
+
+    function cancelDelete() {
+      document.getElementById('delete-confirm').classList.add('hidden');
+    }
+
+    function confirmDelete() {
+      console.log('Account deleted');
+      document.getElementById('delete-confirm').classList.add('hidden');
+    }
+
+    async function onConfigChange(config) {
+      const brandName = document.getElementById('brand-name');
+      if (brandName) brandName.textContent = config.brand_name || defaultConfig.brand_name;
+
+      const userName = document.getElementById('user-name');
+      if (userName) userName.textContent = config.user_name || defaultConfig.user_name;
+
+      const userLevel = document.getElementById('user-level');
+      if (userLevel) userLevel.textContent = config.user_level || defaultConfig.user_level;
+
+      const homeTitle = document.getElementById('home-title');
+      if (homeTitle) homeTitle.textContent = config.home_title || defaultConfig.home_title;
+
+      const homeSubtitle = document.getElementById('home-subtitle');
+      if (homeSubtitle) homeSubtitle.textContent = config.home_subtitle || defaultConfig.home_subtitle;
+
+      const bgColor = config.background_color || defaultConfig.background_color;
+      const cardColor = config.card_color || defaultConfig.card_color;
+      const textColor = config.text_color || defaultConfig.text_color;
+
+      document.body.style.backgroundColor = bgColor;
+
+      document.querySelectorAll('.bg-white').forEach(el => {
+        if (!el.classList.contains('text-white') && !el.closest('.bg-red-50') && !el.closest('#delete-confirm')) {
+          el.style.backgroundColor = cardColor;
+        }
+      });
+
+      document.querySelectorAll('.text-gray-900').forEach(el => {
+        if (!el.closest('.bg-red-50')) {
+          el.style.color = textColor;
+        }
+      });
+
+      const fontFamily = config.font_family || defaultConfig.font_family;
+      const baseFontStack = 'sans-serif';
+      document.body.style.fontFamily = `${fontFamily}, ${baseFontStack}`;
+
+      const baseSize = config.font_size || defaultConfig.font_size;
+      document.body.style.fontSize = `${baseSize}px`;
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [
+          {
+            get: () => config.background_color || defaultConfig.background_color,
+            set: (value) => {
+              config.background_color = value;
+              if (window.elementSdk) window.elementSdk.setConfig({ background_color: value });
+            }
+          },
+          {
+            get: () => config.card_color || defaultConfig.card_color,
+            set: (value) => {
+              config.card_color = value;
+              if (window.elementSdk) window.elementSdk.setConfig({ card_color: value });
+            }
+          },
+          {
+            get: () => config.text_color || defaultConfig.text_color,
+            set: (value) => {
+              config.text_color = value;
+              if (window.elementSdk) window.elementSdk.setConfig({ text_color: value });
+            }
+          },
+          {
+            get: () => config.primary_color || defaultConfig.primary_color,
+            set: (value) => {
+              config.primary_color = value;
+              if (window.elementSdk) window.elementSdk.setConfig({ primary_color: value });
+            }
+          },
+          {
+            get: () => config.accent_color || defaultConfig.accent_color,
+            set: (value) => {
+              config.accent_color = value;
+              if (window.elementSdk) window.elementSdk.setConfig({ accent_color: value });
+            }
+          }
+        ],
+        borderables: [],
+        fontEditable: {
+          get: () => config.font_family || defaultConfig.font_family,
+          set: (value) => {
+            config.font_family = value;
+            if (window.elementSdk) window.elementSdk.setConfig({ font_family: value });
+          }
+        },
+        fontSizeable: {
+          get: () => config.font_size || defaultConfig.font_size,
+          set: (value) => {
+            config.font_size = value;
+            if (window.elementSdk) window.elementSdk.setConfig({ font_size: value });
+          }
+        }
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ['brand_name', config.brand_name || defaultConfig.brand_name],
+        ['user_name', config.user_name || defaultConfig.user_name],
+        ['user_level', config.user_level || defaultConfig.user_level],
+        ['home_title', config.home_title || defaultConfig.home_title],
+        ['home_subtitle', config.home_subtitle || defaultConfig.home_subtitle]
+      ]);
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c07ac98d419c112',t:'MTc2ODgzOTc4MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="es" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog - Tufolio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    * {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .article-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .article-card:hover {
+      transform: translateY(-4px);
+    }
+    
+    .category-pill {
+      transition: all 0.2s ease;
+    }
+    
+    .category-pill:hover {
+      transform: scale(1.05);
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.6s ease-out forwards;
+      opacity: 0;
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+    .delay-5 { animation-delay: 0.5s; }
+    
+    .featured-gradient {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .image-placeholder {
+      background: linear-gradient(135deg, #e0e7ff 0%, #ddd6fe 50%, #fce7f3 100%);
+    }
+    
+    .search-input:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-gray-50 overflow-auto">
+  <div id="app-wrapper" class="w-full h-full"><!-- Navigation -->
+   <nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+     <div class="flex justify-between items-center h-16">
+      <div class="flex items-center gap-2">
+       <div class="w-10 h-10 rounded-xl featured-gradient flex items-center justify-center shadow-lg">
+        <svg class="w-6 h-6 text-white" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /> <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+        </svg>
+       </div><span class="text-2xl font-black text-gray-800">tufolio<span class="text-gray-500">.es</span></span>
+      </div>
+      <div class="hidden md:flex items-center gap-8"><a href="#" class="text-gray-600 hover:text-purple-600 font-semibold transition-colors">Inicio</a> <a href="#" class="text-purple-600 font-semibold">Blog</a> <a href="#" class="text-gray-600 hover:text-purple-600 font-semibold transition-colors">Oposiciones</a> <a href="#" class="text-gray-600 hover:text-purple-600 font-semibold transition-colors">Precios</a>
+      </div>
+      <div class="flex items-center gap-3"><button class="hidden sm:block px-4 py-2 text-gray-700 font-semibold hover:bg-gray-50 rounded-xl transition-colors"> Iniciar sesión </button> <button class="px-5 py-2.5 featured-gradient text-white font-bold rounded-xl hover:opacity-90 transition-opacity shadow-lg"> Empezar gratis </button>
+      </div>
+     </div>
+    </div>
+   </nav><!-- Hero Section -->
+   <section class="bg-white border-b border-gray-200 py-16 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+     <div class="max-w-3xl fade-in">
+      <h1 id="blog-title" class="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 mb-6">Blog de Oposiciones</h1>
+      <p id="blog-subtitle" class="text-xl text-gray-600 mb-8">Consejos, guías y novedades para preparar tu oposición con éxito. Aprende de expertos y opositores que ya lo lograron.</p><!-- Search Bar -->
+      <div class="relative max-w-2xl"><input type="text" placeholder="Buscar artículos..." class="w-full px-6 py-4 pr-14 border-2 border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 search-input transition-all"> <button class="absolute right-2 top-1/2 -translate-y-1/2 p-3 featured-gradient text-white rounded-xl hover:opacity-90 transition-opacity">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg></button>
+      </div>
+     </div>
+    </div>
+   </section><!-- Categories -->
+   <section class="bg-white border-b border-gray-200 py-6 px-4 sm:px-6 lg:px-8 sticky top-16 z-40">
+    <div class="max-w-7xl mx-auto">
+     <div class="flex items-center gap-3 overflow-x-auto pb-2"><button class="category-pill px-5 py-2.5 bg-purple-100 text-purple-700 font-semibold rounded-xl whitespace-nowrap"> 📚 Todos </button> <button id="category-1" class="category-pill px-5 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 whitespace-nowrap"> 💡 Consejos de estudio </button> <button id="category-2" class="category-pill px-5 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 whitespace-nowrap"> 📢 Convocatorias </button> <button id="category-3" class="category-pill px-5 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 whitespace-nowrap"> 📖 Temarios </button> <button class="category-pill px-5 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 whitespace-nowrap"> 🎯 Técnicas de memorización </button> <button class="category-pill px-5 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 whitespace-nowrap"> ✅ Casos de éxito </button>
+     </div>
+    </div>
+   </section><!-- Main Content -->
+   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"><!-- Featured Article -->
+    <article class="mb-16 fade-in">
+     <div class="bg-white rounded-3xl overflow-hidden shadow-xl border border-gray-100 article-card">
+      <div class="grid lg:grid-cols-2 gap-0">
+       <div class="image-placeholder h-64 lg:h-full flex items-center justify-center relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20"></div>
+        <div class="relative text-center p-8">
+         <div class="text-6xl mb-4">
+          📚
+         </div>
+         <div class="text-gray-700 font-bold text-lg">
+          Artículo destacado
+         </div>
+        </div>
+       </div>
+       <div class="p-8 lg:p-12 flex flex-col justify-center">
+        <div class="flex items-center gap-3 mb-4"><span class="px-4 py-1.5 bg-purple-100 text-purple-700 text-sm font-bold rounded-full"> ⭐ Destacado </span> <span class="text-gray-500 text-sm">15 min de lectura</span>
+        </div>
+        <h2 id="featured-title" class="text-3xl lg:text-4xl font-black text-gray-900 mb-4 leading-tight">Cómo estudiar la Constitución en 30 días</h2>
+        <p id="featured-excerpt" class="text-gray-600 text-lg mb-6 leading-relaxed">Una guía completa con técnicas probadas para memorizar los 169 artículos de la Constitución Española de forma eficaz y sin morir en el intento.</p>
+        <div class="flex items-center justify-between">
+         <div class="flex items-center gap-3">
+          <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center text-white font-bold">
+           MG
+          </div>
+          <div>
+           <div class="font-semibold text-gray-900">
+            María García
+           </div>
+           <div class="text-sm text-gray-500">
+            2 de Enero, 2024
+           </div>
+          </div>
+         </div><button class="px-6 py-3 featured-gradient text-white font-bold rounded-xl hover:opacity-90 transition-opacity shadow-lg"> Leer más → </button>
+        </div>
+       </div>
+      </div>
+     </div>
+    </article><!-- Articles Grid -->
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8"><!-- Article 1 -->
+     <article class="bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 article-card fade-in delay-1">
+      <div class="image-placeholder h-48 flex items-center justify-center">
+       <div class="text-5xl">
+        🎯
+       </div>
+      </div>
+      <div class="p-6">
+       <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full"> Consejos </span> <span class="text-gray-400 text-xs">•</span> <span class="text-gray-500 text-xs">8 min</span>
+       </div>
+       <h3 class="text-xl font-bold text-gray-900 mb-3 leading-tight">5 errores comunes al preparar una oposición</h3>
+       <p class="text-gray-600 mb-4 text-sm leading-relaxed">Evita estos errores que cometen el 90% de los opositores y aumenta tus posibilidades de aprobar.</p>
+       <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+         <div class="w-8 h-8 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+          CR
+         </div><span class="text-sm text-gray-700 font-medium">Carlos R.</span>
+        </div><span class="text-sm text-gray-500">Hace 2 días</span>
+       </div>
+      </div>
+     </article><!-- Article 2 -->
+     <article class="bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 article-card fade-in delay-2">
+      <div class="image-placeholder h-48 flex items-center justify-center">
+       <div class="text-5xl">
+        📢
+       </div>
+      </div>
+      <div class="p-6">
+       <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full"> Convocatorias </span> <span class="text-gray-400 text-xs">•</span> <span class="text-gray-500 text-xs">5 min</span>
+       </div>
+       <h3 class="text-xl font-bold text-gray-900 mb-3 leading-tight">Nueva convocatoria: 2.000 plazas de Administración</h3>
+       <p class="text-gray-600 mb-4 text-sm leading-relaxed">Se han publicado las bases para el proceso selectivo de Gestión Administrativa en la AGE.</p>
+       <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+         <div class="w-8 h-8 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+          AP
+         </div><span class="text-sm text-gray-700 font-medium">Ana P.</span>
+        </div><span class="text-sm text-gray-500">Hace 5 días</span>
+       </div>
+      </div>
+     </article><!-- Article 3 -->
+     <article class="bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 article-card fade-in delay-3">
+      <div class="image-placeholder h-48 flex items-center justify-center">
+       <div class="text-5xl">
+        🧠
+       </div>
+      </div>
+      <div class="p-6">
+       <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-full"> Técnicas </span> <span class="text-gray-400 text-xs">•</span> <span class="text-gray-500 text-xs">12 min</span>
+       </div>
+       <h3 class="text-xl font-bold text-gray-900 mb-3 leading-tight">El método Pomodoro aplicado a las oposiciones</h3>
+       <p class="text-gray-600 mb-4 text-sm leading-relaxed">Cómo usar esta técnica de gestión del tiempo para maximizar tu productividad en el estudio.</p>
+       <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+         <div class="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+          LM
+         </div><span class="text-sm text-gray-700 font-medium">Luis M.</span>
+        </div><span class="text-sm text-gray-500">Hace 1 semana</span>
+       </div>
+      </div>
+     </article><!-- Article 4 -->
+     <article class="bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 article-card fade-in delay-4">
+      <div class="image-placeholder h-48 flex items-center justify-center">
+       <div class="text-5xl">
+        ⚖️
+       </div>
+      </div>
+      <div class="p-6">
+       <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full"> Temarios </span> <span class="text-gray-400 text-xs">•</span> <span class="text-gray-500 text-xs">10 min</span>
+       </div>
+       <h3 class="text-xl font-bold text-gray-900 mb-3 leading-tight">Temario actualizado de Justicia 2024</h3>
+       <p class="text-gray-600 mb-4 text-sm leading-relaxed">Todos los cambios legislativos que debes conocer para el examen de Auxilio Judicial.</p>
+       <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+         <div class="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+          SM
+         </div><span class="text-sm text-gray-700 font-medium">Sara M.</span>
+        </div><span class="text-sm text-gray-500">Hace 1 semana</span>
+       </div>
+      </div>
+     </article><!-- Article 5 -->
+     <article class="bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 article-card fade-in delay-5">
+      <div class="image-placeholder h-48 flex items-center justify-center">
+       <div class="text-5xl">
+        ✅
+       </div>
+      </div>
+      <div class="p-6">
+       <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-pink-100 text-pink-700 text-xs font-bold rounded-full"> Casos de éxito </span> <span class="text-gray-400 text-xs">•</span> <span class="text-gray-500 text-xs">7 min</span>
+       </div>
+       <h3 class="text-xl font-bold text-gray-900 mb-3 leading-tight">"Aprobé mi oposición estudiando solo 2 horas al día"</h3>
+       <p class="text-gray-600 mb-4 text-sm leading-relaxed">La historia de Laura, que consiguió su plaza mientras trabajaba a jornada completa.</p>
+       <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+         <div class="w-8 h-8 bg-gradient-to-br from-pink-400 to-rose-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+          LG
+         </div><span class="text-sm text-gray-700 font-medium">Laura G.</span>
+        </div><span class="text-sm text-gray-500">Hace 2 semanas</span>
+       </div>
+      </div>
+     </article><!-- Article 6 -->
+     <article class="bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 article-card fade-in delay-1">
+      <div class="image-placeholder h-48 flex items-center justify-center">
+       <div class="text-5xl">
+        📝
+       </div>
+      </div>
+      <div class="p-6">
+       <div class="flex items-center gap-2 mb-3"><span class="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-full"> Consejos </span> <span class="text-gray-400 text-xs">•</span> <span class="text-gray-500 text-xs">6 min</span>
+       </div>
+       <h3 class="text-xl font-bold text-gray-900 mb-3 leading-tight">Cómo hacer un planning de estudio efectivo</h3>
+       <p class="text-gray-600 mb-4 text-sm leading-relaxed">Organiza tu tiempo de forma inteligente y evita el agotamiento mental durante la preparación.</p>
+       <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+         <div class="w-8 h-8 bg-gradient-to-br from-indigo-400 to-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+          JR
+         </div><span class="text-sm text-gray-700 font-medium">Jorge R.</span>
+        </div><span class="text-sm text-gray-500">Hace 2 semanas</span>
+       </div>
+      </div>
+     </article>
+    </div><!-- Load More -->
+    <div class="text-center mt-12"><button class="px-8 py-4 bg-white text-gray-700 font-bold rounded-xl hover:bg-gray-50 transition-colors border-2 border-gray-200 shadow-lg"> Cargar más artículos </button>
+    </div>
+   </main><!-- Newsletter Section -->
+   <section class="bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800 py-20 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto text-center">
+     <div class="text-5xl mb-6">
+      📬
+     </div>
+     <h2 class="text-3xl sm:text-4xl font-black text-white mb-4">No te pierdas ningún artículo</h2>
+     <p class="text-xl text-purple-100 mb-8 max-w-2xl mx-auto">Recibe cada semana los mejores consejos, novedades y convocatorias directamente en tu email.</p>
+     <form class="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto" onsubmit="event.preventDefault(); showToast();"><input type="email" placeholder="tu@email.com" required class="flex-1 px-6 py-4 rounded-xl text-gray-900 placeholder-gray-400 border-2 border-transparent focus:border-white focus:outline-none transition-all"> <button type="submit" class="px-8 py-4 bg-white text-purple-700 font-bold rounded-xl hover:bg-purple-50 transition-colors shadow-lg whitespace-nowrap"> Suscribirme gratis </button>
+     </form>
+     <p class="text-sm text-purple-200 mt-4">✨ Únete a más de 10.000 opositores. Sin spam, promesa.</p>
+    </div>
+   </section><!-- Footer -->
+   <footer class="bg-gray-900 text-white py-16 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+      <div>
+       <div class="flex items-center gap-2 mb-4">
+        <div class="w-10 h-10 rounded-xl featured-gradient flex items-center justify-center">
+         <svg class="w-6 h-6 text-white" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /> <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+         </svg>
+        </div><span class="text-xl font-black">tufolio<span class="text-gray-400">.es</span></span>
+       </div>
+       <p class="text-gray-400 text-sm">La forma más efectiva y divertida de preparar tus oposiciones.</p>
+      </div>
+      <div>
+       <h4 class="font-bold mb-4">Oposiciones</h4>
+       <ul class="space-y-2 text-gray-400 text-sm">
+        <li><a href="#" class="hover:text-white transition-colors">Justicia</a></li>
+        <li><a href="#" class="hover:text-white transition-colors">Administración</a></li>
+        <li><a href="#" class="hover:text-white transition-colors">Seguridad</a></li>
+        <li><a href="#" class="hover:text-white transition-colors">Ver todas</a></li>
+       </ul>
+      </div>
+      <div>
+       <h4 class="font-bold mb-4">Recursos</h4>
+       <ul class="space-y-2 text-gray-400 text-sm">
+        <li><a href="#" class="hover:text-white transition-colors">Blog</a></li>
+        <li><a href="#" class="hover:text-white transition-colors">Convocatorias</a></li>
+        <li><a href="#" class="hover:text-white transition-colors">Comunidad</a></li>
+        <li><a href="#" class="hover:text-white transition-colors">Ayuda</a></li>
+       </ul>
+      </div>
+      <div>
+       <h4 class="font-bold mb-4">Legal</h4>
+       <ul class="space-y-2 text-gray-400 text-sm">
+        <li><a href="#" class="hover:text-white transition-colors">Términos</a></li>
+        <li><a href="#" class="hover:text-white transition-colors">Privacidad</a></li>
+        <li><a href="#" class="hover:text-white transition-colors">Cookies</a></li>
+       </ul>
+      </div>
+     </div>
+     <div class="border-t border-gray-800 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="text-gray-400 text-sm">
+       © 2024 tufolio.es. Todos los derechos reservados.
+      </div>
+      <div class="flex gap-4"><a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors" target="_blank" rel="noopener noreferrer">
+        <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24">
+         <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
+        </svg></a> <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors" target="_blank" rel="noopener noreferrer">
+        <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24">
+         <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+        </svg></a> <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors" target="_blank" rel="noopener noreferrer">
+        <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24">
+         <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
+        </svg></a>
+      </div>
+     </div>
+    </div>
+   </footer><!-- Toast Message -->
+   <div id="toast" class="fixed bottom-8 right-8 px-6 py-4 bg-green-500 text-white font-semibold rounded-xl shadow-2xl transform translate-y-32 transition-transform duration-300 flex items-center gap-3">
+    <svg class="w-6 h-6" fill="currentColor" viewbox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+    </svg><span>¡Suscripción exitosa! Revisa tu email.</span>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      blog_title: 'Blog de Oposiciones',
+      blog_subtitle: 'Consejos, guías y novedades para preparar tu oposición con éxito. Aprende de expertos y opositores que ya lo lograron.',
+      featured_title: 'Cómo estudiar la Constitución en 30 días',
+      featured_excerpt: 'Una guía completa con técnicas probadas para memorizar los 169 artículos de la Constitución Española de forma eficaz y sin morir en el intento.',
+      category_1: '💡 Consejos de estudio',
+      category_2: '📢 Convocatorias',
+      category_3: '📖 Temarios',
+      background_color: '#F9FAFB',
+      card_color: '#FFFFFF',
+      text_color: '#111827',
+      primary_color: '#667EEA',
+      accent_color: '#EC4899',
+      font_family: 'Inter',
+      font_size: 16
+    };
+
+    function showToast() {
+      const toast = document.getElementById('toast');
+      toast.style.transform = 'translateY(0)';
+      setTimeout(() => {
+        toast.style.transform = 'translateY(200%)';
+      }, 3000);
+    }
+
+    async function onConfigChange(config) {
+      const blogTitle = document.getElementById('blog-title');
+      if (blogTitle) blogTitle.textContent = config.blog_title || defaultConfig.blog_title;
+
+      const blogSubtitle = document.getElementById('blog-subtitle');
+      if (blogSubtitle) blogSubtitle.textContent = config.blog_subtitle || defaultConfig.blog_subtitle;
+
+      const featuredTitle = document.getElementById('featured-title');
+      if (featuredTitle) featuredTitle.textContent = config.featured_title || defaultConfig.featured_title;
+
+      const featuredExcerpt = document.getElementById('featured-excerpt');
+      if (featuredExcerpt) featuredExcerpt.textContent = config.featured_excerpt || defaultConfig.featured_excerpt;
+
+      const category1 = document.getElementById('category-1');
+      if (category1) category1.textContent = config.category_1 || defaultConfig.category_1;
+
+      const category2 = document.getElementById('category-2');
+      if (category2) category2.textContent = config.category_2 || defaultConfig.category_2;
+
+      const category3 = document.getElementById('category-3');
+      if (category3) category3.textContent = config.category_3 || defaultConfig.category_3;
+
+      // Apply colors
+      const bgColor = config.background_color || defaultConfig.background_color;
+      const cardColor = config.card_color || defaultConfig.card_color;
+      const textColor = config.text_color || defaultConfig.text_color;
+      const primaryColor = config.primary_color || defaultConfig.primary_color;
+      const accentColor = config.accent_color || defaultConfig.accent_color;
+
+      document.body.style.backgroundColor = bgColor;
+
+      document.querySelectorAll('.bg-white').forEach(el => {
+        el.style.backgroundColor = cardColor;
+      });
+
+      document.querySelectorAll('.text-gray-900').forEach(el => {
+        el.style.color = textColor;
+      });
+
+      // Apply font
+      const fontFamily = config.font_family || defaultConfig.font_family;
+      const baseFontStack = 'sans-serif';
+      document.body.style.fontFamily = `${fontFamily}, ${baseFontStack}`;
+
+      // Apply font size
+      const baseSize = config.font_size || defaultConfig.font_size;
+      document.body.style.fontSize = `${baseSize}px`;
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [
+          {
+            get: () => config.background_color || defaultConfig.background_color,
+            set: (value) => {
+              config.background_color = value;
+              if (window.elementSdk) window.elementSdk.setConfig({ background_color: value });
+            }
+          },
+          {
+            get: () => config.card_color || defaultConfig.card_color,
+            set: (value) => {
+              config.card_color = value;
+              if (window.elementSdk) window.elementSdk.setConfig({ card_color: value });
+            }
+          },
+          {
+            get: () => config.text_color || defaultConfig.text_color,
+            set: (value) => {
+              config.text_color = value;
+              if (window.elementSdk) window.elementSdk.setConfig({ text_color: value });
+            }
+          },
+          {
+            get: () => config.primary_color || defaultConfig.primary_color,
+            set: (value) => {
+              config.primary_color = value;
+              if (window.elementSdk) window.elementSdk.setConfig({ primary_color: value });
+            }
+          },
+          {
+            get: () => config.accent_color || defaultConfig.accent_color,
+            set: (value) => {
+              config.accent_color = value;
+              if (window.elementSdk) window.elementSdk.setConfig({ accent_color: value });
+            }
+          }
+        ],
+        borderables: [],
+        fontEditable: {
+          get: () => config.font_family || defaultConfig.font_family,
+          set: (value) => {
+            config.font_family = value;
+            if (window.elementSdk) window.elementSdk.setConfig({ font_family: value });
+          }
+        },
+        fontSizeable: {
+          get: () => config.font_size || defaultConfig.font_size,
+          set: (value) => {
+            config.font_size = value;
+            if (window.elementSdk) window.elementSdk.setConfig({ font_size: value });
+          }
+        }
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ['blog_title', config.blog_title || defaultConfig.blog_title],
+        ['blog_subtitle', config.blog_subtitle || defaultConfig.blog_subtitle],
+        ['featured_title', config.featured_title || defaultConfig.featured_title],
+        ['featured_excerpt', config.featured_excerpt || defaultConfig.featured_excerpt],
+        ['category_1', config.category_1 || defaultConfig.category_1],
+        ['category_2', config.category_2 || defaultConfig.category_2],
+        ['category_3', config.category_3 || defaultConfig.category_3]
+      ]);
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c07ad110621cbba',t:'MTc2ODgzOTgwMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

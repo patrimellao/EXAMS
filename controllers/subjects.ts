@@ -135,12 +135,20 @@ export const getNotEnrolledSubjects = async (userId: UUID) => {
   return data;
 }
 export const getEnrolledSubjects = async (userId: UUID) => {
+  console.log("USERID", userId);
   const subQuery = db.select({ id: userSubjects.subjectId }).from(userSubjects).where(eq(userSubjects.userId, userId));
-
+  console.log("SUBQUERY", subQuery);
   const data = await db
     .select()
     .from(subjects)
     .where(and(inArray(subjects.id, subQuery), eq(subjects.active, true)));
+
+  console.log(
+    "DATAA",
+    data,
+    "SUBQUERY",
+    subQuery
+  );
 
   return data;
 }
