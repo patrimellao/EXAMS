@@ -2,6 +2,7 @@
 const nextConfig = {
     reactStrictMode: false,
     swcMinify: true,
+    output: 'standalone', // Required for Docker
     // compiler: {
     //     removeConsole: process.env.NODE_ENV !== 'development',
     // },

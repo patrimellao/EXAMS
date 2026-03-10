@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs ls:*)",
+      "Bash(git -C \"/c/Users/pelai/Documents/Jean-Monnet-Serious-Game\" remote -v)"
+    ]
+  }
+}
