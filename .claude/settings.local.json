@@ -2,7 +2,12 @@
   "permissions": {
     "allow": [
       "Bash(xargs ls:*)",
-      "Bash(git -C \"/c/Users/pelai/Documents/Jean-Monnet-Serious-Game\" remote -v)"
+      "Bash(git -C \"/c/Users/pelai/Documents/Jean-Monnet-Serious-Game\" remote -v)",
+      "Bash(npm run:*)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\({k:list\\(v.keys\\(\\)\\) if isinstance\\(v,dict\\) else v for k,v in d.get\\(''''tables'''',{}\\).items\\(\\)}, indent=2\\)\\)\")",
+      "WebSearch",
+      "WebFetch(domain:orm.drizzle.team)",
+      "WebFetch(domain:zod.dev)"
     ]
   }
 }

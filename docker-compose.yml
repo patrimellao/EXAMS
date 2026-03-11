@@ -1,5 +1,3 @@
-
-
 services:
   postgres:
     image: postgres:15-alpine
@@ -8,7 +6,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: jeanmonnet
-      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
     ports:
       - "5432:5432"
     volumes:
@@ -20,15 +17,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    command:
-      - "postgres"
-      - "-c"
-      - "max_connections=200"
-      - "-c"
-      - "shared_buffers=256MB"
 
   redis:
-    image: redis:7-alpine
+    image: redis:7.2-alpine
     container_name: jeanmonnet-redis
     ports:
       - "6379:6379"
@@ -41,60 +32,6 @@ services:
       interval: 10s
       timeout: 3s
       retries: 5
-
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: jeanmonnet-app
-    environment:
-      NODE_ENV: production
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/jeanmonnet
-      REDIS_URL: redis://redis:6379
-      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
-      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
-    ports:
-      - "3000:3000"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - jeanmonnet-network
-    restart: unless-stopped
-
-  worker:
-    build:
-      context: .
-      dockerfile: Dockerfile.worker
-    container_name: jeanmonnet-worker
-    environment:
-      NODE_ENV: production
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/jeanmonnet
-      REDIS_URL: redis://redis:6379
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - jeanmonnet-network
-    restart: unless-stopped
-
-  bull-board:
-    image: deadly0/bull-board
-    container_name: jeanmonnet-bull-board
-    environment:
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-    ports:
-      - "3001:3000"
-    depends_on:
-      - redis
-    networks:
-      - jeanmonnet-network
 
 networks:
   jeanmonnet-network:
