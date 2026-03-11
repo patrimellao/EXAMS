@@ -46,6 +46,9 @@ export default async function Dashboard({
                 <Link href={'/study'}>
                   <DropdownMenuItem>Study</DropdownMenuItem>
                 </Link>
+                <Link href={'/leaderboard'}>
+                  <DropdownMenuItem>Ranking</DropdownMenuItem>
+                </Link>
                 {user?.user_metadata.role == 'teacher' && (
                   <>
                     <Link href={'/teach'}>
