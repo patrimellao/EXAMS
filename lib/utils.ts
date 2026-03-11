@@ -22,15 +22,12 @@ export async function updatePassword(newPassword : string){
   return data;
 }
 
-export const getEmoji = (type: number) => {
-  switch (type) {
-    case 1:
-      return '✍️';
-    case 2:
-      return '🏅';
-    case 3:
-      return '💯';
-    default:
-      return '🏆';
+export const getEmoji = (type: string | number) => {
+  const t = Number(type);
+  switch (t) {
+    case 1:  return '✍️';
+    case 2:  return '🏅';
+    case 3:  return '💯';
+    default: return '🏆';
   }
 };
