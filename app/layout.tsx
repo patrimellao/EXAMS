@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner"
 import "./globals.css";
 import React from 'react';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import CookieConsent from '@/components/cookie-consent';
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -26,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={GeistSans.className}>
+    <html lang="es" className={GeistSans.className}>
       <body className="h-[100vh] bg-background text-foreground">
       <ThemeProvider
         attribute="class"
@@ -38,6 +39,7 @@ export default function RootLayout({
         </main>
         <Toaster />
         <Sonner position="top-center" expand={true} visibleToasts={9}/>
+        <CookieConsent />
       </ThemeProvider>
       </body>
     </html>

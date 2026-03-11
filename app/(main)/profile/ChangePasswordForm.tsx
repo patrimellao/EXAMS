@@ -14,13 +14,15 @@ import { useToast } from '@/components/ui/use-toast';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { updatePassword } from '@/lib/utils';
-import { CardFooter } from '@/components/ui/card';
 
 export default function ChangePasswordForm() {
   const { toast } = useToast();
 
   const changePasswordSchema = z
     .object({
+      currentPassword: z
+        .string()
+        .min(1, 'Current password is required'),
       password: z
         .string()
         .min(6, 'Password should be at least 6 characters long'),
@@ -39,15 +41,14 @@ export default function ChangePasswordForm() {
 
   async function onSubmit(data: z.infer<typeof changePasswordSchema>) {
     try {
-      await updatePassword(data.password);
-
-      toast({
-        title: 'Password changed successfully',
-      });
+      await updatePassword(data.currentPassword, data.password);
+      form.reset();
+      toast({ title: 'Password changed successfully' });
     } catch (error) {
       toast({
         title: 'Error changing password',
         description: String(error),
+        variant: 'destructive',
       });
     }
   }
@@ -60,6 +61,24 @@ export default function ChangePasswordForm() {
       >
         <FormField
           control={form.control}
+          name="currentPassword"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Current Password</FormLabel>
+              <FormControl>
+                <Input
+                  type="password"
+                  {...field}
+                  placeholder="Enter current password"
+                  autoComplete="current-password"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
           name="password"
           render={({ field }) => (
             <FormItem>
@@ -69,6 +88,7 @@ export default function ChangePasswordForm() {
                   type="password"
                   {...field}
                   placeholder="Enter new password"
+                  autoComplete="new-password"
                 />
               </FormControl>
               <FormMessage />
@@ -86,13 +106,14 @@ export default function ChangePasswordForm() {
                   type="password"
                   {...field}
                   placeholder="Confirm new password"
+                  autoComplete="new-password"
                 />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <div className='flex flex-row justify-end'>
+        <div className="flex flex-row justify-end">
           <Button type="submit">Change Password</Button>
         </div>
       </form>

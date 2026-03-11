@@ -22,6 +22,7 @@ export default async function Dashboard({
   const { nameInitials } = await getProfileInfo();
 
   const user = await getUser();
+  const role = (user as any)?.role;
   return (
     <div className="max-h-screen h-full overflow-clip w-full">
       <div className="flex flex-col h-full">
@@ -46,7 +47,7 @@ export default async function Dashboard({
                 <Link href={'/study'}>
                   <DropdownMenuItem>Study</DropdownMenuItem>
                 </Link>
-                {user?.user_metadata.role == 'teacher' && (
+                {role === 'teacher' && (
                   <>
                     <Link href={'/teach'}>
                       <DropdownMenuItem>Teach</DropdownMenuItem>

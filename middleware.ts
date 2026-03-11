@@ -1,33 +1,45 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { updateSession } from "@/utils/supabase/middleware";
-import { getUser } from "./lib/getUser";
+import { betterFetch } from "@better-fetch/fetch";
+import type { Session } from "@/lib/auth";
 
 export async function middleware(request: NextRequest) {
-  const user = await getUser();
+  const { data: session } = await betterFetch<Session>(
+    "/api/auth/get-session",
+    {
+      baseURL: request.nextUrl.origin,
+      headers: {
+        cookie: request.headers.get("cookie") ?? "",
+      },
+    },
+  );
 
-  if (!user) {
-    void updateSession(request)
-    return NextResponse.redirect(new URL('/sign-in', request.url))
+  if (!session) {
+    return NextResponse.redirect(new URL('/sign-in', request.url));
   }
 
-  if ((request.nextUrl.pathname.startsWith('/teach') || request.nextUrl.pathname.startsWith('/build')) && user.user_metadata.role == 'student') {
-    void updateSession(request)
-    return NextResponse.redirect(new URL('/study', request.url))
+  const role = (session.user as any).role;
+  if (
+    (request.nextUrl.pathname.startsWith('/teach') ||
+      request.nextUrl.pathname.startsWith('/build')) &&
+    role === 'student'
+  ) {
+    return NextResponse.redirect(new URL('/study', request.url));
   }
-  return await updateSession(request);
+
+  return NextResponse.next();
 }
 
 export const config = {
   matcher: [
     /*
      * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - images - .svg, .png, .jpg, .jpeg, .gif, .webp
+     * - _next/static / _next/image (static assets)
+     * - favicon.ico
+     * - sign-in / sign-up (public auth pages)
+     * - api/auth (Better Auth API — must never be intercepted)
      * - root path (/) for landing page
-     * Feel free to modify this pattern to include more paths.
+     * - image files
      */
-    "/((?!_next/static|_next/image|favicon.ico|sign-in|sign-up|manifest.json|^/$|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|sign-in|sign-up|api/auth|api/webhooks|manifest.json|^/$|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

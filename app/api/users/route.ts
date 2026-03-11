@@ -1,4 +1,4 @@
-import { allUsers, signUp } from '@/controllers/users';
+import { allUsers } from '@/controllers/users';
 import { NextResponse, NextRequest } from 'next/server';
 
 export async function GET() {
@@ -19,12 +19,5 @@ export async function GET() {
   }
 
 export async function POST(req: NextRequest){
-  try {
-    const body = await req.json();
-    return NextResponse.json(signUp(body));
-  } catch (error){
-    console.log(error);
-    return NextResponse.json({});
-  }
-
+  return NextResponse.json({ error: 'User registration is handled via /api/auth/sign-up' }, { status: 410 });
 }

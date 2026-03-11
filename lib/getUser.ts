@@ -1,11 +1,7 @@
-import { createClient } from '@/utils/supabase/server';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
 
 export async function getUser() {
-  const supabase = createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  return user;
+  const session = await auth.api.getSession({ headers: headers() });
+  return session?.user ?? null;
 }

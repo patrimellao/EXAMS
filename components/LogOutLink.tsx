@@ -1,19 +1,23 @@
 'use client';
-import Link from 'next/link';
 import * as React from 'react';
-import { createClient } from '@/utils/supabase/client';
+import { authClient } from '@/lib/auth-client';
 import { DropdownMenuItem } from './ui/dropdown-menu';
+import { useRouter } from 'next/navigation';
 
 export const LogOutLink = () => {
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => router.push('/sign-in'),
+      },
+    });
+  };
+
   return (
-    <Link href={'/sign-in'} onClick={() => signOut()}>
-      <DropdownMenuItem>Logout</DropdownMenuItem>
-    </Link>
+    <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
+      Logout
+    </DropdownMenuItem>
   );
 };
-
-export async function signOut() {
-  const supabase = createClient();
-  const { error } = await supabase.auth.signOut();
-  return error;
-}

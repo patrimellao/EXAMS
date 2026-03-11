@@ -20,9 +20,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { UUID } from 'crypto';
-import { User } from '@supabase/supabase-js';
 
-export default function SubjectSelectionCard({ user }: { user: User }) {
+interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export default function SubjectSelectionCard({ user }: { user: AuthUser }) {
   const [selectedSubjects, setSelectedSubjects] = useState<Subject[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [isPending, startTransition] = useTransition();

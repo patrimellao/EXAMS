@@ -1,46 +1,42 @@
 import { viewCounterAchievements } from "@/interfaces/viewCounterAchievements";
-import { getUser } from "@/lib/getUser";
+import { auth } from "@/lib/auth";
 import { db } from "@/utils/drizzle/db";
 import { eq } from "drizzle-orm";
-import { NextResponse } from "next/server";
+import { headers } from "next/headers";
 
 export const getProfileInfo = async () => {
-    const user = await getUser();
+  const session = await auth.api.getSession({ headers: headers() });
 
-    if (!user){
-        NextResponse.json("Unable to find user");
-    }
-    
-    const nameParts = user?.user_metadata.full_name.trim().split(' ');
+  if (!session?.user) {
+    return { nameInitials: '??', userName: 'Unknown', joinedAt: null };
+  }
 
-    const firstNameInitial = nameParts[0].charAt(0).toUpperCase();
-    const lastNameInitial = nameParts[1].charAt(0).toUpperCase();
-    const fullNameInitials = firstNameInitial + lastNameInitial;
+  const userName = session.user.name ?? '';
+  const nameParts = userName.trim().split(' ');
+  const firstNameInitial = nameParts[0]?.charAt(0).toUpperCase() ?? '?';
+  const lastNameInitial = nameParts[1]?.charAt(0).toUpperCase() ?? '?';
+  const nameInitials = firstNameInitial + lastNameInitial;
 
-    return {
-        nameInitials: fullNameInitials,
-        userName: user?.user_metadata.full_name,
-        joinedAt: user?.created_at
-    }
-}
+  return {
+    nameInitials,
+    userName,
+    joinedAt: session.user.createdAt.toISOString(),
+  };
+};
 
 export const getUserStats = async () => {
-    const user = await getUser();
+  const session = await auth.api.getSession({ headers: headers() });
 
-    if (!user){
-        NextResponse.json("Unable to find user");
-    }
+  if (!session?.user) return null;
 
-    const data = await db
+  const data = await db
     .select({
-        quizzesDone : viewCounterAchievements.quizzesDone,
-        quizzesPassed : viewCounterAchievements.quizzesPassed,
-        quizzesPerfect : viewCounterAchievements.quizzesPerfect,
+      quizzesDone: viewCounterAchievements.quizzesDone,
+      quizzesPassed: viewCounterAchievements.quizzesPassed,
+      quizzesPerfect: viewCounterAchievements.quizzesPerfect,
     })
     .from(viewCounterAchievements)
-    .where(
-        eq(viewCounterAchievements.userId, user!.id)
-    )
+    .where(eq(viewCounterAchievements.userId, session.user.id));
 
-    return data[0];
-}
+  return data[0];
+};

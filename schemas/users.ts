@@ -4,6 +4,8 @@ export const users = pgTable("users", {
   id: uuid("id").primaryKey().notNull(),
   fullName: varchar("full_name", { length: 256 }),
   email: varchar("email", { length: 256 }),
+  emailVerified: boolean("email_verified").default(false).notNull(),
+  role: varchar("role", { length: 20 }).default('student').notNull(),
   createdAt: timestamp("created_at", { mode: 'string' }),
   updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().notNull(),
   // Gamification

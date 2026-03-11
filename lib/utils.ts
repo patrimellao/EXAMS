@@ -1,25 +1,14 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { createClient as createClientClient } from '@/utils/supabase/client';
-import { NextResponse } from "next/server";
+import { authClient } from "@/lib/auth-client";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export async function updatePassword(newPassword : string){
-
-  const supabase = await createClientClient();
-
-  const { data, error } = await supabase.auth.updateUser({
-    password: newPassword
-  })
-
-  if(error){
-    return NextResponse.json(error);
-  }
-
-  return data;
+export async function updatePassword(currentPassword: string, newPassword: string) {
+  const { error } = await authClient.changePassword({ currentPassword, newPassword });
+  if (error) throw new Error(error.message);
 }
 
 export const getEmoji = (type: number) => {
