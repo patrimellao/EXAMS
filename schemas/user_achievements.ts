@@ -1,10 +1,10 @@
-import { pgTable, serial, boolean, timestamp, integer, uuid, primaryKey } from "drizzle-orm/pg-core";
+import { pgTable, serial, boolean, timestamp, integer, text, primaryKey } from "drizzle-orm/pg-core";
 import { users } from "./users";
 import { achievements } from "./achievements";
 
 
 export const userAchievement = pgTable("user_achievement", {
-	userId: uuid("user_Id").notNull().references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" } ),
+	userId: text("user_Id").notNull().references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" } ),
 	achievementId: integer("achievement_id").notNull().references(() => achievements.id, { onDelete: "cascade", onUpdate: "cascade" } ),
 	createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
 },

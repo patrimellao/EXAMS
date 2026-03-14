@@ -1,10 +1,10 @@
-import { pgTable, serial, timestamp, uuid, smallint, integer, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, serial, timestamp, text, smallint, integer, jsonb } from "drizzle-orm/pg-core";
 import { users } from "./users";
 import { units } from "./units";
 
 export const quizzes = pgTable("quizzes", {
   id: serial("id").primaryKey().notNull(),
-  userId: uuid("user_id").references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
+  userId: text("user_id").references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
   unitId: integer("unit_id").references(() => units.id, { onDelete: "cascade", onUpdate: "cascade" }),
   score: smallint("score"),
   // Time tracking

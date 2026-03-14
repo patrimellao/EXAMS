@@ -1,9 +1,9 @@
-import { pgTable, serial, timestamp, uuid, varchar, unique, index } from "drizzle-orm/pg-core";
+import { pgTable, serial, timestamp, text, varchar, unique, index } from "drizzle-orm/pg-core";
 import { users } from "./users";
 
 export const subscriptions = pgTable("subscriptions", {
   id: serial("id").primaryKey().notNull(),
-  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
   tier: varchar("tier", { length: 20 }).notNull(),       // 'free' | 'pro_monthly' | 'pro_yearly'
   status: varchar("status", { length: 20 }).notNull(),   // 'active' | 'cancelled' | 'past_due' | 'trialing'
   lsCustomerId: varchar("ls_customer_id", { length: 256 }),

@@ -1,10 +1,10 @@
-import { pgTable, serial, timestamp, uuid, integer, boolean, unique } from "drizzle-orm/pg-core";
+import { pgTable, serial, timestamp, text, integer, boolean, unique } from "drizzle-orm/pg-core";
 import { users } from "./users";
 import { units } from "./units";
 
 export const unitProgress = pgTable("unit_progress", {
   id: serial("id").primaryKey().notNull(),
-  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
   unitId: integer("unit_id").notNull().references(() => units.id, { onDelete: "cascade", onUpdate: "cascade" }),
   lessonsCompleted: integer("lessons_completed").default(0).notNull(),
   lessonsTotal: integer("lessons_total").notNull(),

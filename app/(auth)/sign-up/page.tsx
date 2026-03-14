@@ -35,12 +35,13 @@ export default function Login(){
           variant: "destructive",
           title: error.message
         });
-      }else 
+      } else {
         toast({
           variant: "primary",
           title: "Account created successfully! Please sign in."
         });
         router.push('/sign-in');
+      }
     });
   }
   

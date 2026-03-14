@@ -1,10 +1,10 @@
-import { pgTable, serial, timestamp, uuid, integer, varchar, unique, index } from "drizzle-orm/pg-core";
+import { pgTable, serial, timestamp, text, integer, varchar, unique, index } from "drizzle-orm/pg-core";
 import { users } from "./users";
 import { lessons } from "./lessons";
 
 export const lessonProgress = pgTable("lesson_progress", {
   id: serial("id").primaryKey().notNull(),
-  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
   lessonId: integer("lesson_id").notNull().references(() => lessons.id, { onDelete: "cascade", onUpdate: "cascade" }),
   status: varchar("status", { length: 20 }).default('not_started').notNull(), // 'not_started' | 'in_progress' | 'completed'
   completedAt: timestamp("completed_at", { mode: 'string' }),

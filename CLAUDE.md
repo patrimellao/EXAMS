@@ -2,6 +2,15 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Testing Policy
+
+> **Always update or add Playwright tests before implementing any new feature.**
+>
+> 1. Identify which test file(s) are affected by the new feature (auth, quiz, leaderboard, etc.).
+> 2. Write or update the tests to cover the new behaviour **first** (test-driven, or at minimum alongside the feature).
+> 3. Run the full test suite with `npx playwright test` and confirm it passes before opening a PR or marking a task complete.
+> 4. Tests live in `tests/` and are grouped by domain (`tests/auth/`, `tests/quiz/`, …).
+
 ## Commands
 
 ### Development

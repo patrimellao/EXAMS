@@ -1,9 +1,9 @@
-import { pgTable, serial, timestamp, uuid, integer, varchar, index } from "drizzle-orm/pg-core";
+import { pgTable, serial, timestamp, text, integer, varchar, index } from "drizzle-orm/pg-core";
 import { users } from "./users";
 
 export const xpTransactions = pgTable("xp_transactions", {
   id: serial("id").primaryKey().notNull(),
-  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
   amount: integer("amount").notNull(),
   sourceType: varchar("source_type", { length: 50 }).notNull(), // 'quiz' | 'lesson' | 'streak_bonus' | 'achievement'
   sourceId: integer("source_id"),

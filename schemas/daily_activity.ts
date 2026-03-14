@@ -1,9 +1,9 @@
-import { pgTable, serial, timestamp, uuid, integer, date, unique, index } from "drizzle-orm/pg-core";
+import { pgTable, serial, timestamp, text, integer, date, unique, index } from "drizzle-orm/pg-core";
 import { users } from "./users";
 
 export const dailyActivity = pgTable("daily_activity", {
   id: serial("id").primaryKey().notNull(),
-  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
   activityDate: date("activity_date").notNull(),
   quizzesDone: integer("quizzes_done").default(0).notNull(),
   lessonsCompleted: integer("lessons_completed").default(0).notNull(),

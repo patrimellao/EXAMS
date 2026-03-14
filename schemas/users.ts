@@ -1,13 +1,13 @@
-import { pgTable, varchar, timestamp, foreignKey, uuid, unique, integer, smallint, boolean, text, date } from "drizzle-orm/pg-core";
+import { pgTable, varchar, timestamp, text, integer, smallint, boolean, date } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
-  id: uuid("id").primaryKey().notNull(),
+  id: text("id").primaryKey().notNull(),
   fullName: varchar("full_name", { length: 256 }),
   email: varchar("email", { length: 256 }),
   emailVerified: boolean("email_verified").default(false).notNull(),
   role: varchar("role", { length: 20 }).default('student').notNull(),
-  createdAt: timestamp("created_at", { mode: 'string' }),
-  updatedAt: timestamp("updated_at", { mode: 'string' }).defaultNow().notNull(),
+  createdAt: timestamp("created_at", { mode: 'date' }),
+  updatedAt: timestamp("updated_at", { mode: 'date' }).defaultNow().notNull(),
   // Gamification
   xp: integer("xp").default(0).notNull(),
   level: smallint("level").default(1).notNull(),
@@ -21,17 +21,7 @@ export const users = pgTable("users", {
   isProfilePublic: boolean("is_profile_public").default(false).notNull(),
   // Subscription (denormalized for fast middleware checks)
   subscriptionTier: varchar("subscription_tier", { length: 20 }).default('free').notNull(),
-},
-  (table) => {
-    return {
-      usersIdFkey: foreignKey({
-        columns: [table.id],
-        foreignColumns: [table.id],
-        name: "users_id_fkey"
-      }).onUpdate("cascade").onDelete("cascade"),
-      usersAuthIdUnique: unique("users_auth_id_unique").on(table.id),
-    }
-  });
+});
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
