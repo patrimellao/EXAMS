@@ -7,7 +7,26 @@
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\({k:list\\(v.keys\\(\\)\\) if isinstance\\(v,dict\\) else v for k,v in d.get\\(''''tables'''',{}\\).items\\(\\)}, indent=2\\)\\)\")",
       "WebSearch",
       "WebFetch(domain:orm.drizzle.team)",
-      "WebFetch(domain:zod.dev)"
+      "WebFetch(domain:zod.dev)",
+      "Bash(docker-compose up:*)",
+      "Bash(ls /c/Users/pelai/Documents/Jean-Monnet-Serious-Game/.env* 2>/dev/null || echo \"No .env files found\")",
+      "Bash(docker ps:*)",
+      "Bash(docker exec:*)",
+      "Bash(npm install:*)",
+      "Bash(netstat -ano | grep \":3000\" | head -5)",
+      "Bash(netstat -ano | grep -E \":3000|:3001\" | grep LISTEN)",
+      "Bash(npm list:*)",
+      "Bash(npx playwright:*)",
+      "Bash(curl:*)",
+      "Bash(ls:*)",
+      "Bash(netstat:*)",
+      "Bash(tasklist:*)",
+      "Bash(grep:*)",
+      "Bash(node:*)",
+      "Bash(git fetch:*)",
+      "Bash(git merge:*)",
+      "Bash(git checkout:*)",
+      "Bash(docker-compose down:*)"
     ]
   }
 }
