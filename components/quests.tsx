@@ -6,8 +6,8 @@ import { getEmoji } from '@/lib/utils';
 export const Quests = async () => {
   const userStats = await getAchievementsProgress();
 
-  const getQuestType = (type: number) => {
-    switch (type) {
+  const getQuestType = (type: string | number) => {
+    switch (Number(type)) {
       case 1:
         return 'Quizzes done';
       case 2:

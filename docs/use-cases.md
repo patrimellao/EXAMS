@@ -150,99 +150,121 @@ Wireframe mockups live in `Evolucion/`.
 
 ---
 
-## Phase 1 — Gamification
+## Phase 1 — Gamification  ✅ Implemented
 
 ---
 
 ### UC-06 · Student takes a quiz
 **Actor:** Student
 **Wireframe:** `Evolucion/tufolio_examenes.html`
-**Entry:** `/study/[subjectId]` → unidad → "Iniciar test" → `/quiz/[quizId]`
+**Entry:** `/study/[subjectId]` → unidad → botón quiz → `/quiz/[quizId]`
+**Status:** ✅ Done
 
 | Layer | File | Role |
 |-------|------|------|
-| Page | `app/(main)/study/[id]/page.tsx` | Lista unidades con estado (completado / en progreso / bloqueado) |
-| Page | `app/(main)/quiz/[id]/page.tsx` | Motor del quiz: pregunta, opciones, timer (Phase 2), navegación |
-| API | `POST /api/quizzes` | Crea fila en `quizzes`, genera `quiz_details` por cada pregunta |
-| API | `PATCH /api/quizzes/[id]` | *(Phase 2)* Registra respuesta individual |
-| API | `POST /api/quizzes/[id]/finish` | Score final, XP, puntos, streak update |
-| Controller | `controllers/quizzes.ts · getActiveQuizzes()` | Carga quizzes activos de una asignatura por unidad |
-| Controller | `controllers/quizzes.ts · getQuiz()` | Devuelve preguntas barajadas con respuestas |
-| Controller | `controllers/quizzes.ts · submitQuiz()` | Persiste resultado si mejora el score previo |
-| Controller | `controllers/quizzes.ts · updateScore()` | Actualiza `quizzes.score` |
-| Controller | `controllers/achievements.ts · checkAndAssignAchievements()` | Evalúa y asigna logros tras el quiz |
-| DB | `quizzes`, `quiz_details`, `users` (xp, points), `daily_activity` | Estado y resultado |
+| Page | `app/(main)/study/[id]/page.tsx` | Lista unidades; `LessonButton` por cada quiz con estado (check / star / lock) |
+| Component | `app/(main)/quiz/[id]/Quiz.tsx` | Motor del quiz: gestiona pregunta actual, respuestas, submit |
+| Component | `app/(main)/quiz/[id]/Test.tsx` | Render de una pregunta con feedback visual por respuesta |
+| Component | `app/(main)/quiz/[id]/QuizResults.tsx` | Pantalla final: score, `+XP` ⚡, racha 🔥, confetti |
+| Controller | `controllers/quizzes.ts · getQuiz()` | Carga quiz con `quiz_details → question → answers` (orden aleatorio) |
+| Controller | `controllers/quizzes.ts · submitQuiz()` | Si `score > previousScore`: actualiza quiz_details, score, XP, streak, Redis leaderboard, logros |
+| Controller | `controllers/quizzes.ts · awardXp()` *(private)* | Inserta `xp_transactions`; incrementa `users.xp / totalPoints / level` en un UPDATE |
+| Controller | `controllers/quizzes.ts · updateStreak()` *(private)* | Lógica de racha diaria; actualiza `users.currentStreak / longestStreak / lastActivityDate` |
+| DB | `quizzes`, `quiz_details`, `users`, `xp_transactions` | Estado, resultado y gamificación |
+| Cache | `lib/redis/leaderboard.ts · addPoints()` | Escribe puntos del quiz en Redis tras submit |
+
+**XP formula:** `questionsCount × 5 + (score ≥ 70 ? 20 : 0) + (score = 100 ? 30 : 0)`
+**Level up:** cada 500 XP → `level = floor(xp / 500) + 1`
 
 **Flujo:**
-1. Student pulsa "Iniciar" → `POST /api/quizzes` → crea `quizzes` + `quiz_details` por pregunta
-2. Responde cada pregunta (opciones A/B/C/D) → botón "Siguiente"
-3. Última pregunta → "Finalizar" → `submitQuiz()`:
-   - Si `score > previousScore`: actualiza score + quiz_details
-   - Llama a `checkAndAssignAchievements()`
-4. Muestra pantalla de resultados con breakdown de respuestas + explicaciones
+1. Student pulsa el botón de quiz → `getQuiz(id)` carga preguntas con respuestas en orden aleatorio
+2. Responde cada pregunta → botón "Next" avanza; al completar todas llama a `submitQuiz()`
+3. `submitQuiz()` solo persiste si `score > previousScore` (no penaliza reintentos):
+   - Actualiza `quiz_details.correct` por pregunta
+   - Calcula XP earned → inserta `xp_transactions` → incrementa `users.xp/level/totalPoints`
+   - Actualiza streak: `lastActivityDate` ≠ hoy → incrementa; streak roto → reset a 1
+   - Escribe en Redis: `leaderboard:global` y `leaderboard:subject:{id}`
+   - Llama a `checkAndAssignAchievements()` → devuelve logros nuevos
+4. Retorna `{ achievements, xpEarned, streak }` → `QuizResults` muestra `+N XP` y racha
+5. Achievement toasts se disparan via Sonner en el cliente
 
-**Edge cases:** unidad sin preguntas · quiz previo no finalizado · empate de score (no sobrescribe) · unidad bloqueada por suscripción (Phase 3)
+**Edge cases:** `score = previousScore` → no re-escribe · primer quiz (`previousScore = null`) → siempre guarda · Redis caído → `try/catch` silencioso, no bloquea el submit
 
 ---
 
 ### UC-07 · Student earns an achievement
-**Actor:** Student (disparado por sistema al finalizar quiz)
+**Actor:** Student (disparado automáticamente tras quiz)
 **Entry:** Automático tras `submitQuiz()`
+**Status:** ✅ Done
 
 | Layer | File | Role |
 |-------|------|------|
-| Controller | `controllers/achievements.ts · checkAndAssignAchievements()` | Query SQL sobre `view_counter_achievements`; inserta en `user_achievements` si cumple umbral |
-| Controller | `controllers/achievements.ts · getAchievements()` | Recupera logros del usuario para mostrar en perfil/dashboard |
-| DB | `achievements`, `user_achievements`, `view_counter_achievements` (vista) | Definición y asignación de logros |
+| Controller | `controllers/achievements.ts · checkAndAssignAchievements()` | Raw SQL sobre `view_counter_achievements`; inserta en `user_achievement` los umbrales superados no asignados |
+| Controller | `controllers/achievements.ts · getAchievements()` | Recupera logros del usuario (join `user_achievement → achievements`) para `/profile` |
+| Controller | `controllers/achievements.ts · getAchievementsProgress()` | Devuelve progreso hacia próximos logros (para `Quests` component) |
+| Component | `app/(main)/quiz/[id]/Quiz.tsx` | Llama `sonnerToast` por cada logro recibido en el resultado de `submitQuiz` |
+| DB | `achievements`, `user_achievement`, `view_counter_achievements` (vista SQL) | Definición, asignación y contadores |
+| DB | `scripts/setup-db.sql` | Crea la vista `view_counter_achievements` y la función `get_number_of_quizzes()` |
+
+**Tipos de logros (campo `type`):**
+- `'1'` → quizzes completados (threshold: 1, 5, 10)
+- `'2'` → quizzes aprobados ≥70% (threshold: 1, 5, 10)
+- `'3'` → quizzes perfectos 100% (threshold: 1, 3, 5)
 
 **Flujo:**
-1. `submitQuiz()` llama a `checkAndAssignAchievements()`
-2. La función consulta la vista `view_counter_achievements` (quizzes hechos, pasados, perfectos)
-3. Compara con umbrales de `achievements`; inserta en `user_achievements` los no asignados aún
-4. UI muestra el logro desbloqueado (toast / modal en resultados del quiz)
-
-**Tipos de logros:** score (nota), streak (racha), completion (lecciones), speed (tiempo) ← Phase 2
+1. `submitQuiz()` llama a `checkAndAssignAchievements()` al final
+2. La función consulta `view_counter_achievements` (quizzes_done, passed, perfect del usuario)
+3. Cross-join con `achievements` filtra los no asignados aún que superan umbral
+4. Inserta en `user_achievement`; devuelve array de logros nuevos
+5. `Quiz.tsx` itera el array → `sonnerToast(emoji + name, { description })` por cada uno
 
 ---
 
 ### UC-08 · Student views leaderboard
 **Actor:** Student
 **Wireframe:** `Evolucion/tufolio_ranking.html`
-**Entry:** Navegación principal → "Ranking" → `/leaderboard` *(ruta pendiente)*
+**Entry:** Menú "Ranking" (header dropdown + sidebar) → `/leaderboard`
+**Status:** ✅ Done
 
 | Layer | File | Role |
 |-------|------|------|
-| Page | `app/(main)/leaderboard/page.tsx` *(por crear)* | Tabla de ranking con tabs: por asignatura / global; filtro de periodo |
-| API | `GET /api/leaderboard?subjectId=&period=` *(por crear)* | Devuelve ranking paginado |
-| Controller | `controllers/leaderboard.ts` *(por crear)* | Query PostgreSQL `RANK()` sobre `users.total_points` o `xp_transactions` |
-| Cache | `lib/redis/leaderboard.ts` | Cache 5 min por subject; invalida tras `submitQuiz` |
-| DB | `users`, `user_subjects`, `xp_transactions` | Fuente de datos del ranking |
+| Page | `app/(main)/leaderboard/page.tsx` | SSR: tabla ranking con top-3 icons, fila del usuario resaltada, tabs global/asignatura |
+| Component | `app/(main)/leaderboard/LeaderboardTabs.tsx` | Client component: tabs filtro por asignatura enrollada |
+| API | `GET /api/leaderboard?subjectId=` | Ruta pública; delega a `getLeaderboard()` |
+| Controller | `controllers/leaderboard.ts · getLeaderboard()` | Redis-first; fallback a PostgreSQL si cache < 3 entries |
+| Cache | `lib/redis/leaderboard.ts` | `getTopN(limit, subjectId?)` — sorted set `leaderboard:global` / `leaderboard:subject:{id}` |
+| DB | `users.totalPoints` | Fuente de verdad para el fallback PostgreSQL |
 
 **Flujo:**
-1. Student accede a `/leaderboard` → carga ranking global por defecto
-2. Puede filtrar por asignatura (tab) y periodo (semana / mes / total)
-3. Cache Redis sirve la respuesta; si miss → query PostgreSQL `RANK()` → escribe cache
+1. Student navega a `/leaderboard` → SSR carga `getLeaderboard(subjectId?)`
+2. Intenta Redis (`getTopN`) → si ≥3 entradas: enriquece con nombres desde DB → devuelve
+3. Si Redis frío (< 3): query `SELECT id, full_name, total_points FROM users ORDER BY total_points DESC LIMIT 50`
+4. Página muestra tabla con 🏆🥈🥉 para top 3, fila del usuario con badge "You"
+5. `LeaderboardTabs` permite filtrar: "Global" o cualquier asignatura del usuario
 
-**Edge cases:** empate en puntos (mismo rank) · student no inscrito en asignatura filtrada
+**Escritura en Redis:** `submitQuiz()` llama `leaderboardService.addPoints(userId, score)` tras cada quiz (global + subject)
 
 ---
 
-### UC-09 · Student views dashboard
+### UC-09 · Student views dashboard stats
 **Actor:** Student
-**Wireframe:** `Evolucion/tufolio_portal por dentro.html` (sección "Inicio")
-**Entry:** `/study` (home del área privada) o navegación principal
+**Wireframe:** `Evolucion/tufolio_portal por dentro.html` (sidebar stats)
+**Entry:** Cualquier página de `/study/[subjectId]` (sidebar siempre visible)
+**Status:** ✅ Done
 
 | Layer | File | Role |
 |-------|------|------|
-| Page | `app/(main)/study/page.tsx` | Bienvenida, barra XP, nivel, streak, logros recientes, "continúa donde lo dejaste" |
-| Controller | `controllers/profiles.ts · getProfileInfo()` | Nombre, iniciales, fecha de registro |
-| Controller | `controllers/profiles.ts · getUserStats()` | Quizzes hechos, pasados, perfectos |
-| Controller | `controllers/achievements.ts · getAchievements()` | Últimos logros para mostrar badges |
-| DB | `users` (xp, level, streak), `user_stats`, `user_achievements`, `daily_activity` | Métricas del estudiante |
+| Component | `components/UserStatsBar.tsx` | RSC: barra XP → nivel, racha, puntos con link al leaderboard |
+| Component | `components/StudentSidebar.tsx` | Incluye `UserStatsBar` en el pie + botón "Ranking" |
+| Controller | `controllers/profiles.ts · getUserGameStats()` | Query `users.xp / level / currentStreak / totalPoints` por userId |
+| Layout | `app/(main)/study/[id]/layout.tsx` | Renderiza `StudentSidebar` con `UserStatsBar` |
+
+**XP bar display:** `xpInLevel = xp % 500` · `progress% = (xpInLevel / 500) × 100`
 
 **Flujo:**
-1. SSR: carga paralela de `getProfileInfo`, `getUserStats`, `getAchievements`, datos de asignaturas
-2. Renderiza: barra XP con nivel · contador de racha · badges recientes · tarjetas de asignaturas inscritas
+1. RSC `StudentSidebar` hace render en cada request de `/study/[subjectId]`
+2. `UserStatsBar` llama `getUserGameStats()` → query DB por el userId de Supabase
+3. Renderiza: barra XP con `Level N · M/500 XP` + racha 🔥 + puntos totales (link → `/leaderboard`)
 
 ---
 
