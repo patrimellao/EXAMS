@@ -5,42 +5,56 @@ import { FeedWrapper } from '@/components/feed-wrapper';
 import { StickyWrapper } from '@/components/sticky-wrapper';
 
 import { Unit } from './unit';
-import { getActiveUnits } from '@/controllers/unit';
+import { getActiveUnits, getUnitProgressForUser } from '@/controllers/unit';
+import { getLessonsForUnit } from '@/controllers/lessons';
 
 import { getUser } from "@/lib/getUser";
 import { UUID } from 'crypto';
 
 const LearnPage = async ({ params }: { params: { id: string } }) => {
-  const [
-    userProgress,
-    courseProgress,
-    lessonPercentage,
-  ]: any[] = [{}, {}, {}, {}];
-
-
   const user = await getUser();
   if (!user) {
     redirect('/sign-in');
   }
-  const units = await getActiveUnits(Number(params.id), user.id as UUID);
+
+  const subjectId = Number(params.id);
+  const [units, unitProgressList] = await Promise.all([
+    getActiveUnits(subjectId, user.id as UUID),
+    getUnitProgressForUser(user.id, subjectId),
+  ]);
+
+  // Build a map unitId → progress for quick lookup
+  const progressMap = Object.fromEntries(
+    unitProgressList.map((p) => [p.unitId, p])
+  );
+
+  // Load lessons per unit in parallel
+  const lessonsPerUnit = await Promise.all(
+    units.map((unit) => getLessonsForUnit(unit.id))
+  );
+  const lessonsMap = Object.fromEntries(
+    units.map((unit, i) => [unit.id, lessonsPerUnit[i]])
+  );
 
   return (
-    <div className="flex flex-row-reverse gap-[24px] p-6 ">
+    <div className="flex flex-row-reverse gap-[24px] p-6">
       <StickyWrapper>
-        <Quests/>
+        <Quests />
       </StickyWrapper>
       <FeedWrapper>
-        {units.map(unit => (
+        {units.map((unit) => (
           <Unit
             key={unit.id}
             id={unit.id}
-            order={1}
+            subjectId={subjectId}
+            order={unit.order}
             description={unit.description}
             title={unit.name}
-            lessons={unit.quizzes}
-            activeLesson={courseProgress.activeLesson}
-            activeLessonPercentage={lessonPercentage}
+            quizzes={unit.quizzes}
+            lessons={lessonsMap[unit.id] ?? []}
             numberOfQuizzes={unit.numOfQuizzes}
+            unitProgress={progressMap[unit.id] ?? null}
+            unlockPreviousRequired={unit.unlockPreviousRequired}
           />
         ))}
       </FeedWrapper>

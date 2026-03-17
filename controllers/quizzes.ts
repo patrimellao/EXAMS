@@ -9,6 +9,7 @@ import { UUID } from "crypto";
 
 import { eq, and, count, gt, gte } from "drizzle-orm";
 import { checkAndAssignAchievements } from "./achievements";
+import { unlockNextUnit } from "./unit";
 import { NextResponse } from "next/server";
 
 // export const addQuiz = async (quiz: InsertQuiz) => {
@@ -135,11 +136,24 @@ export const submitQuiz = async (allQuizzesAnswers: quizAnswers, score: number, 
     }
 
     try {
-
-      return await checkAndAssignAchievements()
-
+      await checkAndAssignAchievements();
     } catch (error) {
-      console.log("Error updating achievements")
+      console.log("Error updating achievements");
+    }
+
+    // UC-12: Unlock next unit if score passes (≥ 70)
+    if (score >= 70) {
+      try {
+        const quiz = await db.query.quizzes.findFirst({
+          where: (q, { eq }) => eq(q.id, quizId),
+          columns: { unitId: true, userId: true },
+        });
+        if (quiz?.unitId && quiz?.userId) {
+          await unlockNextUnit(quiz.userId, quiz.unitId);
+        }
+      } catch (error) {
+        console.log("Error unlocking next unit");
+      }
     }
   }
 
