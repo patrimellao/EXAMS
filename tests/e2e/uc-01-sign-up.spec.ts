@@ -23,6 +23,10 @@ const uniqueEmail = () => `test_${Date.now()}@example.com`;
 let registeredEmail: string;
 
 test.describe('UC-01 · Sign Up', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('cookie-consent', 'necessary'));
+  });
+
   test.afterAll(async () => {
     if (!registeredEmail) return;
     const client = new Client({ connectionString: DATABASE_URL });
@@ -40,7 +44,7 @@ test.describe('UC-01 · Sign Up', () => {
     await expect(page.getByLabel('First name')).toBeVisible();
     await expect(page.getByLabel('Last name')).toBeVisible();
     await expect(page.getByLabel('Email')).toBeVisible();
-    await expect(page.getByLabel('Password')).toBeVisible();
+    await expect(page.getByLabel('Password', { exact: true })).toBeVisible();
     await expect(page.getByLabel('Confirm password')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Create account' })).toBeVisible();
   });
@@ -51,12 +55,12 @@ test.describe('UC-01 · Sign Up', () => {
     await page.getByLabel('First name').fill('Ana');
     await page.getByLabel('Last name').fill('García');
     await page.getByLabel('Email').fill(uniqueEmail());
-    await page.getByLabel('Password').fill('password123');
+    await page.getByLabel('Password', { exact: true }).fill('password123');
     await page.getByLabel('Confirm password').fill('different456');
 
     await page.getByRole('button', { name: 'Create account' }).click();
 
-    await expect(page.getByText('Passwords do not match')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Passwords do not match').first()).toBeVisible({ timeout: 5000 });
   });
 
   test('shows error for invalid email format (HTML5 validation)', async ({ page }) => {
@@ -65,7 +69,7 @@ test.describe('UC-01 · Sign Up', () => {
     await page.getByLabel('First name').fill('Ana');
     await page.getByLabel('Last name').fill('García');
     await page.getByLabel('Email').fill('not-an-email');
-    await page.getByLabel('Password').fill('password123');
+    await page.getByLabel('Password', { exact: true }).fill('password123');
     await page.getByLabel('Confirm password').fill('password123');
 
     await page.getByRole('button', { name: 'Create account' }).click();
@@ -82,12 +86,12 @@ test.describe('UC-01 · Sign Up', () => {
     await page.getByLabel('First name').fill('Carlos');
     await page.getByLabel('Last name').fill('López');
     await page.getByLabel('Email').fill(registeredEmail);
-    await page.getByLabel('Password').fill('SecurePass1!');
+    await page.getByLabel('Password', { exact: true }).fill('SecurePass1!');
     await page.getByLabel('Confirm password').fill('SecurePass1!');
 
     await page.getByRole('button', { name: 'Create account' }).click();
 
-    await expect(page.getByText('Account created successfully')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Account created successfully').first()).toBeVisible({ timeout: 10000 });
     await page.waitForURL('**/sign-in', { timeout: 10000 });
     await expect(page).toHaveURL(/\/sign-in/);
   });
@@ -129,7 +133,7 @@ test.describe('UC-01 · Sign Up', () => {
     await page.getByLabel('First name').fill('Pedro');
     await page.getByLabel('Last name').fill('Martínez');
     await page.getByLabel('Email').fill(email);
-    await page.getByLabel('Password').fill('SecurePass1!');
+    await page.getByLabel('Password', { exact: true }).fill('SecurePass1!');
     await page.getByLabel('Confirm password').fill('SecurePass1!');
     await page.getByRole('button', { name: 'Create account' }).click();
     await page.waitForURL('**/sign-in', { timeout: 10000 });
@@ -139,7 +143,7 @@ test.describe('UC-01 · Sign Up', () => {
     await page.getByLabel('First name').fill('Pedro');
     await page.getByLabel('Last name').fill('Martínez');
     await page.getByLabel('Email').fill(email);
-    await page.getByLabel('Password').fill('SecurePass1!');
+    await page.getByLabel('Password', { exact: true }).fill('SecurePass1!');
     await page.getByLabel('Confirm password').fill('SecurePass1!');
     await page.getByRole('button', { name: 'Create account' }).click();
 

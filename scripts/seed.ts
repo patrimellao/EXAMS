@@ -11,7 +11,9 @@
  * ⚠️  Never run against production.
  */
 
-import 'dotenv/config';
+import dotenv from 'dotenv';
+import path from 'path';
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import * as schema from '../drizzle/schema';
@@ -483,7 +485,7 @@ async function seed() {
       longestStreak:    12,
       lastActivityDate: today,
       totalPoints:      420,
-      createdAt:        '2024-09-01 10:00:00',
+      createdAt:        new Date('2024-09-01T10:00:00Z'),
     },
     {
       id:               BRUNO_ID,
@@ -495,7 +497,7 @@ async function seed() {
       longestStreak:    8,
       lastActivityDate: yesterday,
       totalPoints:      175,
-      createdAt:        '2024-10-15 12:00:00',
+      createdAt:        new Date('2024-10-15T12:00:00Z'),
     },
     {
       id:               CARMEN_ID,
@@ -507,7 +509,7 @@ async function seed() {
       longestStreak:    1,
       lastActivityDate: today,
       totalPoints:      55,
-      createdAt:        '2025-01-20 09:00:00',
+      createdAt:        new Date('2025-01-20T09:00:00Z'),
     },
   ]);
   log('3 users inserted');

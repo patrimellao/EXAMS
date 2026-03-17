@@ -17,13 +17,14 @@ const STUDENT_PASSWORD = 'SecurePass1!';
 async function createAndSignIn(browser: any) {
   const context = await browser.newContext();
   const page = await context.newPage();
+  await page.addInitScript(() => localStorage.setItem('cookie-consent', 'necessary'));
 
   // Register
   await page.goto('/sign-up');
   await page.getByLabel('First name').fill('Gamif');
   await page.getByLabel('Last name').fill('Student');
   await page.getByLabel('Email').fill(STUDENT_EMAIL);
-  await page.getByLabel('Password').fill(STUDENT_PASSWORD);
+  await page.getByLabel('Password', { exact: true }).fill(STUDENT_PASSWORD);
   await page.getByLabel('Confirm password').fill(STUDENT_PASSWORD);
   await page.getByRole('button', { name: 'Create account' }).click();
   await page.waitForURL('**/sign-in', { timeout: 10000 });
@@ -33,7 +34,7 @@ async function createAndSignIn(browser: any) {
 async function signIn(page: Page) {
   await page.goto('/sign-in');
   await page.getByLabel('Email').fill(STUDENT_EMAIL);
-  await page.getByLabel('Password').fill(STUDENT_PASSWORD);
+  await page.getByLabel('Password', { exact: true }).fill(STUDENT_PASSWORD);
   await page.getByRole('button', { name: 'Login' }).click();
   await page.waitForURL('**/study', { timeout: 10000 });
 }
@@ -43,6 +44,10 @@ test.beforeAll(async ({ browser }) => {
 });
 
 test.describe('UC-09 · Student Views Dashboard', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('cookie-consent', 'necessary'));
+  });
+
   test('study page loads and shows subject selection after login', async ({ page }) => {
     await signIn(page);
 
@@ -54,11 +59,15 @@ test.describe('UC-09 · Student Views Dashboard', () => {
     await signIn(page);
 
     // The main layout should be visible (nav, content area)
-    await expect(page.locator('main, [role="main"], .flex-col')).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('main')).toBeVisible({ timeout: 5000 });
   });
 });
 
 test.describe('UC-06 · Student Takes a Quiz', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('cookie-consent', 'necessary'));
+  });
+
   test('quiz page requires authentication', async ({ page }) => {
     // Without session, should redirect
     await page.goto('/quiz/1');

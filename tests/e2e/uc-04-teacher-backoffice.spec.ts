@@ -20,7 +20,7 @@ const TEACHER_PASSWORD = process.env.TEACHER_PASSWORD ?? '';
 async function signInAs(page: Page, email: string, password: string) {
   await page.goto('/sign-in');
   await page.getByLabel('Email').fill(email);
-  await page.getByLabel('Password').fill(password);
+  await page.getByLabel('Password', { exact: true }).fill(password);
   await page.getByRole('button', { name: 'Login' }).click();
   await page.waitForURL('**/study', { timeout: 10000 });
 }
@@ -28,11 +28,12 @@ async function signInAs(page: Page, email: string, password: string) {
 test.beforeAll(async ({ browser }) => {
   const context = await browser.newContext();
   const page = await context.newPage();
+  await page.addInitScript(() => localStorage.setItem('cookie-consent', 'necessary'));
   await page.goto('/sign-up');
   await page.getByLabel('First name').fill('Estudiante');
   await page.getByLabel('Last name').fill('Test');
   await page.getByLabel('Email').fill(STUDENT_EMAIL);
-  await page.getByLabel('Password').fill(STUDENT_PASSWORD);
+  await page.getByLabel('Password', { exact: true }).fill(STUDENT_PASSWORD);
   await page.getByLabel('Confirm password').fill(STUDENT_PASSWORD);
   await page.getByRole('button', { name: 'Create account' }).click();
   await page.waitForURL('**/sign-in', { timeout: 10000 });
@@ -40,6 +41,10 @@ test.beforeAll(async ({ browser }) => {
 });
 
 test.describe('UC-04 · Teacher Backoffice — Role-based access control', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('cookie-consent', 'necessary'));
+  });
+
   test('student cannot access /teach — redirected', async ({ page }) => {
     await signInAs(page, STUDENT_EMAIL, STUDENT_PASSWORD);
     await page.goto('/teach');
@@ -61,7 +66,7 @@ test.describe('UC-04 · Teacher Backoffice — Role-based access control', () =>
     test('teacher can access /teach', async ({ page }) => {
       await page.goto('/sign-in');
       await page.getByLabel('Email').fill(TEACHER_EMAIL);
-      await page.getByLabel('Password').fill(TEACHER_PASSWORD);
+      await page.getByLabel('Password', { exact: true }).fill(TEACHER_PASSWORD);
       await page.getByRole('button', { name: 'Login' }).click();
       // Teacher redirects to /teach
       await page.waitForURL('**/teach', { timeout: 10000 });
@@ -71,7 +76,7 @@ test.describe('UC-04 · Teacher Backoffice — Role-based access control', () =>
     test('teacher sees subject list on /teach', async ({ page }) => {
       await page.goto('/sign-in');
       await page.getByLabel('Email').fill(TEACHER_EMAIL);
-      await page.getByLabel('Password').fill(TEACHER_PASSWORD);
+      await page.getByLabel('Password', { exact: true }).fill(TEACHER_PASSWORD);
       await page.getByRole('button', { name: 'Login' }).click();
       await page.waitForURL('**/teach', { timeout: 10000 });
 

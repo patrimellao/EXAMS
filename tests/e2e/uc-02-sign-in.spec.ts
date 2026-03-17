@@ -46,11 +46,15 @@ test.afterAll(async () => {
 });
 
 test.describe('UC-02 · Sign In', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('cookie-consent', 'necessary'));
+  });
+
   test('renders sign-in form with email and password fields', async ({ page }) => {
     await page.goto(SIGN_IN_URL);
 
     await expect(page.getByLabel('Email')).toBeVisible();
-    await expect(page.getByLabel('Password')).toBeVisible();
+    await expect(page.getByLabel('Password', { exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Login' })).toBeVisible();
   });
 
@@ -58,7 +62,7 @@ test.describe('UC-02 · Sign In', () => {
     await page.goto(SIGN_IN_URL);
 
     await page.getByLabel('Email').fill(TEST_EMAIL);
-    await page.getByLabel('Password').fill('WrongPassword123');
+    await page.getByLabel('Password', { exact: true }).fill('WrongPassword123');
     await page.getByRole('button', { name: 'Login' }).click();
 
     await expect(
@@ -70,7 +74,7 @@ test.describe('UC-02 · Sign In', () => {
     await page.goto(SIGN_IN_URL);
 
     await page.getByLabel('Email').fill('nonexistent@example.com');
-    await page.getByLabel('Password').fill('SomePassword1!');
+    await page.getByLabel('Password', { exact: true }).fill('SomePassword1!');
     await page.getByRole('button', { name: 'Login' }).click();
 
     await expect(
@@ -82,7 +86,7 @@ test.describe('UC-02 · Sign In', () => {
     await page.goto(SIGN_IN_URL);
 
     await page.getByLabel('Email').fill(TEST_EMAIL);
-    await page.getByLabel('Password').fill(TEST_PASSWORD);
+    await page.getByLabel('Password', { exact: true }).fill(TEST_PASSWORD);
     await page.getByRole('button', { name: 'Login' }).click();
 
     await page.waitForURL('**/study', { timeout: 12000 });
