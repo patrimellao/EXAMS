@@ -323,35 +323,36 @@ All tables are defined in [`schemas/`](schemas/). Drizzle Kit reads this directo
 
 ### Student
 
-| Use Case | Status |
-|----------|--------|
-| Register / login | ✅ Done |
-| Browse and enroll in subjects | ✅ Done |
-| Take a quiz, see score | ✅ Done |
-| View quiz history | ✅ Done |
-| Earn XP and level up | 🔜 Next |
-| Maintain daily study streak | 🔜 Next |
-| Earn achievement badges | 🔜 Next |
-| View leaderboard (subject / global) | 🔜 Next |
-| Read lesson articles | 🔜 Next |
-| Download lesson resources (PDFs) | 🔜 Next |
-| Track lesson + unit progress | 🔜 Next |
-| View personal stats dashboard | 🔜 Next |
-| Quiz with timer and review flags | 🔜 Next |
-| Manage subscription (upgrade / cancel) | 🔮 Future |
-| Public profile | 🔮 Future |
+| Use Case | Phase | Status |
+|----------|-------|--------|
+| Register / login | 0 | ✅ Done |
+| Browse and enroll in subjects | 0 | ✅ Done |
+| Initiate subscription (webhook backend) | 0 | ✅ Done |
+| Take a quiz, see score + explanations | 1 | ✅ Done |
+| Earn XP, level up, maintain daily streak | 1 | ✅ Done |
+| Earn achievement badges | 1 | ✅ Done |
+| View personal stats dashboard | 1 | ✅ Done |
+| View leaderboard (subject / global) | 1 | ⚠️ Pending — UC-08, no route yet |
+| Read lesson articles | 2 | ✅ Done |
+| Download lesson resources (PDFs) | 2 | ✅ Done |
+| Track lesson + unit progress | 2 | ✅ Done |
+| Sequential unit unlock | 2 | ✅ Done |
+| Upgrade subscription (pricing page) | 3 | 🔜 Next |
+| Free-tier content gate (UI) | 3 | 🔜 Next |
+| Manage subscription (cancel / billing) | 3 | 🔜 Next |
+| Public profile | 5 | 🔮 Future |
 
 ### Teacher (Backoffice)
 
-| Use Case | Status |
-|----------|--------|
-| Create / edit subjects and units | ✅ Done |
-| Create / edit questions and answers | ✅ Done |
-| Activate / deactivate content | ✅ Done |
-| Create / edit lessons (articles + files) | 🔜 Next |
-| Upload lesson resource files | 🔜 Next |
-| Mark units as free-tier accessible | 🔜 Next |
-| Configure sequential unit unlocking | 🔜 Next |
+| Use Case | Phase | Status |
+|----------|-------|--------|
+| Create / edit subjects and units | 0 | ✅ Done |
+| Create / edit questions and answers | 0 | ✅ Done |
+| Activate / deactivate content | 0 | ✅ Done |
+| Create / edit lessons (articles + files) | 2 | ✅ Done |
+| Upload lesson resource files to R2 | 2 | ✅ Done |
+| Mark units as free-tier accessible | 2 | ✅ Done |
+| Configure sequential unit unlocking | 2 | ✅ Done |
 
 ---
 
@@ -420,13 +421,32 @@ npm run push
 
 This creates all tables in the Docker PostgreSQL from the schema files in `schemas/`.
 
-### 5. Start the dev server
+### 5. Seed test data
+
+```bash
+npm run seed
+```
+
+Creates 1 teacher + 2 students, 1 subject, 2 units, 20 questions, 6 lessons, 5 achievements and enrollments.
+The script prints `TEST_*` environment variable values to paste into `.env.local` — required by Playwright.
+
+> To wipe seed data: `npm run seed:clear`
+
+### 6. Start the dev server
 
 ```bash
 npm run dev
 ```
 
 App runs at [http://localhost:3000](http://localhost:3000).
+
+### 7. Run the test suite
+
+```bash
+npx playwright test
+```
+
+Requires `.env.local` to be set up and the dev server + Docker services running.
 
 ---
 
@@ -446,6 +466,15 @@ npm run push        # Apply schema to DB (dev)
 npm run generate    # Generate SQL migration file
 npm run studio      # Drizzle Studio GUI (localhost:4983)
 npm run pull        # Introspect DB → regenerate drizzle/schema.ts
+
+# Seed / test data
+npm run seed        # Insert teacher + students + subject + units + questions + lessons + achievements
+npm run seed:clear  # Remove all rows inserted by seed (idempotent)
+
+# Tests
+npx playwright test            # Full test suite
+npx playwright test --ui       # UI mode
+npx playwright test tests/e2e/uc-01-sign-up.spec.ts  # Single file
 
 # Docker
 docker-compose up -d          # Start postgres + redis
@@ -501,48 +530,85 @@ export async function addSubject(data: InsertSubject) { ... }
 
 ## Roadmap
 
-### Phase 0 — Foundation (before first user)
-
-**Auth migration: Supabase Auth → Better Auth**
-- Install `better-auth` + Drizzle adapter (stores sessions in own DB)
-- Replace `utils/supabase/` auth calls and middleware with Better Auth equivalents
-- Remove Supabase dependency entirely
-
-**Billing: Lemon Squeezy**
-- Create LS account, products (monthly + yearly plans)
-- Implement webhook handler at `app/api/webhooks/lemonsqueezy/`
-- Webhook updates `users.subscription_tier` + `subscriptions` table
-
-**File storage: Cloudflare R2**
-- Configure R2 bucket on existing private server
-- Implement presigned URL route for teacher file uploads
-- Wire into lesson resource creation flow
-
-**Legal pages (required before launch in Spain)**
-- Aviso Legal (company info, LSSI compliance)
-- Privacy Policy (GDPR — data collected, processed, retained)
-- Cookie Policy + consent banner
-- Terms of Service (subscription terms, 14-day EU withdrawal right)
+### ✅ Phase 0 — Foundation
+- Better Auth (self-hosted sessions, Drizzle adapter) replacing Supabase Auth
+- Lemon Squeezy webhook handler (`app/api/webhooks/lemonsqueezy/`) — updates `subscription_tier`
+- Cloudflare R2 presigned URL upload flow (`app/api/storage/presign/`)
+- Legal pages: Aviso Legal, Privacidad, Cookies, Términos (`app/(legal)/`)
+- Playwright E2E tests: UC-01 to UC-04
 
 ---
 
-### Phase 1 — Gamification
+### ✅ Phase 1 — Gamification
 - XP + level system (awarded on quiz and lesson completion)
 - Daily streak tracking via `daily_activity` table
-- Achievement badges (score, streak, completion, speed types)
-- Leaderboard page (per-subject + global, PostgreSQL `RANK()`)
-- Student dashboard (XP bar, level, streak counter, recent badges, stats)
+- Achievement badges (score, streak, completion types) via `checkAndAssignAchievements()`
+- Student dashboard (`app/(main)/study/page.tsx`)
+- Playwright E2E tests: UC-06, UC-07, UC-09
 
-### Phase 2 — Content
-- Lesson editor for teachers (markdown rich text + R2 file uploads)
-- Sequential unit unlocking (`unit_progress`)
-- Lesson progress tracking for students
-- Quiz improvements: countdown timer, mark-for-review, explanation shown post-answer
+> ⚠️ **UC-08 (Leaderboard) was scoped to Phase 1 but is not yet implemented.**
+> No route `/leaderboard` exists. The controller, API route and Redis cache layer are all pending.
+> This must be completed as part of Phase 3 before the feature is shipped.
 
-### Phase 3 — Monetisation UI
-- Subscription management page for students (upgrade, cancel, billing history)
-- Free-tier content gating (middleware enforces `units.is_free` for non-subscribers)
-- Pricing / landing page
+---
+
+### ✅ Phase 2 — Content
+- Lesson editor for teachers (`LessonBuilder.tsx`, `controllers/lessons.ts`)
+- Sequential unit unlocking (`unit_progress`, `controllers/unit.ts`)
+- Lesson progress tracking for students (`lesson_progress`, `api/lessons/[id]/progress`)
+- Quiz: explanation shown after each answer, score history
+- Playwright E2E tests: UC-10, UC-11, UC-12
+
+---
+
+### 🔜 Phase 3 — Monetisation UI ← **CURRENT**
+
+**UC-08 · Leaderboard (leftover from Phase 1)**
+
+| Task | File |
+|------|------|
+| Leaderboard page | `app/(main)/leaderboard/page.tsx` *(create)* |
+| API route | `app/api/leaderboard/route.ts` *(create)* |
+| Controller | `controllers/leaderboard.ts` *(create)* — `RANK() OVER` query |
+| Redis cache | `lib/redis/leaderboard.ts` *(exists, wire it in)* |
+| Playwright test | `tests/e2e/uc-08-leaderboard.spec.ts` *(create)* |
+
+**UC-13 · Pricing page**
+
+| Task | File |
+|------|------|
+| Pricing page | `app/(main)/pricing/page.tsx` *(create)* |
+| Plans: monthly + yearly with feature comparison | — |
+| CTA links to Lemon Squeezy checkout (no custom payment UI) | `LEMONSQUEEZY_API_KEY` required |
+| Playwright test | `tests/e2e/uc-13-pricing.spec.ts` *(create)* |
+
+**UC-14 · Free-tier content gate**
+
+| Task | File |
+|------|------|
+| Gate logic in `study/[id]/page.tsx` | Check `user.subscriptionTier` vs `unit.isFree` |
+| Lock UI component (blurred card + upgrade CTA) | `components/ui/unit-gate.tsx` *(create)* |
+| Middleware guard for lesson routes | `middleware.ts` *(extend)* |
+| Seed data: Unit 2 already has `isFree = false` | use `npm run seed` |
+| Playwright test | `tests/e2e/uc-14-content-gate.spec.ts` *(create)* |
+
+**UC-15 · Subscription management**
+
+| Task | File |
+|------|------|
+| Subscription status section in profile | `app/(main)/profile/page.tsx` *(extend)* |
+| Customer portal redirect to Lemon Squeezy | `app/api/billing/portal/route.ts` *(create)* |
+| Display `subscriptions` table data (tier, renews_at, status) | `controllers/subscriptions.ts` *(create)* |
+| Webhook already handles `subscription_cancelled` / `subscription_updated` | existing |
+| Playwright test | `tests/e2e/uc-15-subscription.spec.ts` *(create)* |
+
+**Test credentials (from `npm run seed`):**
+```
+teacher@exams.test  /  Teacher123!
+student1@exams.test  /  Student123!
+```
+
+---
 
 ### Phase 4 — Scale (when needed)
 - BullMQ workers: nightly streak validation, email notifications, ranking recalculation
