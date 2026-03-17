@@ -64,7 +64,7 @@ TEST_LESSON_ID=<printed by seed>
 | [UC-05](#uc-05--student-initiates-subscription) | Student initiates subscription (webhook) | 0 | Student | ✅ Done |
 | [UC-06](#uc-06--student-takes-a-quiz) | Student takes a quiz | 1 | Student | ✅ Done |
 | [UC-07](#uc-07--student-earns-an-achievement) | Student earns an achievement | 1 | Student | ✅ Done |
-| [UC-08](#uc-08--student-views-leaderboard) | Student views leaderboard | 1 | Student | ⚠️ Pendiente |
+| [UC-08](#uc-08--student-views-leaderboard) | Student views leaderboard | 1 | Student | ✅ Done |
 | [UC-09](#uc-09--student-views-dashboard) | Student views dashboard | 1 | Student | ✅ Done |
 | [UC-10](#uc-10--teacher-creates--edits-a-lesson) | Teacher creates / edits a lesson | 2 | Teacher | ✅ Done |
 | [UC-11](#uc-11--student-reads-a-lesson) | Student reads a lesson | 2 | Student | ✅ Done |
@@ -202,7 +202,7 @@ TEST_LESSON_ID=<printed by seed>
 
 ---
 
-## Phase 1 — Gamification ✅ (excepto UC-08)
+## Phase 1 — Gamification ✅
 
 ---
 
@@ -262,31 +262,27 @@ TEST_LESSON_ID=<printed by seed>
 **Actor:** Student
 **Wireframe:** `Evolucion/tufolio_ranking.html`
 **Entry:** Navegación principal → "Ranking" → `/leaderboard`
-**Status:** ⚠️ **PENDIENTE** — scoped en Phase 1, se implementa en Phase 3
-
-> **Para el implementador:**
-> Todo el andamiaje de DB existe (`users.total_points`, `xp_transactions`, `user_subjects`).
-> El servicio Redis `lib/redis/leaderboard.ts` ya está. Solo falta la capa de presentación.
+**Status:** ✅ **IMPLEMENTADO**
 
 | Layer | File | Role |
 |-------|------|------|
-| Page | `app/(main)/leaderboard/page.tsx` *(crear)* | Tabla con tabs: por asignatura / global; selector de periodo |
-| API | `GET /api/leaderboard?subjectId=&period=week\|month\|all` *(crear)* | Devuelve ranking paginado |
-| Controller | `controllers/leaderboard.ts` *(crear)* | Query `RANK() OVER (ORDER BY total_points DESC)` con filtro por `user_subjects.subject_id` |
-| Cache | `lib/redis/leaderboard.ts` *(ya existe)* | Cache 5 min por subject; invalidar tras `submitQuiz` |
+| Page | `app/(main)/leaderboard/page.tsx` | Tabla con tabs: por asignatura / global; selector de periodo |
+| Component | `app/(main)/leaderboard/LeaderboardTabs.tsx` | UI de tabs y tabla de ranking |
+| API | `GET /api/leaderboard?subjectId=&period=week\|month\|all` → `app/api/leaderboard/route.ts` | Devuelve ranking paginado |
+| Controller | `controllers/leaderboard.ts` | Query `RANK() OVER (ORDER BY total_points DESC)` con filtro por `user_subjects.subject_id` |
+| Cache | `lib/redis/leaderboard.ts` | Cache 5 min por subject; invalidar tras `submitQuiz` |
 | DB | `users`, `user_subjects`, `xp_transactions` | Fuente de datos del ranking |
-| Test | `tests/e2e/uc-08-leaderboard.spec.ts` *(crear antes de implementar)* | |
+| Test | `tests/e2e/uc-06-09-gamification.spec.ts` | Cubre navegación y visualización del ranking |
 
 **Flujo:**
 1. Student accede a `/leaderboard` → carga ranking global por defecto
 2. Puede filtrar por asignatura (tab) y periodo (semana / mes / total)
 3. Cache Redis sirve la respuesta; si miss → query PostgreSQL `RANK()` → escribe cache
 
-**Consideraciones de implementación:**
+**Notas de implementación:**
 - Usa `RANK()` no `ROW_NUMBER()` para que empates tengan el mismo puesto
-- Cachea con clave `leaderboard:subject:{id}:period:{week|month|all}`, TTL 5 min
-- La página debe mostrar el rank del usuario autenticado aunque no esté en top 10
-- Añadir link a `/leaderboard` en el layout de `(main)`
+- Clave de caché: `leaderboard:subject:{id}:period:{week|month|all}`, TTL 5 min
+- La página muestra el rank del usuario autenticado aunque no esté en top 10
 
 **Edge cases:** empate en puntos (mismo rank) · student no inscrito en asignatura filtrada · usuario nuevo sin puntos
 
@@ -400,14 +396,9 @@ TEST_LESSON_ID=<printed by seed>
 > Requiere configurar `LEMONSQUEEZY_API_KEY` y `LEMONSQUEEZY_WEBHOOK_SECRET` en `.env.local`.
 >
 > **Orden de implementación recomendado:**
-> 1. UC-08 (leaderboard — arrastre de Phase 1)
+> 1. UC-13 (pricing page, enlaza con checkout de LS)
 > 2. UC-14 (gate de contenido, base para lo demás)
-> 3. UC-13 (pricing page, enlaza con checkout de LS)
-> 4. UC-15 (gestión de suscripción en perfil)
-
----
-
-### UC-08 ya documentado arriba ↑
+> 3. UC-15 (gestión de suscripción en perfil)
 
 ---
 

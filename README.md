@@ -332,7 +332,7 @@ All tables are defined in [`schemas/`](schemas/). Drizzle Kit reads this directo
 | Earn XP, level up, maintain daily streak | 1 | ✅ Done |
 | Earn achievement badges | 1 | ✅ Done |
 | View personal stats dashboard | 1 | ✅ Done |
-| View leaderboard (subject / global) | 1 | ⚠️ Pending — UC-08, no route yet |
+| View leaderboard (subject / global) | 1 | ✅ Done |
 | Read lesson articles | 2 | ✅ Done |
 | Download lesson resources (PDFs) | 2 | ✅ Done |
 | Track lesson + unit progress | 2 | ✅ Done |
@@ -559,11 +559,8 @@ export async function addSubject(data: InsertSubject) { ... }
 - Daily streak tracking via `daily_activity` table
 - Achievement badges (score, streak, completion types) via `checkAndAssignAchievements()`
 - Student dashboard (`app/(main)/study/page.tsx`)
-- Playwright E2E tests: UC-06, UC-07, UC-09
-
-> ⚠️ **UC-08 (Leaderboard) was scoped to Phase 1 but is not yet implemented.**
-> No route `/leaderboard` exists. The controller, API route and Redis cache layer are all pending.
-> This must be completed as part of Phase 3 before the feature is shipped.
+- Leaderboard page with subject tabs and period filter (`app/(main)/leaderboard/`, `controllers/leaderboard.ts`)
+- Playwright E2E tests: UC-06, UC-07, UC-08, UC-09
 
 ---
 
@@ -577,16 +574,6 @@ export async function addSubject(data: InsertSubject) { ... }
 ---
 
 ### 🔜 Phase 3 — Monetisation UI ← **CURRENT**
-
-**UC-08 · Leaderboard (leftover from Phase 1)**
-
-| Task | File |
-|------|------|
-| Leaderboard page | `app/(main)/leaderboard/page.tsx` *(create)* |
-| API route | `app/api/leaderboard/route.ts` *(create)* |
-| Controller | `controllers/leaderboard.ts` *(create)* — `RANK() OVER` query |
-| Redis cache | `lib/redis/leaderboard.ts` *(exists, wire it in)* |
-| Playwright test | `tests/e2e/uc-08-leaderboard.spec.ts` *(create)* |
 
 **UC-13 · Pricing page**
 
