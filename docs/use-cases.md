@@ -13,12 +13,19 @@ Before running Playwright tests you need seed data in the database.
 # 1. Start Docker services
 docker-compose up -d
 
-# 2. Apply schema
+# 2. Apply schema (Drizzle)
 npm run push
 
-# 3. Seed test data (creates users, subjects, units, questions, lessons, achievements)
+# 3. Create DB view + function (required — Drizzle cannot generate these)
+npm run setup-db
+
+# 4. Seed test data (creates users, subjects, units, questions, lessons, achievements)
 npm run seed
 ```
+
+> `setup-db` only needs to run once (or after `docker-compose down -v`).
+> It creates `view_counter_achievements` and `get_number_of_quizzes()` which
+> the achievements and unit controllers depend on.
 
 The seed script prints values for your `.env.local`. Add them:
 

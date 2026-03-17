@@ -421,7 +421,19 @@ npm run push
 
 This creates all tables in the Docker PostgreSQL from the schema files in `schemas/`.
 
-### 5. Seed test data
+### 5. Create DB view and function
+
+```bash
+npm run setup-db
+```
+
+Creates objects that Drizzle cannot generate from the schema:
+- `view_counter_achievements` — used by the achievements controller
+- `get_number_of_quizzes()` — used by the unit controller
+
+Only needs to run once (or after a full `docker-compose down -v` reset).
+
+### 6. Seed test data
 
 ```bash
 npm run seed
@@ -432,7 +444,7 @@ The script prints `TEST_*` environment variable values to paste into `.env.local
 
 > To wipe seed data: `npm run seed:clear`
 
-### 6. Start the dev server
+### 7. Start the dev server
 
 ```bash
 npm run dev
@@ -440,7 +452,7 @@ npm run dev
 
 App runs at [http://localhost:3000](http://localhost:3000).
 
-### 7. Run the test suite
+### 8. Run the test suite
 
 ```bash
 npx playwright test
@@ -467,8 +479,11 @@ npm run generate    # Generate SQL migration file
 npm run studio      # Drizzle Studio GUI (localhost:4983)
 npm run pull        # Introspect DB → regenerate drizzle/schema.ts
 
+# DB extras (run once after npm run push)
+npm run setup-db    # Create view_counter_achievements + get_number_of_quizzes() function
+
 # Seed / test data
-npm run seed        # Insert teacher + students + subject + units + questions + lessons + achievements
+npm run seed        # Insert auth users + gamif personas + subjects + units + questions + lessons + achievements
 npm run seed:clear  # Remove all rows inserted by seed (idempotent)
 
 # Tests
