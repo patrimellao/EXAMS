@@ -26,7 +26,13 @@
       "Bash(git fetch:*)",
       "Bash(git merge:*)",
       "Bash(git checkout:*)",
-      "Bash(docker-compose down:*)"
+      "Bash(docker-compose down:*)",
+      "Bash(psql:*)",
+      "Bash(npx tsx:*)",
+      "Bash(./node_modules/.bin/tsx --tsconfig tsconfig.json scripts/seed.ts 2>&1)",
+      "Bash(./node_modules/.bin/playwright install:*)",
+      "Bash(npm test:*)",
+      "Bash(docker stop:*)"
     ]
   }
 }

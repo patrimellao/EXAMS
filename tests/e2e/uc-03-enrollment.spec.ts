@@ -16,7 +16,7 @@ const STUDENT_PASSWORD = 'SecurePass1!';
 async function signInAs(page: Page, email: string, password: string) {
   await page.goto('/sign-in');
   await page.getByLabel('Email').fill(email);
-  await page.getByLabel('Password').fill(password);
+  await page.getByLabel('Password', { exact: true }).fill(password);
   await page.getByRole('button', { name: 'Login' }).click();
   await page.waitForURL('**/study', { timeout: 10000 });
 }
@@ -24,11 +24,12 @@ async function signInAs(page: Page, email: string, password: string) {
 test.beforeAll(async ({ browser }) => {
   const context = await browser.newContext();
   const page = await context.newPage();
+  await page.addInitScript(() => localStorage.setItem('cookie-consent', 'necessary'));
   await page.goto('/sign-up');
   await page.getByLabel('First name').fill('Laura');
   await page.getByLabel('Last name').fill('Torres');
   await page.getByLabel('Email').fill(STUDENT_EMAIL);
-  await page.getByLabel('Password').fill(STUDENT_PASSWORD);
+  await page.getByLabel('Password', { exact: true }).fill(STUDENT_PASSWORD);
   await page.getByLabel('Confirm password').fill(STUDENT_PASSWORD);
   await page.getByRole('button', { name: 'Create account' }).click();
   await page.waitForURL('**/sign-in', { timeout: 10000 });
@@ -36,6 +37,10 @@ test.beforeAll(async ({ browser }) => {
 });
 
 test.describe('UC-03 · Student Enrolls in a Subject', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('cookie-consent', 'necessary'));
+  });
+
   test('study page shows subject selection card after login', async ({ page }) => {
     await signInAs(page, STUDENT_EMAIL, STUDENT_PASSWORD);
 

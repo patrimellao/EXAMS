@@ -92,7 +92,7 @@ export default function Login(){
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="password">Confirm password</Label>
+              <Label htmlFor="confirm-password">Confirm password</Label>
               <PasswordInput
                 id="confirm-password" name="confirm-password" required
               />
