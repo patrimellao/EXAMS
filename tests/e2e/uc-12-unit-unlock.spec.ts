@@ -12,7 +12,8 @@
  * These tests primarily cover the UI layer; the unlock controller logic is unit-tested
  * separately via DB-level assertions in integration tests.
  */
-import { test, expect, Page } from '@playwright/test';
+import { test, expect } from '../fixtures';
+import type { Page } from '@playwright/test';
 
 const STUDENT_EMAIL = `uc12_${Date.now()}@example.com`;
 const STUDENT_PASSWORD = 'SecurePass1!';
@@ -25,13 +26,13 @@ async function registerAndSignIn(page: Page) {
   await page.getByLabel('First name').fill('UC12');
   await page.getByLabel('Last name').fill('Unlock');
   await page.getByLabel('Email').fill(STUDENT_EMAIL);
-  await page.getByLabel('Password').fill(STUDENT_PASSWORD);
+  await page.getByLabel('Password', { exact: true }).fill(STUDENT_PASSWORD);
   await page.getByLabel('Confirm password').fill(STUDENT_PASSWORD);
   await page.getByRole('button', { name: 'Create account' }).click();
   await page.waitForURL('**/sign-in', { timeout: 10000 });
 
   await page.getByLabel('Email').fill(STUDENT_EMAIL);
-  await page.getByLabel('Password').fill(STUDENT_PASSWORD);
+  await page.getByLabel('Password', { exact: true }).fill(STUDENT_PASSWORD);
   await page.getByRole('button', { name: 'Login' }).click();
   await page.waitForURL('**/study', { timeout: 10000 });
 }
@@ -47,7 +48,7 @@ test.describe('UC-12 · Sequential Unit Unlock — UI layer', () => {
   async function signIn(page: Page) {
     await page.goto('/sign-in');
     await page.getByLabel('Email').fill(STUDENT_EMAIL);
-    await page.getByLabel('Password').fill(STUDENT_PASSWORD);
+    await page.getByLabel('Password', { exact: true }).fill(STUDENT_PASSWORD);
     await page.getByRole('button', { name: 'Login' }).click();
     await page.waitForURL('**/study', { timeout: 10000 });
   }
@@ -58,7 +59,7 @@ test.describe('UC-12 · Sequential Unit Unlock — UI layer', () => {
     // Page should not redirect to sign-in
     await expect(page).not.toHaveURL(/\/sign-in/);
     // Main content should be visible
-    await expect(page.locator('main, [role="main"], .flex')).toBeVisible({ timeout: 8000 });
+    await expect(page.getByRole('main')).toBeVisible({ timeout: 8000 });
   });
 
   test.skip(!TEST_LOCKED_UNIT_ID, 'Set TEST_LOCKED_UNIT_ID to test locked unit UI');

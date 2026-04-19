@@ -7,7 +7,7 @@
  *  3. users.id column is type TEXT (not UUID) — the exact bug from the auth outage
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Client } from 'pg';

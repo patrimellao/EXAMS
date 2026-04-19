@@ -2,8 +2,7 @@ import { getActiveSubjects } from '@/controllers/subjects';
 import { Enroll } from '@/app/(main)/study/[id]/enroll';
 import SubjectNavigation from './SubjectNavigation';
 import { Subject } from '@/schemas/subjects';
-import { createClient } from '@/utils/supabase/server';
-import { UUID } from 'crypto';
+import { getUser } from '@/lib/getUser';
 import { redirect } from 'next/navigation';
 import { UserStatsBar } from './UserStatsBar';
 import Link from 'next/link';
@@ -11,14 +10,11 @@ import { Trophy } from 'lucide-react';
 import { Button } from './ui/button';
 
 export default async function StudentSidebar() {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getUser();
 
   if (!user?.id) return redirect('/sign-in');
 
-  const subjects: Subject[] = await getActiveSubjects(user.id as UUID);
+  const subjects: Subject[] = await getActiveSubjects(user.id);
   return (
     <div className="flex flex-col flex-1 md:border-r pt-2 h-full max-h-screen">
       <div className="py-2 flex-1">

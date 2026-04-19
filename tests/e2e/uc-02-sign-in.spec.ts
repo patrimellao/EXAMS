@@ -6,7 +6,8 @@
  * successful login with redirect to /study and session cookie verification,
  * and middleware protection for protected routes.
  */
-import { test, expect, request } from '@playwright/test';
+import { test, expect } from '../fixtures';
+import { request } from '@playwright/test';
 import { Client } from 'pg';
 
 const DATABASE_URL =

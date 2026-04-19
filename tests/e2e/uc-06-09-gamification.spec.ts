@@ -9,7 +9,8 @@
  * If not present, those tests are skipped.
  * UC-09 (dashboard) only requires a valid session.
  */
-import { test, expect, Page } from '@playwright/test';
+import { test, expect } from '../fixtures';
+import type { Page } from '@playwright/test';
 
 const STUDENT_EMAIL = `gamif_${Date.now()}@example.com`;
 const STUDENT_PASSWORD = 'SecurePass1!';

@@ -8,11 +8,13 @@ export const signIn = async (formData: FormData) => {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
 
+  let role: string | undefined;
   try {
-    await auth.api.signInEmail({
+    const result = await auth.api.signInEmail({
       body: { email, password },
       headers: headers(),
     });
+    role = (result?.user as any)?.role;
   } catch (error) {
     if (error instanceof APIError) {
       const msg = (error as any).body?.message ?? 'Authentication failed';
@@ -21,7 +23,7 @@ export const signIn = async (formData: FormData) => {
     throw error;
   }
 
-  redirect('/study');
+  redirect(role === 'teacher' ? '/teach' : '/study');
 };
 
 export const signUp = async (formData: FormData) => {

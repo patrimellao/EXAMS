@@ -1,16 +1,13 @@
 "use server";
 import { quizAnswers } from "@/app/(main)/quiz/[id]/Quiz";
 import { quizDetails } from "@/drizzle/schema";
-import { QuizAnswers } from "@/interfaces/quizAnswers";
 import { InsertQuiz, quizzes, Quiz } from "@/schemas/quizzes";
 import { units, Unit } from "@/schemas/units";
 import { db } from "@/utils/drizzle/db";
-import { UUID } from "crypto";
-
 import { eq, and, count, gt, gte } from "drizzle-orm";
 import { checkAndAssignAchievements } from "./achievements";
 import { unlockNextUnit } from "./unit";
-import { NextResponse } from "next/server";
+import { users } from "@/schemas/users";
 
 // export const addQuiz = async (quiz: InsertQuiz) => {
 //   await db
@@ -46,7 +43,7 @@ import { NextResponse } from "next/server";
 //     );
 // };
 
-export const getActiveQuizzes = async (userId: UUID, subjectID: number) => {
+export const getActiveQuizzes = async (userId: string, subjectID: number) => {
   const data = await db
     .select({
       unit: {
@@ -108,13 +105,21 @@ export const getQuiz = async (quizId: number) => {
 
 }
 
-export const submitQuiz = async (allQuizzesAnswers: quizAnswers, score: number, previousScore: number, quizId: number) => {
+export const submitQuiz = async (
+  allQuizzesAnswers: quizAnswers,
+  score: number,
+  previousScore: number,
+  quizId: number,
+): Promise<{ xpEarned: number; streak: number; achievements: { type: unknown; name: string; description: string }[] }> => {
+
+  let xpEarned = 0;
+  let streak = 0;
+  let newAchievements: { type: unknown; name: string; description: string }[] = [];
 
   if (score > previousScore || previousScore == null) {
 
     try {
       await updateScore(score, quizId);
-
     } catch (error) {
       console.error("Error updating score");
     }
@@ -132,11 +137,40 @@ export const submitQuiz = async (allQuizzesAnswers: quizAnswers, score: number, 
           );
       }
     } catch (error) {
-      console.log("Error updating quiz details")
+      console.log("Error updating quiz details");
+    }
+
+    // Award XP: 10 per correct answer + 20 bonus if passing
+    const correctCount = allQuizzesAnswers.results.filter(r => r.correct).length;
+    xpEarned = correctCount * 10 + (score >= 60 ? 20 : 0);
+
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const [userRow] = await db
+        .select({ currentStreak: users.currentStreak, lastActivityDate: users.lastActivityDate, xp: users.xp })
+        .from(users)
+        .where(eq(users.id, allQuizzesAnswers.userId));
+
+      if (userRow) {
+        const lastDate = userRow.lastActivityDate;
+        const yesterday = new Date(Date.now() - 86_400_000).toISOString().split('T')[0];
+        const newStreak = lastDate === yesterday ? (userRow.currentStreak ?? 0) + 1
+          : lastDate === today ? (userRow.currentStreak ?? 0)
+          : 1;
+        streak = newStreak;
+        await db.update(users).set({
+          xp: (userRow.xp ?? 0) + xpEarned,
+          currentStreak: newStreak,
+          lastActivityDate: today,
+        }).where(eq(users.id, allQuizzesAnswers.userId));
+      }
+    } catch (error) {
+      console.error("Error updating XP/streak");
     }
 
     try {
-      await checkAndAssignAchievements();
+      const raw = await checkAndAssignAchievements();
+      newAchievements = (raw as unknown as { type: unknown; name: string; description: string }[]) ?? [];
     } catch (error) {
       console.log("Error updating achievements");
     }
@@ -157,6 +191,7 @@ export const submitQuiz = async (allQuizzesAnswers: quizAnswers, score: number, 
     }
   }
 
+  return { xpEarned, streak, achievements: newAchievements };
 }
 
 export const updateScore = async (newScore: number, quizId: number) => {

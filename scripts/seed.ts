@@ -523,18 +523,30 @@ async function seed() {
     await db.insert(schema.userAchievement).values(assignments).onConflictDoNothing();
   console.log(`   ✓ ${assignments.length} achievements assigned`);
 
+  // ── Write .env.test for Playwright (enables autonomous test runs) ─────────
+  const envContent = [
+    `TEACHER_EMAIL=teacher@exams.test`,
+    `TEACHER_PASSWORD=Teacher123!`,
+    `STUDENT_EMAIL=student1@exams.test`,
+    `STUDENT_PASSWORD=Student123!`,
+    `TEST_SUBJECT_ID=${daSubject.id}`,
+    `TEST_UNIT_ID=${daUnit1.id}`,
+    `TEST_LOCKED_UNIT_ID=${daUnit2.id}`,
+    `TEST_LESSON_ID=${daUnit1FirstLesson}`,
+  ].join('\n') + '\n';
+  const { writeFileSync } = await import('fs');
+  writeFileSync(path.resolve(process.cwd(), '.env.test'), envContent);
+
   // ── Summary ───────────────────────────────────────────────────────────────
   console.log('\n' + '─'.repeat(64));
   console.log('✅  Seed complete!\n');
-  console.log('Add these to .env.local for Playwright tests:\n');
-  console.log(`TEACHER_EMAIL=teacher@exams.test`);
-  console.log(`TEACHER_PASSWORD=Teacher123!`);
-  console.log(`STUDENT_EMAIL=student1@exams.test`);
-  console.log(`STUDENT_PASSWORD=Student123!`);
-  console.log(`TEST_SUBJECT_ID=${daSubject.id}`);
-  console.log(`TEST_UNIT_ID=${daUnit1.id}`);
-  console.log(`TEST_LOCKED_UNIT_ID=${daUnit2.id}`);
-  console.log(`TEST_LESSON_ID=${daUnit1FirstLesson}`);
+  console.log('.env.test written — Playwright picks up IDs automatically.\n');
+  console.log(`  TEACHER_EMAIL=teacher@exams.test`);
+  console.log(`  STUDENT_EMAIL=student1@exams.test`);
+  console.log(`  TEST_SUBJECT_ID=${daSubject.id}`);
+  console.log(`  TEST_UNIT_ID=${daUnit1.id}`);
+  console.log(`  TEST_LOCKED_UNIT_ID=${daUnit2.id}`);
+  console.log(`  TEST_LESSON_ID=${daUnit1FirstLesson}`);
   console.log('\nGameification personas (leaderboard preview):');
   console.log('  Alice García    — Level 4, 420 pts, 7d streak');
   console.log('  Bruno Martínez  — Level 2, 175 pts, 3d streak');

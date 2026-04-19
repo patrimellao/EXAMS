@@ -40,6 +40,6 @@ export const config = {
      * - root path (/) for landing page
      * - image files
      */
-    "/((?!_next/static|_next/image|favicon.ico|sign-in|sign-up|api/auth|api/webhooks|manifest.json|^/$|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|sign-in|sign-up|api/|manifest.json|^/$|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

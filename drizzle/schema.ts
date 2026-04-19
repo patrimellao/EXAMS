@@ -23,5 +23,6 @@ export * from "@/schemas/languages";
 export * from "@/schemas/sessions";
 export * from "@/schemas/accounts";
 export * from "@/schemas/verifications";
+export * from "@/schemas/relations";
 export * from "@/interfaces/viewCounterAchievements";
 export * from "@/interfaces/quizAnswers";

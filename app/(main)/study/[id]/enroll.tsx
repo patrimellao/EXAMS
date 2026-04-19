@@ -33,11 +33,7 @@ import {
 } from '@/controllers/subjects';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
-import { UUID } from 'crypto';
-import { User } from '@supabase/supabase-js';
-
-
-export function Enroll({user}: {user: User}) {
+export function Enroll({user}: {user: { id: string }}) {
   const [open, setOpen] = React.useState(false);
   const [selectedSubjects, setSelectedSubjects] = React.useState<any[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
@@ -46,7 +42,7 @@ export function Enroll({user}: {user: User}) {
 
   useEffect(() => {
     startTransition(() => {
-      getNotEnrolledSubjects(user.id as UUID).then(setSubjects);
+      getNotEnrolledSubjects(user.id).then(setSubjects);
     });
   }, []);
 
@@ -142,7 +138,7 @@ export function Enroll({user}: {user: User}) {
               onClick={() => {
                 const subjectIds = selectedSubjects.map(subject => subject.id);
                 setOpen(false);
-                enrollSubjects(user.id as UUID, subjectIds);
+                enrollSubjects(user.id, subjectIds);
                 router.push(`/study/${subjectIds[0]}`);
               }}
             >

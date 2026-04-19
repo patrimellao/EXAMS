@@ -7,7 +7,7 @@
  * duplicate email, and redirect to /sign-in after success.
  * Also verifies the user is persisted in the DB with the correct schema.
  */
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures';
 import { Client } from 'pg';
 
 const DATABASE_URL =

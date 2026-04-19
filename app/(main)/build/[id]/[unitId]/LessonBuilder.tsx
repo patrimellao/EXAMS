@@ -241,12 +241,12 @@ export function LessonBuilder({ unitId, initialLessons }: Props) {
             </div>
 
             <div className="space-y-1">
-              <Label>Tipo</Label>
+              <Label htmlFor="lesson-type">Tipo</Label>
               <Select
                 value={form.type}
                 onValueChange={(v) => setForm({ ...form, type: v as 'article' | 'file' })}
               >
-                <SelectTrigger>
+                <SelectTrigger id="lesson-type">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
