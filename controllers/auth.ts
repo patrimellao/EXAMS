@@ -20,7 +20,8 @@ export const signIn = async (formData: FormData) => {
       const msg = (error as any).body?.message ?? 'Authentication failed';
       return JSON.stringify({ error: { message: msg } });
     }
-    throw error;
+    console.error('[signIn] unexpected error:', error);
+    return JSON.stringify({ error: { message: 'Unexpected error. Please try again.' } });
   }
 
   redirect(role === 'teacher' ? '/teach' : '/study');
@@ -50,6 +51,7 @@ export const signUp = async (formData: FormData) => {
       const msg = (error as any).body?.message ?? 'Registration failed';
       return JSON.stringify({ error: { message: msg } });
     }
-    throw error;
+    console.error('[signUp] unexpected error:', error);
+    return JSON.stringify({ error: { message: 'Unexpected error. Please try again.' } });
   }
 };

@@ -6,6 +6,8 @@ import { users, sessions, accounts, verifications } from "@/drizzle/schema";
 import { hash as bcryptHash, compare as bcryptVerify } from "bcryptjs";
 
 export const auth = betterAuth({
+  baseURL: process.env.BETTER_AUTH_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3100",
+  secret: process.env.BETTER_AUTH_SECRET,
   database: drizzleAdapter(db, {
     provider: "pg",
     schema: {

@@ -29,11 +29,21 @@ export default function Login(){
     const data = new FormData(event.target as HTMLFormElement);
     startTransition(async () => {
       const result = await signUp(data);
-      const { error } = JSON.parse(result);
-      if (error?.message) {
+      if (!result) {
+        toast({ variant: "destructive", title: "Unexpected error. Please try again." });
+        return;
+      }
+      let parsed: { error?: { message?: string }; data?: unknown };
+      try {
+        parsed = JSON.parse(result);
+      } catch {
+        toast({ variant: "destructive", title: "Unexpected error. Please try again." });
+        return;
+      }
+      if (parsed.error?.message) {
         toast({
           variant: "destructive",
-          title: error.message
+          title: parsed.error.message
         });
       } else {
         toast({
