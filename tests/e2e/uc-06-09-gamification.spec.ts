@@ -93,7 +93,7 @@ test.describe('UC-06 · Student Takes a Quiz', () => {
     await page.waitForURL('**/study/**', { timeout: 8000 });
 
     // Look for quiz/test start buttons
-    const quizBtn = page.getByRole('link', { name: /test|quiz|iniciar/i }).first();
+    const quizBtn = page.locator('a[href^="/quiz/"]:not([aria-disabled="true"])').first();
     if (await quizBtn.isVisible()) {
       await quizBtn.click();
       await page.waitForURL('**/quiz/**', { timeout: 8000 });
@@ -119,7 +119,7 @@ test.describe('UC-06 · Student Takes a Quiz', () => {
     await subjectItems.first().click();
     await page.waitForURL('**/study/**', { timeout: 8000 });
 
-    const quizBtn = page.getByRole('link', { name: /test|quiz|iniciar/i }).first();
+    const quizBtn = page.locator('a[href^="/quiz/"]:not([aria-disabled="true"])').first();
     if (!(await quizBtn.isVisible())) {
       test.skip(true, 'No quiz available');
       return;
@@ -147,7 +147,7 @@ test.describe('UC-07 · Student Earns Achievement (UI Toast)', () => {
     await subjectItems.first().click();
     await page.waitForURL('**/study/**', { timeout: 8000 });
 
-    const quizBtn = page.getByRole('link', { name: /test|quiz|iniciar/i }).first();
+    const quizBtn = page.locator('a[href^="/quiz/"]:not([aria-disabled="true"])').first();
     if (!(await quizBtn.isVisible())) {
       test.skip(true, 'No quiz available');
       return;

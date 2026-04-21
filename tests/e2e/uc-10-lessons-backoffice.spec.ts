@@ -133,8 +133,11 @@ test.describe('UC-10 · Lessons Backoffice — Teacher flows', () => {
     await createBtn2.evaluate((el: HTMLElement) => el.click());
     await expect(page.getByText(lessonTitle)).toBeVisible({ timeout: 8000 });
 
-    // Delete it — find the exact card and click its delete button
-    const lessonCard = page.locator('div').filter({ has: page.locator(`p:text-is("${lessonTitle}")`) }).first();
+    // Delete it — find the exact card (the one whose own <p> contains the title) and click its delete button
+    const lessonCard = page
+      .locator('[data-testid^="lesson-link-"]')
+      .filter({ hasText: lessonTitle })
+      .first();
     await lessonCard.getByRole('button', { name: 'Eliminar lección' }).click();
     await expect(page.getByText(lessonTitle)).not.toBeVisible({ timeout: 5000 });
   });

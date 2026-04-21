@@ -200,6 +200,7 @@ export function LessonBuilder({ unitId, initialLessons }: Props) {
         {lessons.map((lesson) => (
           <div
             key={lesson.id}
+            data-testid={`lesson-link-${lesson.id}`}
             className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer hover:bg-accent transition-colors ${
               editingId === lesson.id ? 'border-primary bg-accent' : ''
             }`}
