@@ -212,6 +212,7 @@ export function LessonBuilder({ unitId, initialLessons }: Props) {
             <Button
               size="sm"
               variant="ghost"
+              aria-label="Eliminar lección"
               className="shrink-0 text-destructive hover:text-destructive"
               onClick={(e) => { e.stopPropagation(); handleDelete(lesson.id); }}
             >

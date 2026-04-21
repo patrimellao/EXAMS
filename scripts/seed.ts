@@ -404,12 +404,15 @@ async function seed() {
   const PLACEHOLDER_FILE_URL = 'https://placeholder.r2.dev/resources/seed/documento.pdf';
 
   const seedLessons = async (unitId: number, lessonsData: typeof DA_LESSONS, label: string) => {
-    const existing = await db.select({ id: schema.lessons.id })
-      .from(schema.lessons).where(eq(schema.lessons.unitId, unitId));
-    if (existing.length >= lessonsData.length) {
-      console.log(`   ✓ ${label}: ${existing.length} lessons already exist`);
-      return existing[0].id;
-    }
+    // Delete seed-titled lessons so IDs stay stable across runs (test-created lessons are ignored)
+    const seedTitles = lessonsData.map(l => l.title);
+    const toDelete = await db.select({ id: schema.lessons.id })
+      .from(schema.lessons)
+      .where(eq(schema.lessons.unitId, unitId));
+    const seedOwned = toDelete.filter(r => seedTitles.includes((r as any).title ?? ''));
+    // Simpler: delete ALL lessons for this unit then re-insert seed ones fresh
+    await db.delete(schema.lessons).where(eq(schema.lessons.unitId, unitId));
+
     let firstId = 0;
     for (const l of lessonsData) {
       const [lesson] = await db.insert(schema.lessons).values({
@@ -426,7 +429,7 @@ async function seed() {
         }).onConflictDoNothing();
       }
     }
-    console.log(`   ✓ ${label}: ${lessonsData.length} lessons inserted`);
+    console.log(`   ✓ ${label}: ${lessonsData.length} lessons (re)seeded`);
     return firstId;
   };
 
