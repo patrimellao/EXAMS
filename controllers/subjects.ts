@@ -4,7 +4,6 @@ import { db } from "@/utils/drizzle/db";
 
 import { units, userSubjects } from "@/drizzle/schema";
 import { eq, and, notInArray, asc, inArray } from "drizzle-orm";
-import { UUID } from "crypto";
 import { Unit } from "@/schemas/units";
 
 export const addSubject = async (subject: InsertSubject) => {
@@ -51,7 +50,7 @@ export const updateSubject = async (id: number, subject: InsertSubject) => {
     ).returning({ id: subjects.id });
 };
 
-export const getSubjects = async (userId: UUID): Promise<Subject[]> => {
+export const getSubjects = async (userId: string): Promise<Subject[]> => {
   const data = await db
     .select()
     .from(subjects)
@@ -101,7 +100,7 @@ export const getSubject = async (subjectId: number) => {
   }
 }
 
-export const getActiveSubjects = async (userId: UUID) => {
+export const getActiveSubjects = async (userId: string) => {
   const data = await db
     .select({
       subjects
@@ -119,7 +118,7 @@ export const getActiveSubjects = async (userId: UUID) => {
     return subjectList;
 }
 
-export const getNotEnrolledSubjects = async (userId: UUID) => {
+export const getNotEnrolledSubjects = async (userId: string) => {
   const subQuery = db.select({ id: userSubjects.subjectId }).from(userSubjects).where(eq(userSubjects.userId, userId));
 
   const data = await db
@@ -134,7 +133,7 @@ export const getNotEnrolledSubjects = async (userId: UUID) => {
 
   return data;
 }
-export const getEnrolledSubjects = async (userId: UUID) => {
+export const getEnrolledSubjects = async (userId: string) => {
   console.log("USERID", userId);
   const subQuery = db.select({ id: userSubjects.subjectId }).from(userSubjects).where(eq(userSubjects.userId, userId));
   console.log("SUBQUERY", subQuery);
@@ -153,7 +152,7 @@ export const getEnrolledSubjects = async (userId: UUID) => {
   return data;
 }
 
-export const enrollSubjects = async (userId: UUID, subjectIds: number[]) => {
+export const enrollSubjects = async (userId: string, subjectIds: number[]) => {
   await Promise.all(subjectIds.map(subjectId =>
     db
       .insert(userSubjects)

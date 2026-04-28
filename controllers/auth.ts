@@ -8,20 +8,23 @@ export const signIn = async (formData: FormData) => {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
 
+  let role: string | undefined;
   try {
-    await auth.api.signInEmail({
+    const result = await auth.api.signInEmail({
       body: { email, password },
       headers: headers(),
     });
+    role = (result?.user as any)?.role;
   } catch (error) {
     if (error instanceof APIError) {
       const msg = (error as any).body?.message ?? 'Authentication failed';
       return JSON.stringify({ error: { message: msg } });
     }
-    throw error;
+    console.error('[signIn] unexpected error:', error);
+    return JSON.stringify({ error: { message: 'Unexpected error. Please try again.' } });
   }
 
-  redirect('/study');
+  redirect(role === 'teacher' ? '/teach' : '/study');
 };
 
 export const signUp = async (formData: FormData) => {
@@ -48,6 +51,7 @@ export const signUp = async (formData: FormData) => {
       const msg = (error as any).body?.message ?? 'Registration failed';
       return JSON.stringify({ error: { message: msg } });
     }
-    throw error;
+    console.error('[signUp] unexpected error:', error);
+    return JSON.stringify({ error: { message: 'Unexpected error. Please try again.' } });
   }
 };

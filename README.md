@@ -14,6 +14,7 @@ A gamified study platform for students preparing for Spanish competitive exams (
 6. [Getting Started](#getting-started)
 7. [Development Reference](#development-reference)
 8. [Roadmap](#roadmap)
+9. [Development Workflow — PRP Framework](#development-workflow--prp-framework)
 
 ---
 
@@ -621,3 +622,55 @@ student1@exams.test  /  Student123!
 - Oposiciones catalogue (browse exam tracks, mark as "próximamente")
 - News / convocatorias feed
 - Public student profiles
+
+---
+
+## Development Workflow — PRP Framework
+
+This project uses the **PRP (Prompt-Driven Planning) framework** for all new feature development. It enables autonomous implementation loops without human-in-the-loop validation.
+
+### Workflow per feature
+
+```
+1. /prp-plan <feature description or .prd.md path>
+      Generates .claude/PRPs/plans/{feature}.plan.md
+      Uses parallel codebase-explorer + codebase-analyst agents
+
+2. Review the plan (human) — check scope, tasks, validation commands
+
+3. /prp-ralph .claude/PRPs/plans/{feature}.plan.md
+      Autonomous loop: implement → validate → fix → repeat
+      Exits only when ALL validations pass
+
+4. /prp-review  (optional pre-PR quality check)
+
+5. /prp-pr  (creates PR with summary)
+```
+
+### PRP artifacts
+
+```
+.claude/PRPs/
+├── prds/          ← Product Requirements Documents (living specs)
+│   └── jean-monnet-platform.prd.md   ← Master PRD (start here)
+├── plans/         ← Implementation plans (one per phase/feature)
+│   ├── phase-03-monetisation-ui.plan.md  ← Ready to ralph
+│   ├── phase-04-scale-bullmq.plan.md     ← Stub (expand before use)
+│   ├── phase-05-portal.plan.md           ← Stub (expand before use)
+│   └── completed/                        ← Merged plans archived here
+└── ralph-archives/  ← Ralph loop learnings (auto-created)
+```
+
+### Validation commands (L1→L2→L3)
+
+```bash
+npm run typecheck        # L1: TypeScript (~15s)
+npm run build            # L2: Next.js build (~60s)
+npm run test:ralph       # L3: seed + full E2E (~3min)
+```
+
+### Next phase
+
+```bash
+/prp-ralph .claude/PRPs/plans/phase-03-monetisation-ui.plan.md
+```

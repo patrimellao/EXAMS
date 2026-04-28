@@ -1,13 +1,28 @@
 'use client';
 import * as React from 'react';
+import Link from 'next/link';
 import { Undo2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePathname, useRouter } from 'next/navigation';
 import StudyLink from './StudyLink';
 
-export default function BackLink() {
+type Props = {
+  href?: string;
+  label?: string;
+};
+
+export default function BackLink({ href, label }: Props) {
   const path = usePathname();
   const router = useRouter();
+
+  if (href && label) {
+    return (
+      <Link href={href} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+        <Undo2 className="h-4 w-4" />
+        {label}
+      </Link>
+    );
+  }
 
   if (path === '/study' || path.startsWith('/quiz')) {
     return null;

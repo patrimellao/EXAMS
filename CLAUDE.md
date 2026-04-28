@@ -4,12 +4,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Testing Policy
 
-> **Always update or add Playwright tests before implementing any new feature.**
+> **Always write or update Playwright tests before implementing any new feature.**
 >
-> 1. Identify which test file(s) are affected by the new feature (auth, quiz, leaderboard, etc.).
-> 2. Write or update the tests to cover the new behaviour **first** (test-driven, or at minimum alongside the feature).
-> 3. Run the full test suite with `npx playwright test` and confirm it passes before opening a PR or marking a task complete.
-> 4. Tests live in `tests/` and are grouped by domain (`tests/auth/`, `tests/quiz/`, …).
+> 1. New feature → new test file `tests/e2e/uc-{N}-{name}.spec.ts`
+> 2. Run the full suite with `npm run test:ralph` (seeds DB + runs Playwright)
+> 3. Suite must be green before opening a PR or marking a task complete
+
+### Validation commands (use in this order for ralph loops)
+```bash
+npm run typecheck        # L1 — TypeScript errors (~15s)
+npm run build            # L2 — Next.js compilation (~60s)
+npm run test:ralph       # L3 — seed + full E2E suite (~3min)
+```
+
+### Autonomous test flow
+- `npm run seed` writes `.env.test` with dynamic DB IDs
+- `playwright.config.ts` loads `.env.test` automatically
+- `tests/global-setup.ts` auto-seeds if `.env.test` is stale (>1h)
+- Result: `npm run test:ralph` requires **no manual steps**
 
 ## Commands
 
@@ -18,6 +30,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 npm run dev          # Start Next.js dev server (Turbo)
 npm run build        # Build for production
 npm start            # Start production server
+npm run typecheck    # TypeScript check (no emit)
 npm run build:worker # Compile TypeScript worker
 npm run worker       # Run worker locally
 ```

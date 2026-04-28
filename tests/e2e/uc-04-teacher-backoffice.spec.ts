@@ -9,7 +9,8 @@
  * NOTE: Teacher account must be created directly in the DB (no UI flow yet).
  * If TEACHER_EMAIL / TEACHER_PASSWORD env vars are not set, teacher tests are skipped.
  */
-import { test, expect, Page } from '@playwright/test';
+import { test, expect } from '../fixtures';
+import type { Page } from '@playwright/test';
 
 const STUDENT_EMAIL = `teacher_test_student_${Date.now()}@example.com`;
 const STUDENT_PASSWORD = 'SecurePass1!';

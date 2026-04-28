@@ -75,7 +75,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ received: true });
   }
 
-  const now = new Date().toISOString();
+  const now = new Date();
+  const nowStr = now.toISOString();
 
   switch (eventName) {
     case "subscription_created":
@@ -103,12 +104,12 @@ export async function POST(request: NextRequest) {
           lsSubscriptionId,
           currentPeriodStart,
           currentPeriodEnd,
-          createdAt: now,
-          updatedAt: now,
+          createdAt: nowStr,
+          updatedAt: nowStr,
         })
         .onConflictDoUpdate({
           target: subscriptions.lsSubscriptionId,
-          set: { tier, status, lsCustomerId, currentPeriodStart, currentPeriodEnd, updatedAt: now },
+          set: { tier, status, lsCustomerId, currentPeriodStart, currentPeriodEnd, updatedAt: nowStr },
         });
 
       await db
@@ -123,7 +124,7 @@ export async function POST(request: NextRequest) {
     case "subscription_paused": {
       await db
         .update(subscriptions)
-        .set({ status: "cancelled", cancelledAt: now, updatedAt: now })
+        .set({ status: "cancelled", cancelledAt: nowStr, updatedAt: nowStr })
         .where(eq(subscriptions.lsSubscriptionId, lsSubscriptionId));
 
       await db
@@ -136,7 +137,7 @@ export async function POST(request: NextRequest) {
     case "subscription_payment_failed": {
       await db
         .update(subscriptions)
-        .set({ status: "past_due", updatedAt: now })
+        .set({ status: "past_due", updatedAt: nowStr })
         .where(eq(subscriptions.lsSubscriptionId, lsSubscriptionId));
       break;
     }

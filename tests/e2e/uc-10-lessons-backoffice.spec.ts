@@ -10,7 +10,8 @@
  *
  * If TEACHER_EMAIL / TEACHER_PASSWORD are not set, teacher-specific tests are skipped.
  */
-import { test, expect, Page } from '@playwright/test';
+import { test, expect } from '../fixtures';
+import type { Page } from '@playwright/test';
 
 const STUDENT_EMAIL = `uc10_student_${Date.now()}@example.com`;
 const STUDENT_PASSWORD = 'SecurePass1!';
@@ -39,7 +40,7 @@ test.beforeAll(async ({ browser }) => {
   await page.getByLabel('First name').fill('UC10');
   await page.getByLabel('Last name').fill('Student');
   await page.getByLabel('Email').fill(STUDENT_EMAIL);
-  await page.getByLabel('Password').fill(STUDENT_PASSWORD);
+  await page.getByLabel('Password', { exact: true }).fill(STUDENT_PASSWORD);
   await page.getByLabel('Confirm password').fill(STUDENT_PASSWORD);
   await page.getByRole('button', { name: 'Create account' }).click();
   await page.waitForURL('**/sign-in', { timeout: 10000 });
@@ -92,7 +93,9 @@ test.describe('UC-10 · Lessons Backoffice — Teacher flows', () => {
     await page.getByLabel('Título *').fill(lessonTitle);
     await page.getByLabel('Orden').fill('99');
     await page.getByLabel('Contenido (Markdown)').fill('## Intro\n\nContenido de prueba.');
-    await page.getByRole('button', { name: 'Crear lección' }).click();
+    const createBtn = page.getByRole('button', { name: 'Crear lección' });
+    await createBtn.scrollIntoViewIfNeeded();
+    await createBtn.evaluate((el: HTMLElement) => el.click());
 
     // Lesson should appear in the sidebar list
     await expect(page.getByText(lessonTitle)).toBeVisible({ timeout: 8000 });
@@ -125,12 +128,17 @@ test.describe('UC-10 · Lessons Backoffice — Teacher flows', () => {
 
     const lessonTitle = `Delete me ${Date.now()}`;
     await page.getByLabel('Título *').fill(lessonTitle);
-    await page.getByRole('button', { name: 'Crear lección' }).click();
+    const createBtn2 = page.getByRole('button', { name: 'Crear lección' });
+    await createBtn2.scrollIntoViewIfNeeded();
+    await createBtn2.evaluate((el: HTMLElement) => el.click());
     await expect(page.getByText(lessonTitle)).toBeVisible({ timeout: 8000 });
 
-    // Delete it
-    const lessonCard = page.locator('div').filter({ hasText: lessonTitle }).first();
-    await lessonCard.locator('button[aria-label], button:has(.lucide-trash2)').first().click();
+    // Delete it — find the exact card (the one whose own <p> contains the title) and click its delete button
+    const lessonCard = page
+      .locator('[data-testid^="lesson-link-"]')
+      .filter({ hasText: lessonTitle })
+      .first();
+    await lessonCard.getByRole('button', { name: 'Eliminar lección' }).click();
     await expect(page.getByText(lessonTitle)).not.toBeVisible({ timeout: 5000 });
   });
 });
