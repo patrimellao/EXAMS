@@ -2,11 +2,13 @@ import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
 import path from 'path';
 
-// Load .env.local so tests have access to DATABASE_URL etc.
+// Load .env.local (secrets) then .env.test (dynamic IDs written by npm run seed)
 dotenv.config({ path: path.resolve(__dirname, '.env.local') });
+dotenv.config({ path: path.resolve(__dirname, '.env.test') });
 
 export default defineConfig({
   testDir: './tests',
+  globalSetup: './tests/global-setup.ts',
   timeout: 30_000,
   expect: { timeout: 8_000 },
   fullyParallel: false,
@@ -16,7 +18,7 @@ export default defineConfig({
   reporter: [['html', { open: 'never' }], ['list']],
 
   use: {
-    baseURL: process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
+    baseURL: process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3100',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
@@ -28,11 +30,10 @@ export default defineConfig({
     },
   ],
 
-  // Start the dev server automatically if not already running
   webServer: {
     command: 'npm run dev',
-    url: 'http://localhost:3000',
+    url: 'http://localhost:3100',
     reuseExistingServer: !process.env.CI,
-    timeout: 60_000,
+    timeout: 120_000,
   },
 });

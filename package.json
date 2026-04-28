@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "dev": "next dev --turbo",
+    "dev": "next dev --turbo --port 3100",
     "build": "next build",
     "start": "next start",
     "build:worker": "tsc --project tsconfig.worker.json",
@@ -13,9 +13,12 @@
     "check": "drizzle-kit check:pg",
     "up": "drizzle-kit up:pg",
     "studio": "drizzle-kit studio",
+    "typecheck": "npx tsc --noEmit",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
+    "test:ralph": "npm run seed && npx playwright test",
+    "test:full": "npm run push && npm run seed && npx playwright test",
     "seed": "dotenv -e .env.local -- npx tsx scripts/seed.ts",
     "seed:clear": "dotenv -e .env.local -- npx tsx scripts/clear.ts",
     "setup-db": "psql $DATABASE_URL -f scripts/setup-db.sql"
@@ -52,7 +55,7 @@
     "ioredis": "^5.3.2",
     "js-confetti": "^0.12.0",
     "lucide-react": "^0.366.0",
-    "next": "latest",
+    "next": "14.2.35",
     "next-pwa": "^5.6.0",
     "next-themes": "^0.3.0",
     "pg": "^8.11.3",

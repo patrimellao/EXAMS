@@ -26,7 +26,14 @@ export default function Login() {
     const data = new FormData(event.target as HTMLFormElement);
     startTransition(async () => {
       const result = await signIn(data);
-      const { error } = JSON.parse(result);
+      // Server action may redirect on success → result is undefined
+      if (!result) return;
+      let error: { message?: string } | undefined;
+      try {
+        ({ error } = JSON.parse(result));
+      } catch {
+        error = { message: "Unexpected error" };
+      }
       if (error?.message) {
         toast({
           variant: "destructive",

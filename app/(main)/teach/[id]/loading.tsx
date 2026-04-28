@@ -1,11 +1,24 @@
-import { cn } from '@/lib/utils';
-import { LoaderCircle } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Loading() {
-  // You can add any UI inside Loading, including a Skeleton.
   return (
-    <div className="flex h-full flex-1 items-center justify-center animate-in">
-      <LoaderCircle className={cn("animate-spin h-10 w-10")} />
+    <div className="p-6 max-w-5xl mx-auto space-y-6 animate-in">
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-1/2" />
+        <Skeleton className="h-4 w-2/3" />
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="rounded-lg border p-4 space-y-3">
+            <Skeleton className="h-5 w-2/3" />
+            <Skeleton className="h-4 w-full" />
+            <div className="flex justify-end gap-2 pt-2">
+              <Skeleton className="h-8 w-20" />
+              <Skeleton className="h-8 w-20" />
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

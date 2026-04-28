@@ -200,6 +200,7 @@ export function LessonBuilder({ unitId, initialLessons }: Props) {
         {lessons.map((lesson) => (
           <div
             key={lesson.id}
+            data-testid={`lesson-link-${lesson.id}`}
             className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer hover:bg-accent transition-colors ${
               editingId === lesson.id ? 'border-primary bg-accent' : ''
             }`}
@@ -212,6 +213,7 @@ export function LessonBuilder({ unitId, initialLessons }: Props) {
             <Button
               size="sm"
               variant="ghost"
+              aria-label="Eliminar lección"
               className="shrink-0 text-destructive hover:text-destructive"
               onClick={(e) => { e.stopPropagation(); handleDelete(lesson.id); }}
             >
@@ -241,12 +243,12 @@ export function LessonBuilder({ unitId, initialLessons }: Props) {
             </div>
 
             <div className="space-y-1">
-              <Label>Tipo</Label>
+              <Label htmlFor="lesson-type">Tipo</Label>
               <Select
                 value={form.type}
                 onValueChange={(v) => setForm({ ...form, type: v as 'article' | 'file' })}
               >
-                <SelectTrigger>
+                <SelectTrigger id="lesson-type">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

@@ -93,11 +93,11 @@ export const getAchievementsProgress = async () => {
     .orderBy(achievements.type);
 
     const stats = await getUserStats();
+    const quizzesDone = stats?.quizzesDone ?? 0;
+    const quizzesPassed = stats?.quizzesPassed ?? 0;
+    const quizzesPerfect = stats?.quizzesPerfect ?? 0;
 
-    //@ts-ignore
-    const { quizzesDone, quizzesPassed, quizzesPerfect } = stats;
-
-    const typeToValueMap = {
+    const typeToValueMap: Record<number, number> = {
         1: quizzesDone,
         2: quizzesPassed,
         3: quizzesPerfect

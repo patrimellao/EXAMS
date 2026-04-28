@@ -69,31 +69,39 @@ export default function SubjectSelectionCard({ user }: { user: AuthUser }) {
                   'No subjects found.'
                 )}
               </CommandEmpty>
-              <CommandGroup className="p-2">
-                {subjects.map(subject => (
-                  <CommandItem
-                    key={subject.name}
-                    className="flex items-center px-2"
-                    onSelect={() => {
-                      if (!selectedSubjects.includes(subject)) {
-                        enrollSubjects(user.id! as UUID, [subject.id]);
-                      }
-                      router.push(`/study/${subject.id}`);
-                    }}
-                  >
-                    <div className="ml-2">
-                      <p className="text-sm font-medium leading-none">
-                        {subject.name}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {subject.description}
-                      </p>
-                    </div>
-                    {selectedSubjects.includes(subject) ? (
-                      <Check className="ml-auto flex h-5 w-5 min-w-5 min-h-5 text-primary" />
-                    ) : null}
-                  </CommandItem>
-                ))}
+              <CommandGroup className="p-2 space-y-1">
+                {subjects.map(subject => {
+                  const isEnrolled = selectedSubjects.includes(subject);
+                  return (
+                    <CommandItem
+                      key={subject.name}
+                      className="flex items-center gap-3 px-3 py-3 border border-transparent data-[selected=true]:border-border"
+                      onSelect={() => {
+                        if (!isEnrolled) {
+                          enrollSubjects(user.id! as UUID, [subject.id]);
+                        }
+                        router.push(`/study/${subject.id}`);
+                      }}
+                    >
+                      <div className="flex-1 min-w-0 space-y-1">
+                        <p className="text-sm font-medium leading-tight truncate">
+                          {subject.name}
+                        </p>
+                        <p className="text-sm text-muted-foreground leading-tight line-clamp-1">
+                          {subject.description}
+                        </p>
+                      </div>
+                      {/* Always render Check; toggle visibility instead of mounting/unmounting so the row geometry stays stable on hover. */}
+                      <Check
+                        className={cn(
+                          'shrink-0 h-5 w-5 text-primary',
+                          isEnrolled ? 'opacity-100' : 'opacity-0',
+                        )}
+                        aria-hidden={!isEnrolled}
+                      />
+                    </CommandItem>
+                  );
+                })}
               </CommandGroup>
             </CommandList>
           </Command>

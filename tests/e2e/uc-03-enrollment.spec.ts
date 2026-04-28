@@ -8,7 +8,8 @@
  * NOTE: This test requires at least one active subject in the DB.
  * If the DB is fresh/empty, subject-related assertions are skipped.
  */
-import { test, expect, Page } from '@playwright/test';
+import { test, expect } from '../fixtures';
+import type { Page } from '@playwright/test';
 
 const STUDENT_EMAIL = `enroll_${Date.now()}@example.com`;
 const STUDENT_PASSWORD = 'SecurePass1!';
