@@ -10,7 +10,7 @@
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
+    --primary: 222 47% 11%;
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -22,34 +22,88 @@
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    --ring: 178 84% 32%;
     --radius: 0.5rem;
     --success: 142.1 76.2% 36.3%;
     --success-foreground: 355.7 100% 97.3%;
+
+    /* TuFolio game layer */
+    --brand-primary: 178 84% 32%;
+    --brand-cool: 187 92% 32%;
+    --brand-warm: 25 95% 53%;
+    --brand-flame: 351 83% 57%;
+    --brand-xp: 38 92% 50%;
+    --brand-success: 152 76% 36%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
+    --background: 222 47% 7%;
+    --foreground: 210 40% 96%;
+    --card: 222 40% 10%;
+    --card-foreground: 210 40% 96%;
+    --popover: 222 40% 10%;
+    --popover-foreground: 210 40% 96%;
+    --primary: 210 40% 96%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217 28% 16%;
+    --secondary-foreground: 210 40% 96%;
+    --muted: 217 28% 16%;
+    --muted-foreground: 215 20% 70%;
+    --accent: 217 28% 16%;
+    --accent-foreground: 210 40% 96%;
+    --destructive: 0 62.8% 50%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
-    --success: 142.1 70.6% 45.3%;
-    --success-foreground: 144.9 80.4% 10%;
+    --border: 217 28% 18%;
+    --input: 217 28% 18%;
+    --ring: 178 70% 48%;
+    --success: 152 65% 50%;
+    --success-foreground: 145 80% 10%;
+
+    --brand-primary: 178 70% 48%;
+    --brand-cool: 187 75% 50%;
+    --brand-warm: 25 92% 62%;
+    --brand-flame: 351 85% 68%;
+    --brand-xp: 38 95% 62%;
+    --brand-success: 152 65% 55%;
+
+    --grad-brand-from: 215 25% 30%;
+    --grad-brand-to: 215 30% 14%;
+  }
+
+  :root {
+    --grad-brand-from: 215 19% 35%;
+    --grad-brand-to: 215 28% 17%;
+  }
+}
+
+@layer utilities {
+  .bg-grad-trust {
+    background-image: linear-gradient(
+      135deg,
+      hsl(var(--brand-primary)),
+      hsl(var(--brand-cool))
+    );
+  }
+  .bg-grad-warm {
+    background-image: linear-gradient(
+      135deg,
+      hsl(var(--brand-xp)),
+      hsl(var(--brand-warm)),
+      hsl(var(--brand-flame))
+    );
+  }
+  .bg-grad-brand {
+    background-image: linear-gradient(
+      135deg,
+      hsl(var(--grad-brand-from)),
+      hsl(var(--grad-brand-to))
+    );
+  }
+  .text-hero {
+    @apply text-4xl font-black tracking-tight md:text-5xl;
+  }
+  .text-display {
+    @apply text-2xl font-black tracking-tight md:text-3xl;
   }
 }
 
