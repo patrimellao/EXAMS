@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "Términos de Servicio | Jean Monnet",
+  title: "Términos de Servicio | TuFolio",
 };
 
 export default function Terminos() {
@@ -10,12 +10,12 @@ export default function Terminos() {
 
       <h2>1. Aceptación de los términos</h2>
       <p>
-        Al registrarse en Jean Monnet y acceder a la Plataforma, usted acepta quedar vinculado por los presentes Términos de Servicio. Si no está de acuerdo con alguno de estos términos, no debe utilizar la Plataforma.
+        Al registrarse en TuFolio y acceder a la Plataforma, usted acepta quedar vinculado por los presentes Términos de Servicio. Si no está de acuerdo con alguno de estos términos, no debe utilizar la Plataforma.
       </p>
 
       <h2>2. Descripción del servicio</h2>
       <p>
-        Jean Monnet es una plataforma educativa de modalidad <em>serious game</em> destinada a la preparación de oposiciones y exámenes oficiales relacionados con las instituciones de la Unión Europea. La Plataforma ofrece contenidos en formato texto, cuestionarios interactivos y elementos de gamificación (puntos XP, logros, clasificaciones).
+        TuFolio es una plataforma educativa de modalidad <em>serious game</em> destinada a la preparación de oposiciones y exámenes oficiales relacionados con las instituciones de la Unión Europea. La Plataforma ofrece contenidos en formato texto, cuestionarios interactivos y elementos de gamificación (puntos XP, logros, clasificaciones).
       </p>
 
       <h2>3. Registro y cuenta de usuario</h2>
@@ -39,7 +39,7 @@ export default function Terminos() {
         De conformidad con el artículo 103.a de la Ley General para la Defensa de los Consumidores y Usuarios (LGDCU) y la Directiva 2011/83/UE, el consumidor que contrate un plan de pago a través de la Plataforma dispone de un plazo de <strong>14 días naturales</strong> para desistir del contrato sin necesidad de justificación, contados desde la fecha de la suscripción.
       </p>
       <p>
-        Para ejercer el derecho de desistimiento, debe notificarlo a <strong>soporte@jeanmonnet.es</strong> antes de que expire dicho plazo. Si ha comenzado a utilizar el servicio de contenido digital durante el plazo de desistimiento, nos indica expresamente que acepta que, una vez comenzada la prestación, perderá el derecho de desistimiento.
+        Para ejercer el derecho de desistimiento, debe notificarlo a <strong>soporte@tufolio.es</strong> antes de que expire dicho plazo. Si ha comenzado a utilizar el servicio de contenido digital durante el plazo de desistimiento, nos indica expresamente que acepta que, una vez comenzada la prestación, perderá el derecho de desistimiento.
       </p>
 
       <h2>6. Cancelación de la suscripción</h2>
@@ -63,7 +63,7 @@ export default function Terminos() {
 
       <h2>9. Limitación de responsabilidad</h2>
       <p>
-        Jean Monnet es un recurso educativo complementario. No garantizamos que la preparación realizada en la Plataforma resulte en la superación de ningún examen u oposición. El titular no será responsable de daños indirectos, incidentales o consecuentes derivados del uso de la Plataforma.
+        TuFolio es un recurso educativo complementario. No garantizamos que la preparación realizada en la Plataforma resulte en la superación de ningún examen u oposición. El titular no será responsable de daños indirectos, incidentales o consecuentes derivados del uso de la Plataforma.
       </p>
 
       <h2>10. Modificaciones del servicio y de los términos</h2>
@@ -77,7 +77,7 @@ export default function Terminos() {
       </p>
 
       <h2>12. Contacto</h2>
-      <p>Para cualquier consulta relacionada con estos Términos, puede contactarnos en <strong>legal@jeanmonnet.es</strong>.</p>
+      <p>Para cualquier consulta relacionada con estos Términos, puede contactarnos en <strong>legal@tufolio.es</strong>.</p>
     </article>
   );
 }

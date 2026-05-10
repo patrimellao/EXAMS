@@ -23,17 +23,17 @@ const TEST_LOCKED_UNIT_ID = process.env.TEST_LOCKED_UNIT_ID ?? '';
 
 async function registerAndSignIn(page: Page) {
   await page.goto('/sign-up');
-  await page.getByLabel('First name').fill('UC12');
-  await page.getByLabel('Last name').fill('Unlock');
+  await page.getByLabel('Nombre').fill('UC12');
+  await page.getByLabel('Apellidos').fill('Unlock');
   await page.getByLabel('Email').fill(STUDENT_EMAIL);
-  await page.getByLabel('Password', { exact: true }).fill(STUDENT_PASSWORD);
-  await page.getByLabel('Confirm password').fill(STUDENT_PASSWORD);
-  await page.getByRole('button', { name: 'Create account' }).click();
+  await page.getByLabel('Contraseña', { exact: true }).fill(STUDENT_PASSWORD);
+  await page.getByLabel('Confirma la contraseña').fill(STUDENT_PASSWORD);
+  await page.getByRole('button', { name: 'Crear cuenta' }).click();
   await page.waitForURL('**/sign-in', { timeout: 10000 });
 
   await page.getByLabel('Email').fill(STUDENT_EMAIL);
-  await page.getByLabel('Password', { exact: true }).fill(STUDENT_PASSWORD);
-  await page.getByRole('button', { name: 'Login' }).click();
+  await page.getByLabel('Contraseña', { exact: true }).fill(STUDENT_PASSWORD);
+  await page.getByRole('button', { name: 'Inicia sesión' }).click();
   await page.waitForURL('**/study', { timeout: 10000 });
 }
 
@@ -48,8 +48,8 @@ test.describe('UC-12 · Sequential Unit Unlock — UI layer', () => {
   async function signIn(page: Page) {
     await page.goto('/sign-in');
     await page.getByLabel('Email').fill(STUDENT_EMAIL);
-    await page.getByLabel('Password', { exact: true }).fill(STUDENT_PASSWORD);
-    await page.getByRole('button', { name: 'Login' }).click();
+    await page.getByLabel('Contraseña', { exact: true }).fill(STUDENT_PASSWORD);
+    await page.getByRole('button', { name: 'Inicia sesión' }).click();
     await page.waitForURL('**/study', { timeout: 10000 });
   }
 

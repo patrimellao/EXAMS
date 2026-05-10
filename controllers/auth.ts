@@ -17,11 +17,11 @@ export const signIn = async (formData: FormData) => {
     role = (result?.user as any)?.role;
   } catch (error) {
     if (error instanceof APIError) {
-      const msg = (error as any).body?.message ?? 'Authentication failed';
+      const msg = (error as any).body?.message ?? 'Error de autenticación';
       return JSON.stringify({ error: { message: msg } });
     }
     console.error('[signIn] unexpected error:', error);
-    return JSON.stringify({ error: { message: 'Unexpected error. Please try again.' } });
+    return JSON.stringify({ error: { message: 'Error inesperado. Inténtalo de nuevo.' } });
   }
 
   redirect(role === 'teacher' ? '/teach' : '/study');
@@ -32,7 +32,7 @@ export const signUp = async (formData: FormData) => {
   const confirmPassword = formData.get('confirm-password') as string;
 
   if (password !== confirmPassword) {
-    return JSON.stringify({ error: { message: 'Passwords do not match' } });
+    return JSON.stringify({ error: { message: 'Las contraseñas no coinciden' } });
   }
 
   const email = formData.get('email') as string;
@@ -48,10 +48,10 @@ export const signUp = async (formData: FormData) => {
     return JSON.stringify({ data: {} });
   } catch (error) {
     if (error instanceof APIError) {
-      const msg = (error as any).body?.message ?? 'Registration failed';
+      const msg = (error as any).body?.message ?? 'Error al crear la cuenta';
       return JSON.stringify({ error: { message: msg } });
     }
     console.error('[signUp] unexpected error:', error);
-    return JSON.stringify({ error: { message: 'Unexpected error. Please try again.' } });
+    return JSON.stringify({ error: { message: 'Error inesperado. Inténtalo de nuevo.' } });
   }
 };

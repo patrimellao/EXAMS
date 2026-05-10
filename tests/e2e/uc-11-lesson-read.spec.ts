@@ -23,17 +23,17 @@ const TEST_LESSON_ID = process.env.TEST_LESSON_ID ?? '';
 
 async function registerAndSignIn(page: Page) {
   await page.goto('/sign-up');
-  await page.getByLabel('First name').fill('UC11');
-  await page.getByLabel('Last name').fill('Reader');
+  await page.getByLabel('Nombre').fill('UC11');
+  await page.getByLabel('Apellidos').fill('Reader');
   await page.getByLabel('Email').fill(STUDENT_EMAIL);
-  await page.getByLabel('Password', { exact: true }).fill(STUDENT_PASSWORD);
-  await page.getByLabel('Confirm password').fill(STUDENT_PASSWORD);
-  await page.getByRole('button', { name: 'Create account' }).click();
+  await page.getByLabel('Contraseña', { exact: true }).fill(STUDENT_PASSWORD);
+  await page.getByLabel('Confirma la contraseña').fill(STUDENT_PASSWORD);
+  await page.getByRole('button', { name: 'Crear cuenta' }).click();
   await page.waitForURL('**/sign-in', { timeout: 10000 });
 
   await page.getByLabel('Email').fill(STUDENT_EMAIL);
-  await page.getByLabel('Password', { exact: true }).fill(STUDENT_PASSWORD);
-  await page.getByRole('button', { name: 'Login' }).click();
+  await page.getByLabel('Contraseña', { exact: true }).fill(STUDENT_PASSWORD);
+  await page.getByRole('button', { name: 'Inicia sesión' }).click();
   await page.waitForURL('**/study', { timeout: 10000 });
 }
 
@@ -58,8 +58,8 @@ test.describe('UC-11 · Lesson Reader — Student flows', () => {
   test('lesson page loads with title and content', async ({ page }) => {
     await page.goto('/sign-in');
     await page.getByLabel('Email').fill(STUDENT_EMAIL);
-    await page.getByLabel('Password', { exact: true }).fill(STUDENT_PASSWORD);
-    await page.getByRole('button', { name: 'Login' }).click();
+    await page.getByLabel('Contraseña', { exact: true }).fill(STUDENT_PASSWORD);
+    await page.getByRole('button', { name: 'Inicia sesión' }).click();
     await page.waitForURL('**/study', { timeout: 10000 });
 
     await page.goto(`/study/${TEST_SUBJECT_ID}/lessons/${TEST_LESSON_ID}`);
@@ -74,8 +74,8 @@ test.describe('UC-11 · Lesson Reader — Student flows', () => {
   test('lesson content area is visible', async ({ page }) => {
     await page.goto('/sign-in');
     await page.getByLabel('Email').fill(STUDENT_EMAIL);
-    await page.getByLabel('Password', { exact: true }).fill(STUDENT_PASSWORD);
-    await page.getByRole('button', { name: 'Login' }).click();
+    await page.getByLabel('Contraseña', { exact: true }).fill(STUDENT_PASSWORD);
+    await page.getByRole('button', { name: 'Inicia sesión' }).click();
     await page.waitForURL('**/study', { timeout: 10000 });
 
     await page.goto(`/study/${TEST_SUBJECT_ID}/lessons/${TEST_LESSON_ID}`);
@@ -85,8 +85,8 @@ test.describe('UC-11 · Lesson Reader — Student flows', () => {
   test('"Marcar como completada" button is present', async ({ page }) => {
     await page.goto('/sign-in');
     await page.getByLabel('Email').fill(STUDENT_EMAIL);
-    await page.getByLabel('Password', { exact: true }).fill(STUDENT_PASSWORD);
-    await page.getByRole('button', { name: 'Login' }).click();
+    await page.getByLabel('Contraseña', { exact: true }).fill(STUDENT_PASSWORD);
+    await page.getByRole('button', { name: 'Inicia sesión' }).click();
     await page.waitForURL('**/study', { timeout: 10000 });
 
     await page.goto(`/study/${TEST_SUBJECT_ID}/lessons/${TEST_LESSON_ID}`);
@@ -96,8 +96,8 @@ test.describe('UC-11 · Lesson Reader — Student flows', () => {
   test('clicking "Marcar como completada" marks lesson as done', async ({ page }) => {
     await page.goto('/sign-in');
     await page.getByLabel('Email').fill(STUDENT_EMAIL);
-    await page.getByLabel('Password', { exact: true }).fill(STUDENT_PASSWORD);
-    await page.getByRole('button', { name: 'Login' }).click();
+    await page.getByLabel('Contraseña', { exact: true }).fill(STUDENT_PASSWORD);
+    await page.getByRole('button', { name: 'Inicia sesión' }).click();
     await page.waitForURL('**/study', { timeout: 10000 });
 
     await page.goto(`/study/${TEST_SUBJECT_ID}/lessons/${TEST_LESSON_ID}`);

@@ -1,6 +1,6 @@
 {
-    "name": "Jean Monnet",
-    "short_name": "Jean Monnet",
+    "name": "TuFolio",
+    "short_name": "TuFolio",
     "start_url": "/sign-in",
     "display": "standalone",
     "display_override": ["minimal-ui", "browser"],
@@ -8,7 +8,7 @@
     "background_color": "#fff",
     "theme_color": "#fff",
     "scope": "/",
-    "description": "Jean Monnet serious game for learning European Union history and institutions",
+    "description": "TuFolio · Preparación rigurosa para tus oposiciones. Temario validado, tests adaptativos y comunidad que avanza contigo.",
     "screenshots": [
         {
          "src": "/desktop-quiz.png",

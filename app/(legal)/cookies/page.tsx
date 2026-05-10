@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "Política de Cookies | Jean Monnet",
+  title: "Política de Cookies | TuFolio",
 };
 
 export default function Cookies() {
@@ -9,7 +9,7 @@ export default function Cookies() {
       <p className="text-muted-foreground text-sm">Última actualización: {new Date().toLocaleDateString("es-ES", { year: "numeric", month: "long", day: "numeric" })}</p>
 
       <p>
-        En cumplimiento del artículo 22.2 de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y de Comercio Electrónico (LSSI-CE), y de la Directiva 2009/136/CE, le informamos sobre el uso de cookies en la Plataforma Jean Monnet.
+        En cumplimiento del artículo 22.2 de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y de Comercio Electrónico (LSSI-CE), y de la Directiva 2009/136/CE, le informamos sobre el uso de cookies en la Plataforma TuFolio.
       </p>
 
       <h2>¿Qué son las cookies?</h2>
@@ -32,19 +32,19 @@ export default function Cookies() {
         <tbody>
           <tr>
             <td><code>better-auth.session_token</code></td>
-            <td>Jean Monnet</td>
+            <td>TuFolio</td>
             <td>Mantener la sesión del usuario autenticado</td>
             <td>7 días</td>
           </tr>
           <tr>
             <td><code>better-auth.csrf_token</code></td>
-            <td>Jean Monnet</td>
+            <td>TuFolio</td>
             <td>Protección contra ataques CSRF</td>
             <td>Sesión</td>
           </tr>
           <tr>
             <td><code>cookie-consent</code></td>
-            <td>Jean Monnet</td>
+            <td>TuFolio</td>
             <td>Guarda las preferencias de consentimiento de cookies</td>
             <td>1 año</td>
           </tr>
@@ -64,7 +64,7 @@ export default function Cookies() {
         <tbody>
           <tr>
             <td><code>theme</code></td>
-            <td>Jean Monnet</td>
+            <td>TuFolio</td>
             <td>Recuerda la preferencia de tema claro/oscuro</td>
             <td>1 año</td>
           </tr>

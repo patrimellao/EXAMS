@@ -2,13 +2,6 @@
 import Link from "next/link"
 import { LoaderCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { FormEvent, useTransition } from "react";
@@ -26,76 +19,67 @@ export default function Login() {
     const data = new FormData(event.target as HTMLFormElement);
     startTransition(async () => {
       const result = await signIn(data);
-      // Server action may redirect on success → result is undefined
       if (!result) return;
       let error: { message?: string } | undefined;
       try {
         ({ error } = JSON.parse(result));
       } catch {
-        error = { message: "Unexpected error" };
+        error = { message: "Error inesperado" };
       }
       if (error?.message) {
         toast({
           variant: "destructive",
           title: error.message,
-          description: "Please try again"
+          description: "Inténtalo de nuevo"
         });
       }
     });
   }
 
   return (
-    <div className="flex-1 flex flex-col w-full px-8 sm:max-w-md justify-center gap-2">
-      <Card className="animate-in mx-auto max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
-          <CardDescription>
-            Enter your email below to login to your account
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-              />
-            </div>
-            <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-                {/* <Link href="#" className="ml-auto inline-block text-sm underline">
-                  Forgot your password?
-                </Link> */}
-              </div>
-              <PasswordInput
-                id="password" name="password" required
-                autoComplete="new-password"
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={isPending}>
-              {!isPending ?
-                "Login"
-                :
-                <LoaderCircle className={cn(" animate-spin")} />
-              }
-            </Button>
-            {/* <Button type="button" variant="outline" className="w-full" disabled={isPending}>
-              Login with ...
-            </Button> */}
-          </form>
-          <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{" "}
-            <Link href="/sign-up" className="underline">
-              Sign up
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+    <div className="animate-in space-y-8">
+      <div className="space-y-2">
+        <h1 className="text-2xl font-semibold tracking-tight">Inicia sesión</h1>
+        <p className="text-sm text-muted-foreground">
+          Bienvenido de nuevo. Continúa tu preparación donde la dejaste.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="tu@correo.com"
+            required
+            autoComplete="email"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="password">Contraseña</Label>
+          <PasswordInput
+            id="password"
+            name="password"
+            required
+            autoComplete="current-password"
+          />
+        </div>
+        <Button type="submit" className="w-full" disabled={isPending}>
+          {!isPending ? "Inicia sesión" : <LoaderCircle className={cn("animate-spin")} />}
+        </Button>
+      </form>
+
+      <p className="text-center text-sm text-muted-foreground">
+        ¿No tienes cuenta?{" "}
+        <Link
+          href="/sign-up"
+          className="font-medium text-foreground underline underline-offset-4 hover:text-brand-primary"
+        >
+          Regístrate
+        </Link>
+      </p>
     </div>
   );
 }

@@ -55,16 +55,16 @@ test.describe('UC-02 · Sign In', () => {
     await page.goto(SIGN_IN_URL);
 
     await expect(page.getByLabel('Email')).toBeVisible();
-    await expect(page.getByLabel('Password', { exact: true })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Login' })).toBeVisible();
+    await expect(page.getByLabel('Contraseña', { exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Inicia sesión' })).toBeVisible();
   });
 
   test('shows error for incorrect password', async ({ page }) => {
     await page.goto(SIGN_IN_URL);
 
     await page.getByLabel('Email').fill(TEST_EMAIL);
-    await page.getByLabel('Password', { exact: true }).fill('WrongPassword123');
-    await page.getByRole('button', { name: 'Login' }).click();
+    await page.getByLabel('Contraseña', { exact: true }).fill('WrongPassword123');
+    await page.getByRole('button', { name: 'Inicia sesión' }).click();
 
     await expect(
       page.locator('[data-state="open"]').filter({ hasText: /invalid|incorrect|wrong|fail/i })
@@ -75,8 +75,8 @@ test.describe('UC-02 · Sign In', () => {
     await page.goto(SIGN_IN_URL);
 
     await page.getByLabel('Email').fill('nonexistent@example.com');
-    await page.getByLabel('Password', { exact: true }).fill('SomePassword1!');
-    await page.getByRole('button', { name: 'Login' }).click();
+    await page.getByLabel('Contraseña', { exact: true }).fill('SomePassword1!');
+    await page.getByRole('button', { name: 'Inicia sesión' }).click();
 
     await expect(
       page.locator('[data-state="open"]').filter({ hasText: /invalid|not found|no account|fail/i })
@@ -87,8 +87,8 @@ test.describe('UC-02 · Sign In', () => {
     await page.goto(SIGN_IN_URL);
 
     await page.getByLabel('Email').fill(TEST_EMAIL);
-    await page.getByLabel('Password', { exact: true }).fill(TEST_PASSWORD);
-    await page.getByRole('button', { name: 'Login' }).click();
+    await page.getByLabel('Contraseña', { exact: true }).fill(TEST_PASSWORD);
+    await page.getByRole('button', { name: 'Inicia sesión' }).click();
 
     await page.waitForURL('**/study', { timeout: 12000 });
     await expect(page).toHaveURL(/\/study/);
@@ -106,7 +106,7 @@ test.describe('UC-02 · Sign In', () => {
 
   test('link to sign-up page is visible', async ({ page }) => {
     await page.goto(SIGN_IN_URL);
-    const link = page.getByRole('link', { name: 'Sign up' });
+    const link = page.getByRole('link', { name: 'Regístrate' });
     await expect(link).toBeVisible();
     await link.click();
     await expect(page).toHaveURL(/\/sign-up/);

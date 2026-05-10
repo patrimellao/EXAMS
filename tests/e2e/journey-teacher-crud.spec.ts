@@ -28,8 +28,8 @@ const TEST_UNIT_ID = Number(process.env.TEST_UNIT_ID ?? 1);
 async function signIn(page: Page, email: string, password: string) {
   await page.goto('/sign-in');
   await page.getByLabel('Email').fill(email);
-  await page.getByLabel('Password', { exact: true }).fill(password);
-  await page.getByRole('button', { name: 'Login' }).click();
+  await page.getByLabel('Contraseña', { exact: true }).fill(password);
+  await page.getByRole('button', { name: 'Inicia sesión' }).click();
   await page.waitForURL(/\/(study|teach)/, { timeout: 12000 });
 }
 

@@ -17,8 +17,8 @@ const STUDENT_PASSWORD = 'SecurePass1!';
 async function signInAs(page: Page, email: string, password: string) {
   await page.goto('/sign-in');
   await page.getByLabel('Email').fill(email);
-  await page.getByLabel('Password', { exact: true }).fill(password);
-  await page.getByRole('button', { name: 'Login' }).click();
+  await page.getByLabel('Contraseña', { exact: true }).fill(password);
+  await page.getByRole('button', { name: 'Inicia sesión' }).click();
   await page.waitForURL('**/study', { timeout: 10000 });
 }
 
@@ -27,12 +27,12 @@ test.beforeAll(async ({ browser }) => {
   const page = await context.newPage();
   await page.addInitScript(() => localStorage.setItem('cookie-consent', 'necessary'));
   await page.goto('/sign-up');
-  await page.getByLabel('First name').fill('Laura');
-  await page.getByLabel('Last name').fill('Torres');
+  await page.getByLabel('Nombre').fill('Laura');
+  await page.getByLabel('Apellidos').fill('Torres');
   await page.getByLabel('Email').fill(STUDENT_EMAIL);
-  await page.getByLabel('Password', { exact: true }).fill(STUDENT_PASSWORD);
-  await page.getByLabel('Confirm password').fill(STUDENT_PASSWORD);
-  await page.getByRole('button', { name: 'Create account' }).click();
+  await page.getByLabel('Contraseña', { exact: true }).fill(STUDENT_PASSWORD);
+  await page.getByLabel('Confirma la contraseña').fill(STUDENT_PASSWORD);
+  await page.getByRole('button', { name: 'Crear cuenta' }).click();
   await page.waitForURL('**/sign-in', { timeout: 10000 });
   await context.close();
 });

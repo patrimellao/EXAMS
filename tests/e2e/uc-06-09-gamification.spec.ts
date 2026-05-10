@@ -22,12 +22,12 @@ async function createAndSignIn(browser: any) {
 
   // Register
   await page.goto('/sign-up');
-  await page.getByLabel('First name').fill('Gamif');
-  await page.getByLabel('Last name').fill('Student');
+  await page.getByLabel('Nombre').fill('Gamif');
+  await page.getByLabel('Apellidos').fill('Student');
   await page.getByLabel('Email').fill(STUDENT_EMAIL);
-  await page.getByLabel('Password', { exact: true }).fill(STUDENT_PASSWORD);
-  await page.getByLabel('Confirm password').fill(STUDENT_PASSWORD);
-  await page.getByRole('button', { name: 'Create account' }).click();
+  await page.getByLabel('Contraseña', { exact: true }).fill(STUDENT_PASSWORD);
+  await page.getByLabel('Confirma la contraseña').fill(STUDENT_PASSWORD);
+  await page.getByRole('button', { name: 'Crear cuenta' }).click();
   await page.waitForURL('**/sign-in', { timeout: 10000 });
   await context.close();
 }
@@ -35,8 +35,8 @@ async function createAndSignIn(browser: any) {
 async function signIn(page: Page) {
   await page.goto('/sign-in');
   await page.getByLabel('Email').fill(STUDENT_EMAIL);
-  await page.getByLabel('Password', { exact: true }).fill(STUDENT_PASSWORD);
-  await page.getByRole('button', { name: 'Login' }).click();
+  await page.getByLabel('Contraseña', { exact: true }).fill(STUDENT_PASSWORD);
+  await page.getByRole('button', { name: 'Inicia sesión' }).click();
   await page.waitForURL('**/study', { timeout: 10000 });
 }
 

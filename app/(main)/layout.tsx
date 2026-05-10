@@ -29,7 +29,7 @@ export default async function Dashboard({
         <header className="flex end justify-between h-14 items-center gap-4 border-b px-4 lg:h-[60px] lg:px-6">
           <BackLink />
           <div id="logo" className="items-center">
-            Jean Monnet
+            TuFolio
           </div>
           <div className="flex gap-4">
             <ModeToggle />

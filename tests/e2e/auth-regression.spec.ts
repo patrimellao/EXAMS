@@ -95,8 +95,8 @@ test.describe('Auth regression — no runtime crashes on login/signup', () => {
 
     await page.goto('/sign-in');
     await page.getByLabel('Email').fill(TEST_EMAIL);
-    await page.getByLabel('Password', { exact: true }).fill(TEST_PASSWORD);
-    await page.getByRole('button', { name: 'Login' }).click();
+    await page.getByLabel('Contraseña', { exact: true }).fill(TEST_PASSWORD);
+    await page.getByRole('button', { name: 'Inicia sesión' }).click();
 
     await page.waitForURL('**/study', { timeout: 12000 });
     // Let any queued microtasks / JSON.parse fire before asserting.
@@ -126,15 +126,15 @@ test.describe('Auth regression — no runtime crashes on login/signup', () => {
     await ctx.dispose();
 
     await page.goto('/sign-up');
-    await page.getByLabel('First name').fill('Dup');
-    await page.getByLabel('Last name').fill('User');
+    await page.getByLabel('Nombre').fill('Dup');
+    await page.getByLabel('Apellidos').fill('User');
     await page.getByLabel('Email').fill(dupEmail);
-    await page.getByLabel('Password', { exact: true }).fill(TEST_PASSWORD);
-    await page.getByLabel('Confirm password').fill(TEST_PASSWORD);
-    await page.getByRole('button', { name: 'Create account' }).click();
+    await page.getByLabel('Contraseña', { exact: true }).fill(TEST_PASSWORD);
+    await page.getByLabel('Confirma la contraseña').fill(TEST_PASSWORD);
+    await page.getByRole('button', { name: 'Crear cuenta' }).click();
 
     // The form card MUST remain visible (i.e. the page is not blank).
-    await expect(page.getByRole('button', { name: 'Create account' })).toBeVisible({
+    await expect(page.getByRole('button', { name: 'Crear cuenta' })).toBeVisible({
       timeout: 8000,
     });
     // And a destructive toast MUST appear.
@@ -154,11 +154,11 @@ test.describe('Auth regression — no runtime crashes on login/signup', () => {
 
     await page.goto('/sign-in');
     await page.getByLabel('Email').fill(TEST_EMAIL);
-    await page.getByLabel('Password', { exact: true }).fill('DefinitelyWrong1!');
-    await page.getByRole('button', { name: 'Login' }).click();
+    await page.getByLabel('Contraseña', { exact: true }).fill('DefinitelyWrong1!');
+    await page.getByRole('button', { name: 'Inicia sesión' }).click();
 
     // Form must stay mounted — no blank page.
-    await expect(page.getByRole('button', { name: 'Login' })).toBeVisible({ timeout: 8000 });
+    await expect(page.getByRole('button', { name: 'Inicia sesión' })).toBeVisible({ timeout: 8000 });
     await expect(
       page.locator('[data-state="open"]').filter({ hasText: /invalid|incorrect|wrong|fail/i })
     ).toBeVisible({ timeout: 8000 });

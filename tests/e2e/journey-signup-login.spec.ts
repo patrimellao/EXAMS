@@ -64,19 +64,19 @@ test.describe('Journey · sign-up → sign-in → /study', () => {
 
     // ── Sign up ─────────────────────────────────────────────────
     await page.goto('/sign-up');
-    await page.getByLabel('First name').fill('Journey');
-    await page.getByLabel('Last name').fill('Tester');
+    await page.getByLabel('Nombre').fill('Journey');
+    await page.getByLabel('Apellidos').fill('Tester');
     await page.getByLabel('Email').fill(email);
-    await page.getByLabel('Password', { exact: true }).fill(password);
-    await page.getByLabel('Confirm password').fill(password);
-    await page.getByRole('button', { name: 'Create account' }).click();
+    await page.getByLabel('Contraseña', { exact: true }).fill(password);
+    await page.getByLabel('Confirma la contraseña').fill(password);
+    await page.getByRole('button', { name: 'Crear cuenta' }).click();
     await page.waitForURL('**/sign-in', { timeout: 10000 });
     await expectNoNextErrorOverlay(page);
 
     // ── Sign in ─────────────────────────────────────────────────
     await page.getByLabel('Email').fill(email);
-    await page.getByLabel('Password', { exact: true }).fill(password);
-    await page.getByRole('button', { name: 'Login' }).click();
+    await page.getByLabel('Contraseña', { exact: true }).fill(password);
+    await page.getByRole('button', { name: 'Inicia sesión' }).click();
 
     await page.waitForURL('**/study', { timeout: 12000 });
     await page.waitForLoadState('networkidle');
@@ -108,25 +108,25 @@ test.describe('Journey · sign-up → sign-in → /study', () => {
 
     // First registration succeeds.
     await page.goto('/sign-up');
-    await page.getByLabel('First name').fill('Dup');
-    await page.getByLabel('Last name').fill('User');
+    await page.getByLabel('Nombre').fill('Dup');
+    await page.getByLabel('Apellidos').fill('User');
     await page.getByLabel('Email').fill(email);
-    await page.getByLabel('Password', { exact: true }).fill(password);
-    await page.getByLabel('Confirm password').fill(password);
-    await page.getByRole('button', { name: 'Create account' }).click();
+    await page.getByLabel('Contraseña', { exact: true }).fill(password);
+    await page.getByLabel('Confirma la contraseña').fill(password);
+    await page.getByRole('button', { name: 'Crear cuenta' }).click();
     await page.waitForURL('**/sign-in', { timeout: 10000 });
 
     // Second registration with the same email → error toast, form stays.
     await page.goto('/sign-up');
-    await page.getByLabel('First name').fill('Dup');
-    await page.getByLabel('Last name').fill('User');
+    await page.getByLabel('Nombre').fill('Dup');
+    await page.getByLabel('Apellidos').fill('User');
     await page.getByLabel('Email').fill(email);
-    await page.getByLabel('Password', { exact: true }).fill(password);
-    await page.getByLabel('Confirm password').fill(password);
-    await page.getByRole('button', { name: 'Create account' }).click();
+    await page.getByLabel('Contraseña', { exact: true }).fill(password);
+    await page.getByLabel('Confirma la contraseña').fill(password);
+    await page.getByRole('button', { name: 'Crear cuenta' }).click();
 
     // Form must still be visible — no blank page.
-    await expect(page.getByRole('button', { name: 'Create account' })).toBeVisible({ timeout: 8000 });
+    await expect(page.getByRole('button', { name: 'Crear cuenta' })).toBeVisible({ timeout: 8000 });
     await expect(
       page.locator('[data-state="open"]').filter({ hasText: /already|taken|exist|registered|error/i })
     ).toBeVisible({ timeout: 8000 });

@@ -106,8 +106,8 @@ test.describe('Journey · quiz end-to-end', () => {
     // Login via UI.
     await page.goto('/sign-in');
     await page.getByLabel('Email').fill(STUDENT_EMAIL);
-    await page.getByLabel('Password', { exact: true }).fill(STUDENT_PASSWORD);
-    await page.getByRole('button', { name: 'Login' }).click();
+    await page.getByLabel('Contraseña', { exact: true }).fill(STUDENT_PASSWORD);
+    await page.getByRole('button', { name: 'Inicia sesión' }).click();
     await page.waitForURL('**/study', { timeout: 12000 });
 
     // Navigate directly to the seeded quiz.

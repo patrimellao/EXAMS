@@ -9,7 +9,7 @@ export default function LegalLayout({
     <div className="min-h-screen bg-background">
       <header className="border-b h-14 flex items-center px-6">
         <a href="/" className="font-semibold text-lg">
-          Jean Monnet
+          TuFolio
         </a>
       </header>
       <main className="max-w-3xl mx-auto px-6 py-12">{children}</main>
@@ -20,7 +20,7 @@ export default function LegalLayout({
           <a href="/cookies" className="hover:underline">Política de Cookies</a>
           <a href="/terminos" className="hover:underline">Términos de Servicio</a>
         </div>
-        <p>© {new Date().getFullYear()} Jean Monnet. Todos los derechos reservados.</p>
+        <p>© {new Date().getFullYear()} TuFolio. Todos los derechos reservados.</p>
       </footer>
     </div>
   );

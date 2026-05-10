@@ -1,4 +1,4 @@
-# Jean Monnet — Oposiciones Study Platform
+# TuFolio — Oposiciones Study Platform
 
 A gamified study platform for students preparing for Spanish competitive exams (*oposiciones*). Students progress through structured content, earn XP, maintain streaks, and compete on leaderboards. Teachers manage all content as backoffice.
 

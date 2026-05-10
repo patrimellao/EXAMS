@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "Aviso Legal | Jean Monnet",
+  title: "Aviso Legal | TuFolio",
 };
 
 export default function AvisoLegal() {
@@ -16,14 +16,14 @@ export default function AvisoLegal() {
         <li><strong>Denominación social:</strong> [NOMBRE DE LA EMPRESA, S.L.]</li>
         <li><strong>NIF/CIF:</strong> [X00000000X]</li>
         <li><strong>Domicilio social:</strong> [Calle Ejemplo, 1, 28001 Madrid, España]</li>
-        <li><strong>Correo electrónico:</strong> legal@jeanmonnet.es</li>
+        <li><strong>Correo electrónico:</strong> legal@tufolio.es</li>
         <li><strong>Teléfono:</strong> [+34 900 000 000]</li>
         <li><strong>Registro Mercantil:</strong> [Inscrita en el Registro Mercantil de Madrid, Tomo X, Folio X, Hoja M-XXXXX]</li>
       </ul>
 
       <h2>2. Objeto y ámbito de aplicación</h2>
       <p>
-        El presente Aviso Legal regula el acceso y uso del sitio web <strong>jeanmonnet.es</strong> (en adelante, "el Sitio Web") y de la plataforma de aprendizaje digital Jean Monnet (en adelante, "la Plataforma"), titularidad del responsable indicado anteriormente.
+        El presente Aviso Legal regula el acceso y uso del sitio web <strong>tufolio.es</strong> (en adelante, "el Sitio Web") y de la plataforma de aprendizaje digital TuFolio (en adelante, "la Plataforma"), titularidad del responsable indicado anteriormente.
       </p>
       <p>
         El acceso al Sitio Web y a la Plataforma atribuye la condición de usuario e implica la aceptación plena y sin reservas de todas las disposiciones incluidas en este Aviso Legal, así como en la Política de Privacidad y en la Política de Cookies.

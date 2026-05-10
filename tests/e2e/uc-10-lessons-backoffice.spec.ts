@@ -26,8 +26,8 @@ const TEST_UNIT_ID = process.env.TEST_UNIT_ID ?? '1';
 async function signInAs(page: Page, email: string, password: string, role: 'student' | 'teacher' = 'student') {
   await page.goto('/sign-in');
   await page.getByLabel('Email').fill(email);
-  await page.getByLabel('Password').fill(password);
-  await page.getByRole('button', { name: 'Login' }).click();
+  await page.getByLabel('Contraseña').fill(password);
+  await page.getByRole('button', { name: 'Inicia sesión' }).click();
   const expectedUrl = role === 'teacher' ? '**/teach' : '**/study';
   await page.waitForURL(expectedUrl, { timeout: 10000 });
 }
@@ -37,12 +37,12 @@ test.beforeAll(async ({ browser }) => {
   const context = await browser.newContext();
   const page = await context.newPage();
   await page.goto('/sign-up');
-  await page.getByLabel('First name').fill('UC10');
-  await page.getByLabel('Last name').fill('Student');
+  await page.getByLabel('Nombre').fill('UC10');
+  await page.getByLabel('Apellidos').fill('Student');
   await page.getByLabel('Email').fill(STUDENT_EMAIL);
-  await page.getByLabel('Password', { exact: true }).fill(STUDENT_PASSWORD);
-  await page.getByLabel('Confirm password').fill(STUDENT_PASSWORD);
-  await page.getByRole('button', { name: 'Create account' }).click();
+  await page.getByLabel('Contraseña', { exact: true }).fill(STUDENT_PASSWORD);
+  await page.getByLabel('Confirma la contraseña').fill(STUDENT_PASSWORD);
+  await page.getByRole('button', { name: 'Crear cuenta' }).click();
   await page.waitForURL('**/sign-in', { timeout: 10000 });
   await context.close();
 });

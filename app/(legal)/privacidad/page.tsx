@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "Política de Privacidad | Jean Monnet",
+  title: "Política de Privacidad | TuFolio",
 };
 
 export default function Privacidad() {
@@ -17,7 +17,7 @@ export default function Privacidad() {
         <li><strong>Identidad:</strong> [NOMBRE DE LA EMPRESA, S.L.]</li>
         <li><strong>NIF:</strong> [X00000000X]</li>
         <li><strong>Dirección:</strong> [Calle Ejemplo, 1, 28001 Madrid, España]</li>
-        <li><strong>Contacto DPD / privacidad:</strong> privacidad@jeanmonnet.es</li>
+        <li><strong>Contacto DPD / privacidad:</strong> privacidad@tufolio.es</li>
       </ul>
 
       <h2>2. Datos que recopilamos</h2>
@@ -93,7 +93,7 @@ export default function Privacidad() {
         <li><strong>Oposición</strong> al tratamiento basado en interés legítimo.</li>
       </ul>
       <p>
-        Para ejercer sus derechos, envíe un correo a <strong>privacidad@jeanmonnet.es</strong> indicando su nombre, correo electrónico de registro y el derecho que desea ejercer. Responderemos en el plazo de un mes.
+        Para ejercer sus derechos, envíe un correo a <strong>privacidad@tufolio.es</strong> indicando su nombre, correo electrónico de registro y el derecho que desea ejercer. Responderemos en el plazo de un mes.
       </p>
       <p>
         Si considera que el tratamiento no es conforme al RGPD, puede presentar una reclamación ante la Agencia Española de Protección de Datos (AEPD) en <a href="https://www.aepd.es" target="_blank" rel="noopener noreferrer">www.aepd.es</a>.

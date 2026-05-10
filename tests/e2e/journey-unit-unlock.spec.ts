@@ -19,17 +19,17 @@ const uniqueEmail = () => `unlock_${Date.now()}_${Math.random().toString(36).sli
 
 async function registerAndSignIn(page: Page, email: string, password: string) {
   await page.goto('/sign-up');
-  await page.getByLabel('First name').fill('Unlock');
-  await page.getByLabel('Last name').fill('Tester');
+  await page.getByLabel('Nombre').fill('Unlock');
+  await page.getByLabel('Apellidos').fill('Tester');
   await page.getByLabel('Email').fill(email);
-  await page.getByLabel('Password', { exact: true }).fill(password);
-  await page.getByLabel('Confirm password').fill(password);
-  await page.getByRole('button', { name: 'Create account' }).click();
+  await page.getByLabel('Contraseña', { exact: true }).fill(password);
+  await page.getByLabel('Confirma la contraseña').fill(password);
+  await page.getByRole('button', { name: 'Crear cuenta' }).click();
   await page.waitForURL('**/sign-in', { timeout: 10000 });
 
   await page.getByLabel('Email').fill(email);
-  await page.getByLabel('Password', { exact: true }).fill(password);
-  await page.getByRole('button', { name: 'Login' }).click();
+  await page.getByLabel('Contraseña', { exact: true }).fill(password);
+  await page.getByRole('button', { name: 'Inicia sesión' }).click();
   await page.waitForURL('**/study', { timeout: 12000 });
 }
 

@@ -41,38 +41,38 @@ test.describe('UC-01 · Sign Up', () => {
   test('renders sign-up form with all required fields', async ({ page }) => {
     await page.goto(SIGN_UP_URL);
 
-    await expect(page.getByLabel('First name')).toBeVisible();
-    await expect(page.getByLabel('Last name')).toBeVisible();
+    await expect(page.getByLabel('Nombre')).toBeVisible();
+    await expect(page.getByLabel('Apellidos')).toBeVisible();
     await expect(page.getByLabel('Email')).toBeVisible();
-    await expect(page.getByLabel('Password', { exact: true })).toBeVisible();
-    await expect(page.getByLabel('Confirm password')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Create account' })).toBeVisible();
+    await expect(page.getByLabel('Contraseña', { exact: true })).toBeVisible();
+    await expect(page.getByLabel('Confirma la contraseña')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Crear cuenta' })).toBeVisible();
   });
 
   test('shows error when passwords do not match', async ({ page }) => {
     await page.goto(SIGN_UP_URL);
 
-    await page.getByLabel('First name').fill('Ana');
-    await page.getByLabel('Last name').fill('García');
+    await page.getByLabel('Nombre').fill('Ana');
+    await page.getByLabel('Apellidos').fill('García');
     await page.getByLabel('Email').fill(uniqueEmail());
-    await page.getByLabel('Password', { exact: true }).fill('password123');
-    await page.getByLabel('Confirm password').fill('different456');
+    await page.getByLabel('Contraseña', { exact: true }).fill('password123');
+    await page.getByLabel('Confirma la contraseña').fill('different456');
 
-    await page.getByRole('button', { name: 'Create account' }).click();
+    await page.getByRole('button', { name: 'Crear cuenta' }).click();
 
-    await expect(page.getByText('Passwords do not match').first()).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Las contraseñas no coinciden').first()).toBeVisible({ timeout: 5000 });
   });
 
   test('shows error for invalid email format (HTML5 validation)', async ({ page }) => {
     await page.goto(SIGN_UP_URL);
 
-    await page.getByLabel('First name').fill('Ana');
-    await page.getByLabel('Last name').fill('García');
+    await page.getByLabel('Nombre').fill('Ana');
+    await page.getByLabel('Apellidos').fill('García');
     await page.getByLabel('Email').fill('not-an-email');
-    await page.getByLabel('Password', { exact: true }).fill('password123');
-    await page.getByLabel('Confirm password').fill('password123');
+    await page.getByLabel('Contraseña', { exact: true }).fill('password123');
+    await page.getByLabel('Confirma la contraseña').fill('password123');
 
-    await page.getByRole('button', { name: 'Create account' }).click();
+    await page.getByRole('button', { name: 'Crear cuenta' }).click();
 
     // HTML5 validation prevents submission — page stays
     await expect(page).toHaveURL(new RegExp(SIGN_UP_URL));
@@ -83,15 +83,15 @@ test.describe('UC-01 · Sign Up', () => {
 
     registeredEmail = uniqueEmail();
 
-    await page.getByLabel('First name').fill('Carlos');
-    await page.getByLabel('Last name').fill('López');
+    await page.getByLabel('Nombre').fill('Carlos');
+    await page.getByLabel('Apellidos').fill('López');
     await page.getByLabel('Email').fill(registeredEmail);
-    await page.getByLabel('Password', { exact: true }).fill('SecurePass1!');
-    await page.getByLabel('Confirm password').fill('SecurePass1!');
+    await page.getByLabel('Contraseña', { exact: true }).fill('SecurePass1!');
+    await page.getByLabel('Confirma la contraseña').fill('SecurePass1!');
 
-    await page.getByRole('button', { name: 'Create account' }).click();
+    await page.getByRole('button', { name: 'Crear cuenta' }).click();
 
-    await expect(page.getByText('Account created successfully').first()).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('Cuenta creada').first()).toBeVisible({ timeout: 10000 });
     await page.waitForURL('**/sign-in', { timeout: 10000 });
     await expect(page).toHaveURL(/\/sign-in/);
   });
@@ -130,22 +130,22 @@ test.describe('UC-01 · Sign Up', () => {
 
     // Register once
     await page.goto(SIGN_UP_URL);
-    await page.getByLabel('First name').fill('Pedro');
-    await page.getByLabel('Last name').fill('Martínez');
+    await page.getByLabel('Nombre').fill('Pedro');
+    await page.getByLabel('Apellidos').fill('Martínez');
     await page.getByLabel('Email').fill(email);
-    await page.getByLabel('Password', { exact: true }).fill('SecurePass1!');
-    await page.getByLabel('Confirm password').fill('SecurePass1!');
-    await page.getByRole('button', { name: 'Create account' }).click();
+    await page.getByLabel('Contraseña', { exact: true }).fill('SecurePass1!');
+    await page.getByLabel('Confirma la contraseña').fill('SecurePass1!');
+    await page.getByRole('button', { name: 'Crear cuenta' }).click();
     await page.waitForURL('**/sign-in', { timeout: 10000 });
 
     // Try to register again with same email
     await page.goto(SIGN_UP_URL);
-    await page.getByLabel('First name').fill('Pedro');
-    await page.getByLabel('Last name').fill('Martínez');
+    await page.getByLabel('Nombre').fill('Pedro');
+    await page.getByLabel('Apellidos').fill('Martínez');
     await page.getByLabel('Email').fill(email);
-    await page.getByLabel('Password', { exact: true }).fill('SecurePass1!');
-    await page.getByLabel('Confirm password').fill('SecurePass1!');
-    await page.getByRole('button', { name: 'Create account' }).click();
+    await page.getByLabel('Contraseña', { exact: true }).fill('SecurePass1!');
+    await page.getByLabel('Confirma la contraseña').fill('SecurePass1!');
+    await page.getByRole('button', { name: 'Crear cuenta' }).click();
 
     await expect(
       page.locator('[data-state="open"]').filter({ hasText: /already|taken|exist|registered/i })
@@ -154,7 +154,7 @@ test.describe('UC-01 · Sign Up', () => {
 
   test('link to sign-in page is visible and functional', async ({ page }) => {
     await page.goto(SIGN_UP_URL);
-    const link = page.getByRole('link', { name: 'Sign in' });
+    const link = page.getByRole('link', { name: 'Inicia sesión' });
     await expect(link).toBeVisible();
     await link.click();
     await expect(page).toHaveURL(/\/sign-in/);
