@@ -43,3 +43,6 @@ next-env.d.ts
 
 # generated video tour artifacts (regenerable via scripts/wireframe-tour.mjs)
 /tour-video/
+
+# Claude Code worktrees
+.claude/worktrees/
