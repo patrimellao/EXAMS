@@ -84,6 +84,18 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -243,23 +255,37 @@ Las restricciones son siempre de carácter judicial y tienen como objetivo la pr
 function MarkdownToolbarButton({
   icon: Icon,
   label,
+  shortcut,
   onClick,
 }: {
   icon: any;
   label: string;
+  shortcut?: string;
   onClick?: () => void;
 }) {
   return (
-    <UIButton
-      type="button"
-      variant="ghost"
-      size="icon"
-      onClick={onClick}
-      className="h-8 w-8 text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand-primary"
-      aria-label={label}
-    >
-      <Icon className="h-4 w-4" />
-    </UIButton>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <UIButton
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={onClick}
+          className="h-8 w-8 text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand-primary"
+          aria-label={shortcut ? `${label} (${shortcut})` : label}
+        >
+          <Icon className="h-4 w-4" />
+        </UIButton>
+      </TooltipTrigger>
+      <TooltipContent className="flex items-center gap-2">
+        <span>{label}</span>
+        {shortcut && (
+          <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 font-sans text-[10px] font-semibold tracking-wide text-muted-foreground">
+            {shortcut}
+          </kbd>
+        )}
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -702,6 +728,91 @@ function PillStrip({
   );
 }
 
+// Vertical question navigator — PowerPoint slide panel / Kahoot question list.
+// Numbered entries previewing each question's wording, the active one
+// highlighted, and a trailing "Nueva pregunta" action pinned at the foot.
+function QuestionNavigator({
+  questions,
+  activeId,
+  onSelect,
+  onCreate,
+}: {
+  questions: { id: number; text: string; dirty: boolean }[];
+  activeId: number;
+  onSelect: (id: number) => void;
+  onCreate: () => void;
+}) {
+  return (
+    <aside className="flex flex-col rounded-card border bg-card shadow-card lg:max-h-[680px] lg:self-start lg:sticky lg:top-4">
+      <div className="flex items-center justify-between gap-2 border-b px-3 py-2.5">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+          Preguntas
+        </span>
+        <span className="rounded-pill bg-muted px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-muted-foreground">
+          {questions.length}
+        </span>
+      </div>
+      <div className="flex-1 space-y-1.5 overflow-y-auto p-2">
+        {questions.length === 0 ? (
+          <p className="px-2 py-8 text-center text-[11px] text-muted-foreground">
+            Sin preguntas todavía.
+          </p>
+        ) : (
+          questions.map((q, i) => {
+            const active = q.id === activeId;
+            return (
+              <button
+                key={q.id}
+                type="button"
+                onClick={() => onSelect(q.id)}
+                aria-current={active ? "true" : undefined}
+                className={cn(
+                  "group flex w-full items-start gap-2.5 rounded-lg border p-2.5 text-left transition-colors duration-fast focus-ring",
+                  active
+                    ? "border-primary/30 bg-primary/10"
+                    : "border-transparent hover:bg-muted",
+                )}
+              >
+                <span
+                  className={cn(
+                    "flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-xs font-bold tabular-nums",
+                    active
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground group-hover:bg-background",
+                  )}
+                >
+                  {i + 1}
+                </span>
+                <span
+                  className={cn(
+                    "line-clamp-2 flex-1 text-xs font-medium leading-snug",
+                    active ? "text-primary" : "text-foreground",
+                  )}
+                >
+                  {q.text || "Pregunta sin enunciado"}
+                </span>
+                {q.dirty && (
+                  <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-pill bg-brand-warm" />
+                )}
+              </button>
+            );
+          })
+        )}
+      </div>
+      <div className="border-t p-2">
+        <button
+          type="button"
+          onClick={onCreate}
+          className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed px-3 py-2 text-xs font-semibold text-muted-foreground transition-colors duration-fast hover:bg-muted hover:text-foreground focus-ring"
+        >
+          <Plus className="h-3.5 w-3.5 shrink-0" />
+          Nueva pregunta
+        </button>
+      </div>
+    </aside>
+  );
+}
+
 export type BuilderMode = "lessons" | "questions";
 
 export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
@@ -1032,10 +1143,27 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
     }
 
     insertTextAtCursor(textarea, replacement, start, end);
-    
+
     // Hide floating menus on insert
     setBubbleMenu(null);
     setContextMenu(null);
+  };
+
+  // Keyboard shortcuts for the common formatting actions, mirroring the
+  // toolbar (and the ⌘X hints shown in its tooltips). Works with both Cmd
+  // (mac) and Ctrl (win/linux).
+  const FORMAT_SHORTCUTS: Record<string, string> = {
+    b: "bold",
+    i: "italic",
+    k: "link",
+    e: "code",
+  };
+  const handleEditorKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (!(e.metaKey || e.ctrlKey) || e.altKey) return;
+    const format = FORMAT_SHORTCUTS[e.key.toLowerCase()];
+    if (!format) return;
+    e.preventDefault();
+    insertMarkdown(format, e.currentTarget.id);
   };
 
   // Media library picker callbacks
@@ -1160,6 +1288,7 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
   };
 
   return (
+    <TooltipProvider delayDuration={300}>
     <div className="mx-auto max-w-5xl space-y-6 transition-all duration-normal">
       {/* Breadcrumb Navigation */}
       <Breadcrumb>
@@ -1427,17 +1556,45 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                 {editorMode !== "preview" && (
                   <div className="border-b pb-3 mb-5 w-full">
                     <div className="flex flex-wrap items-center gap-0.5 rounded-lg border bg-muted/40 p-0.5">
-                      <MarkdownToolbarButton icon={Bold} label="Negrita" onClick={() => insertMarkdown("bold")} />
-                      <MarkdownToolbarButton icon={Italic} label="Cursiva" onClick={() => insertMarkdown("italic")} />
+                      <MarkdownToolbarButton icon={Bold} label="Negrita" shortcut="⌘B" onClick={() => insertMarkdown("bold")} />
+                      <MarkdownToolbarButton icon={Italic} label="Cursiva" shortcut="⌘I" onClick={() => insertMarkdown("italic")} />
                       <MarkdownToolbarButton icon={List} label="Lista" onClick={() => insertMarkdown("list")} />
-                      <MarkdownToolbarButton icon={Link2} label="Enlace" onClick={() => insertMarkdown("link")} />
-                      <MarkdownToolbarButton icon={FileCode} label="Código" onClick={() => insertMarkdown("code")} />
+                      <MarkdownToolbarButton icon={Link2} label="Enlace" shortcut="⌘K" onClick={() => insertMarkdown("link")} />
+                      <MarkdownToolbarButton icon={FileCode} label="Código" shortcut="⌘E" onClick={() => insertMarkdown("code")} />
                       <MarkdownToolbarButton icon={HelpCircle} label="Cita" onClick={() => insertMarkdown("quote")} />
 
                       <div className="h-4 w-px bg-border mx-1" />
 
-                      <MarkdownToolbarButton icon={Library} label="Desde biblioteca de media" onClick={() => insertMarkdown("library")} />
-                      <MarkdownToolbarButton icon={Video} label="Insertar vídeo (R2)" onClick={() => insertMarkdown("video")} />
+                      {/* Single attach entry point — opens the media flow with
+                          both the library and video (R2) options inside. */}
+                      <DropdownMenu>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <DropdownMenuTrigger asChild>
+                              <UIButton
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand-primary data-[state=open]:bg-muted data-[state=open]:text-foreground"
+                                aria-label="Adjuntar media"
+                              >
+                                <Paperclip className="h-4 w-4" />
+                              </UIButton>
+                            </DropdownMenuTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent>Adjuntar media</TooltipContent>
+                        </Tooltip>
+                        <DropdownMenuContent align="start" className="w-60">
+                          <DropdownMenuItem onClick={() => insertMarkdown("library")}>
+                            <Library className="mr-2 h-4 w-4" />
+                            Desde biblioteca de media
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => insertMarkdown("video")}>
+                            <Video className="mr-2 h-4 w-4" />
+                            Insertar vídeo (R2)
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                       <MarkdownToolbarButton icon={Target} label="Bloque de Objetivos" onClick={() => insertMarkdown("objectives")} />
                       <MarkdownToolbarButton icon={Lightbulb} label="Bloque de Idea Clave" onClick={() => insertMarkdown("keyidea")} />
                     </div>
@@ -1454,6 +1611,7 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                         onChange={(e) => handleLessonChange({ content: e.target.value })}
                         onMouseUp={handleTextareaMouseUp}
                         onKeyUp={handleTextareaKeyUp}
+                        onKeyDown={handleEditorKeyDown}
                         onContextMenu={handleTextareaContextMenu}
                         placeholder="Escribe aquí el contenido en Markdown..."
                         className="w-full min-h-[480px] bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none resize-y font-mono text-[15px] leading-relaxed text-foreground placeholder:text-muted-foreground/30 py-2 px-0"
@@ -1667,6 +1825,7 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                           onChange={(e) => handleLessonChange({ content: e.target.value })}
                           onMouseUp={handleTextareaMouseUp}
                           onKeyUp={handleTextareaKeyUp}
+                          onKeyDown={handleEditorKeyDown}
                           onContextMenu={handleTextareaContextMenu}
                           placeholder="Escribe en Markdown..."
                           className="w-full h-[450px] bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none resize-none font-mono text-[14px] leading-relaxed text-foreground placeholder:text-muted-foreground/30 p-0"
@@ -2221,21 +2380,19 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
               </div>
             </div>
 
-            {/* Question pills — scoped to the selected lesson */}
-            <PillStrip
-              items={filteredQuestions.map((q) => ({
-                id: q.id,
-                label: q.label,
-                icon: <HelpCircle className="h-3.5 w-3.5 shrink-0" />,
-                dirty: q.dirty,
-              }))}
-              activeId={activeQuestion?.id ?? -1}
-              onSelect={(id) => setActiveQuestionId(id)}
-              onCreate={createNewQuestion}
-              createLabel="Nueva pregunta"
-            />
+            {/* Two-column workspace: a vertical question navigator on the left
+                (PowerPoint slide panel / Kahoot question list) and the editor on
+                the right. Scope stays per-lesson via the selector above. */}
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-[260px_minmax(0,1fr)]">
+              <QuestionNavigator
+                questions={filteredQuestions}
+                activeId={activeQuestion?.id ?? -1}
+                onSelect={(id) => setActiveQuestionId(id)}
+                onCreate={createNewQuestion}
+              />
 
-            {/* Questions Editor Canvas — full width */}
+              {/* Right column — editor for the active question */}
+              <div className="min-w-0">
             {activeQuestion ? (
             <section className="space-y-5 rounded-card border bg-card p-5 shadow-card md:p-6">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -2292,30 +2449,18 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
               </div>
               <Separator />
 
-              {/* Title & Enunciation Fields */}
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="q-label" className="text-xs font-semibold text-foreground">
-                    Etiqueta interna (Sidebar)
-                  </Label>
-                  <Input
-                    id="q-label"
-                    value={activeQuestion?.label || ""}
-                    onChange={(e) => handleQuestionChange({ label: e.target.value })}
-                    className="h-10 text-sm focus-ring"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="q-text" className="text-xs font-semibold text-foreground">
-                    Enunciado de la Pregunta
-                  </Label>
-                  <Input
-                    id="q-text"
-                    value={activeQuestion?.text || ""}
-                    onChange={(e) => handleQuestionChange({ text: e.target.value })}
-                    className="h-10 text-sm focus-ring"
-                  />
-                </div>
+              {/* Enunciation field — full width now that the internal label is
+                  gone; the navigator labels each question by its wording/number. */}
+              <div className="space-y-2">
+                <Label htmlFor="q-text" className="text-xs font-semibold text-foreground">
+                  Enunciado de la Pregunta
+                </Label>
+                <Input
+                  id="q-text"
+                  value={activeQuestion?.text || ""}
+                  onChange={(e) => handleQuestionChange({ text: e.target.value })}
+                  className="h-10 text-sm focus-ring"
+                />
               </div>
 
               {/* Answers Panel */}
@@ -2403,8 +2548,11 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                 </UIButton>
               </div>
 
-              {/* Explanation section */}
-              <div className="space-y-2 pt-2">
+              {/* Explanation + related lesson section, unified into one block:
+                  the didactic explanation with its related-section selector and
+                  quote integrated directly beneath it. */}
+              <div className="space-y-4 rounded-card border bg-muted/30 p-4">
+                <div className="space-y-2">
                 <Label htmlFor="q-exp" className="text-xs font-semibold text-foreground">
                   Explicación didáctica
                 </Label>
@@ -2419,11 +2567,14 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                 <p className="text-[11px] text-muted-foreground/80 leading-normal">
                   Esta explicación se presentará al estudiante en cuanto envíe su respuesta para consolidar el aprendizaje.
                 </p>
-              </div>
+                </div>
 
-              {/* Related lesson section — deep-links the explanation back to the
-                  lesson, with a short quote pulled from the chosen section. */}
-              <div className="space-y-2 pt-2">
+                <Separator />
+
+                {/* Related lesson section — deep-links the explanation back to
+                    the lesson, with a short quote pulled from the chosen section.
+                    Lives inside the same card as the explanation. */}
+                <div className="space-y-2">
                 <Label className="text-xs font-semibold text-foreground">
                   Sección de la lección relacionada
                 </Label>
@@ -2508,6 +2659,7 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                 <p className="text-[11px] text-muted-foreground/80 leading-normal">
                   Al revisar su respuesta, el estudiante verá esta cita y un enlace directo a la sección de la lección.
                 </p>
+                </div>
               </div>
 
               <Separator />
@@ -2590,6 +2742,8 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                 </UIButton>
               </div>
             )}
+              </div>
+            </div>
 
             {/* Sidebar: pick the exact lesson passage to quote. Whatever the
                 teacher highlights becomes the quote AND the deep-link target,
@@ -3080,5 +3234,6 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
         </DialogContent>
       </Dialog>
     </div>
+    </TooltipProvider>
   );
 }
