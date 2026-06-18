@@ -312,6 +312,153 @@ shadcn primitives: Card, Input, Button, Label, Form (RHF + zod)
 
 ---
 
+### 3.10 — `/teach` (Backoffice profesor — Asignaturas)
+
+```
+┌────────────────────────────────────────────────────────────────────┐
+│ Asignaturas                                  [+ Nueva asignatura]  │
+│ 3 asignaturas · 2 publicadas                                       │
+│                                                                    │
+│ ┌─────────────────────────┐  ┌─────────────────────────┐          │
+│ │ [📖]          Publicada │  │ [📖]          Publicada │          │
+│ │ Derecho Civil           │  │ Derecho Constitucional  │          │
+│ │ Temario completo de…    │  │ Constitución española…  │          │
+│ │ ─────────────────────   │  │ ─────────────────────   │          │
+│ │ 18 unidades  Editar →   │  │ 12 unidades  Editar →   │          │
+│ └─────────────────────────┘  └─────────────────────────┘          │
+│ ┌─────────────────────────┐                                       │
+│ │ [📖]           Borrador │   (empty state si no hay asignaturas: │
+│ │ Derecho Penal           │    icono + CTA "Nueva asignatura")    │
+│ └─────────────────────────┘                                       │
+└────────────────────────────────────────────────────────────────────┘
+
+Shell propio: sidebar profesor (Asignaturas activo · Estudiantes /
+Analítica "Próximamente"). Slate chrome, sin gamificación.
+shadcn/game: Button(learning), Card, Badge
+```
+
+---
+
+### 3.11 — `/teach/[id]` (Temario — tabla de unidades)
+
+```
+┌────────────────────────────────────────────────────────────────────┐
+│ Asignaturas / Derecho Civil                                        │
+│ Derecho Civil  [Publicada]              [Despublicar] [+ Unidad]   │
+│ Temario completo · 4 unidades                                      │
+│ ┌──────────────────────────────────────────────────────────────┐  │
+│ │ # │ Unidad             │ Preg. │ Lecc. │ Acceso     │  ⋯     │  │
+│ ├──────────────────────────────────────────────────────────────┤  │
+│ │ 1 │ Conceptos grales.  │   24  │   4   │ 🔓 Libre G │  ⋯     │  │
+│ │ 2 │ Capacidad jurídica │   18  │   3   │ 🔓 Libre G │  ⋯     │  │
+│ │ 3 │ Estado civil       │   12  │   3   │ 🔒 Secuenc.│  ⋯     │  │
+│ │ 4 │ Persona jurídica   │   —   │   2   │ 🔒 Secuenc.│  ⋯     │  │
+│ └──────────────────────────────────────────────────────────────┘  │
+│   ⋯ = Abrir builder · Editar unidad · Eliminar                    │
+│   (empty state si la asignatura no tiene unidades)                 │
+└────────────────────────────────────────────────────────────────────┘
+
+shadcn: Breadcrumb, Table, Badge, DropdownMenu (acciones de fila)
+```
+
+---
+
+### 3.12 — `/build` (Builder — dual-tab, fleshed-out · iteración 2)
+
+```
+┌────────────────────────────────────────────────────────────────────┐
+│ Asignaturas / Derecho Civil / U2 · Builder                         │
+│ Unidad 2 · Capacidad jurídica  ● Cambios sin guardar               │
+│ ▌Preguntas (3)   Lecciones (3)                                     │
+├──────────────────┬─────────────────────────────────────────────────┤
+│ [+ Nueva pregunta]│ ❓ Editar pregunta   [Normal|Difícil] [🗑]      │
+│ ▌Edad capacidad ● │ Enunciado [____________________________]        │
+│   Personalidad    │ Respuestas (mín. 2):                            │
+│   Extinción       │  [✓] 16 años [🗑]   [✓]✔ 18 años [🗑] (verde)  │
+│                   │  [+ Añadir respuesta]                           │
+│                   │ Explicación [_________________]                 │
+│                   │ ● sin guardar   [Descartar] [✓ Guardar preg.]   │
+├──────────────────┴─────────────────────────────────────────────────┤
+│ Tab Lecciones (fleshed):                                            │
+│  Título · Tipo(select) · Orden · Duración · XP                      │
+│  Contenido Markdown:  [B I • 🔗] ┬ textarea  │ vista previa live   │
+│  Recursos: ╎dropzone "Subir a R2 (URL prefirmada)"╎                 │
+│            [📄 apuntes.pdf · 1.2MB · ✔ Listo R2  ✕]                 │
+│  [Cancelar] [✓ Guardar lección]                                     │
+└────────────────────────────────────────────────────────────────────┘
+
+shadcn: Tabs, Breadcrumb, Select, Textarea, Input, Label, Separator,
+        Badge ·  markdown editor split (editor | preview), R2 dropzone
+```
+
+---
+
+### 3.13 — `/teach/media` (Biblioteca global · WordPress-style)
+
+```
+┌────────────────────────────────────────────────────────────────────┐
+│ Media                                  [Subir]  [+ Nuevo álbum]    │
+│ 12 archivos · biblioteca global, etiquetada por asignatura         │
+│ ┌─ Buscar ──────────────┐  [Todo|Imágenes|PDF|Vídeo|Documentos]   │
+│ │ 🔍 nombre, alt, desc.  │                            [▦] [≡]      │
+│ └────────────────────────┘                                          │
+│ Asignatura: [Todas] [Civil] [Constitucional] [Penal] [Sin etiqueta]│
+│                                                                    │
+│ ┌── grid 5 cols (xl) ────────────────┐ ┌─ Detalle ────────────┐   │
+│ │ [img] [pdf] [mp4] [doc] [img]  ⏎  │ │ ▣ aspect-video        │   │
+│ │ [img] [pdf] [mp4] [doc] [img]      │ │ Nombre [____________]│   │
+│ │ • thumbnail + nombre + tamaño      │ │ Alt    [____________]│   │
+│ │ • badge "↗ 2" si usado en N lecc.  │ │ Descripción [______] │   │
+│ │ • selección anillo brand-primary   │ │ Asignaturas: [Civil]+│   │
+│ │ (vista lista = tabla con tags)     │ │ Tipo · Tamaño · R2…  │   │
+│ │                                    │ │ Usado en (2):        │   │
+│ │                                    │ │  · Civil U2 · L1     │   │
+│ │                                    │ │  · Penal U1 · L3     │   │
+│ │                                    │ │ [Editar] [Reemplazar]│   │
+│ │                                    │ │ [Descargar] [🗑 dis] │   │
+│ └────────────────────────────────────┘ └──────────────────────┘   │
+└────────────────────────────────────────────────────────────────────┘
+
+Scope: teacher-global con etiquetas por asignatura (filtro por defecto
+"Todas"). Tag "Sin asignatura" para uploads recién importados.
+
+Modo picker (mismo UI en Dialog): se invoca desde el builder cuando el
+profesor pulsa el botón de vídeo / enlace / "adjuntar recurso". La acción
+del panel de detalle cambia a [Insertar en texto] / [Adjuntar como recurso]
+en lugar de [Editar / Reemplazar / Eliminar].
+
+Eliminación segura: el botón Eliminar se deshabilita si `usage.length > 0`.
+El profesor primero retira el archivo de las lecciones que lo usan.
+
+shadcn: Input, Button, Badge, Separator, Textarea, Label · custom: grid
+cards con focus-ring, chips de filtro, panel de detalle slide-in.
+
+Modelo de datos (Phase 2):
+  media_assets(id, teacher_id, r2_key, mime, size, title, alt,
+               description, created_at)
+  media_asset_subjects(asset_id, subject_id)
+  lesson_media(lesson_id, asset_id, role: 'inline' | 'resource', position)
+```
+
+---
+
+## 3.bis · Backoffice profesor — roadmap
+
+| Fase | Pantalla | Estado |
+|------|----------|--------|
+| 1 | 3.10 Asignaturas · 3.11 Temario · 3.12 Builder (esquemático) | ✅ wireframe |
+| 2 | 3.12 Builder fleshed-out (form pregunta completo, editor markdown + preview, subida R2) | ✅ wireframe |
+| 2 (esta) | 3.13 Media library global con etiquetas + panel de detalle (reusable como picker) | ✅ wireframe |
+| 3 | Dashboard profesor (overview, actividad reciente, accesos rápidos) | 🔜 |
+| 3 | Gestión de estudiantes (matrículas por asignatura) | 🔜 sidebar "Próximamente" |
+| 3 | Analítica por asignatura (tasas de acierto, intentos) | 🔜 sidebar "Próximamente" |
+
+> El shell profesor ya expone `Estudiantes` y `Analítica` como ítems
+> deshabilitados con chip "Próximamente" para que la estructura futura sea
+> legible hoy. `Media` ya está activa.
+
+---
+
 ## 4 · Mobile (≤ 768px)
 
 ```

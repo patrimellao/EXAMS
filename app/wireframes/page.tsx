@@ -65,6 +65,37 @@ const mocks = [
     section: "public",
     wireframe: "3.8",
   },
+  {
+    href: "/wireframes/teach",
+    title: "/teach (Asignaturas)",
+    description:
+      "Backoffice profesor: listado de asignaturas, estado, accesos.",
+    section: "teach",
+    wireframe: "3.10",
+  },
+  {
+    href: "/wireframes/teach/derecho-civil",
+    title: "/teach/[id] (Temario)",
+    description: "Tabla de unidades: orden, preguntas, lecciones, acciones.",
+    section: "teach",
+    wireframe: "3.11",
+  },
+  {
+    href: "/wireframes/teach/build",
+    title: "/build (editor)",
+    description:
+      "Builder dual-tab: form de pregunta completo + editor markdown y subida R2.",
+    section: "teach",
+    wireframe: "3.12",
+  },
+  {
+    href: "/wireframes/teach/media",
+    title: "/teach/media (biblioteca)",
+    description:
+      "Biblioteca global de media: subida, etiquetas por asignatura, panel de detalle. Reusable como picker desde el builder.",
+    section: "teach",
+    wireframe: "3.13",
+  },
 ];
 
 export default function WireframesIndex() {
