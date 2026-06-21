@@ -101,6 +101,7 @@ import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { PageHeader } from "@/components/teach/PageHeader";
 import { LessonHistorySheet } from "@/components/teach/LessonHistorySheet";
+import { LessonPlateEditor } from "@/components/teach/lesson-editor/LessonPlateEditor";
 
 // Initial questions data with deep integration
 const initialQuestions = [
@@ -1507,7 +1508,9 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
 
       {/* Full-width editor tool bar — pinned flush under the header (WordPress-style).
           Edit/split: markdown tools. Preview: the "what the student sees" banner. */}
-      {mode === "lessons" && (
+      {/* In "edit" mode the Plate editor renders its own WYSIWYG toolbar, so this
+          legacy markdown toolbar is only shown for preview (banner) and split (source). */}
+      {mode === "lessons" && editorMode !== "edit" && (
         <div className="sticky top-0 z-30 -mx-4 -mt-6 border-b bg-card/95 px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-card/80 md:-mx-8 md:px-8">
           {editorMode === "preview" ? (
             <div className="flex items-center gap-2">
@@ -1577,19 +1580,11 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
               <section className="relative -mx-4 flex min-h-[620px] flex-col bg-card md:-mx-8">
                 <div className="flex-1 w-full">
                   {editorMode === "edit" && (
-                    <div className="h-full w-full px-4 py-6 md:px-8">
-                      <Textarea
-                        id="l-content"
-                        value={activeLesson?.content || ""}
-                        onChange={(e) => handleLessonChange({ content: e.target.value })}
-                        onMouseUp={handleTextareaMouseUp}
-                        onKeyUp={handleTextareaKeyUp}
-                        onKeyDown={handleEditorKeyDown}
-                        onContextMenu={handleTextareaContextMenu}
-                        placeholder="Escribe aquí el contenido en Markdown..."
-                        className="w-full min-h-[480px] bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none resize-y font-mono text-[15px] leading-relaxed text-foreground placeholder:text-muted-foreground/30 py-2 px-0"
-                      />
-                    </div>
+                    <LessonPlateEditor
+                      key={activeLessonId}
+                      value={activeLesson?.content || ""}
+                      onChange={(md) => handleLessonChange({ content: md })}
+                    />
                   )}
 
                   {editorMode === "preview" && (
