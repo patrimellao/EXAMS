@@ -69,11 +69,11 @@ export interface LessonPlateEditorProps {
 // Highlight palette — soft, readable background colors. Values are CSS colors so
 // they round-trip as `<span style="background-color: …">`.
 const HIGHLIGHT_COLORS: { label: string; value: string }[] = [
-  { label: 'Amarillo', value: 'rgb(254, 240, 138)' },
-  { label: 'Verde', value: 'rgb(187, 247, 208)' },
-  { label: 'Azul', value: 'rgb(186, 230, 253)' },
-  { label: 'Rosa', value: 'rgb(251, 207, 232)' },
-  { label: 'Naranja', value: 'rgb(254, 215, 170)' },
+  { label: 'Amarillo', value: 'rgb(254, 249, 195)' },
+  { label: 'Verde', value: 'rgb(220, 252, 231)' },
+  { label: 'Azul', value: 'rgb(224, 242, 254)' },
+  { label: 'Rosa', value: 'rgb(252, 231, 243)' },
+  { label: 'Naranja', value: 'rgb(255, 237, 213)' },
 ];
 
 function ToolbarButton({

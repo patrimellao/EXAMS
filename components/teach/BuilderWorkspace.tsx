@@ -306,6 +306,13 @@ function parseMarkdown(text: string) {
     let html = str
       .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
       .replace(/\*(.*?)\*/g, "<em>$1</em>")
+      .replace(/_(.+?)_/g, "<em>$1</em>")
+      .replace(/~~(.*?)~~/g, "<del>$1</del>")
+      // <Highlight color="…">text</Highlight> → styled mark (matches the editor/reader)
+      .replace(
+        /<Highlight color="([^"]+)">([\s\S]*?)<\/Highlight>/g,
+        "<mark style='background-color: $1; border-radius: 3px; padding: 0 2px;'>$2</mark>",
+      )
       .replace(/`(.*?)`/g, "<code class='bg-muted px-1.5 py-0.5 rounded text-sm font-mono text-pink-600 dark:text-pink-400'>$1</code>");
     return <span dangerouslySetInnerHTML={{ __html: html }} />;
   };
