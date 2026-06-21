@@ -6,12 +6,12 @@
 import * as React from 'react';
 import { Target, Lightbulb, Play, Video as VideoIcon, Image as ImageIcon } from 'lucide-react';
 
-export function Objectives({ children }: { children?: React.ReactNode }) {
+export function Objectives({ title, children }: { title?: string; children?: React.ReactNode }) {
   return (
     <div className="rounded-card border border-border bg-muted/50 p-5 my-6">
       <div className="mb-3 flex items-center gap-2 font-sans text-sm font-semibold text-foreground">
         <Target className="h-4 w-4 text-brand-warm" />
-        Al terminar serás capaz de:
+        {title || 'Al terminar serás capaz de:'}
       </div>
       <div className="[&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:space-y-2 [&_ol]:pl-5 font-reader text-[16px] leading-[1.6] text-muted-foreground [&_li]:marker:text-brand-primary">
         {children}

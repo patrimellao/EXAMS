@@ -320,15 +320,17 @@ function parseMarkdown(text: string) {
   // State machine for block tags
   let currentBlockType: "none" | "objectives" | "keyidea" = "none";
   let blockLines: string[] = [];
+  let blockTitle = "";
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const trimmed = line.trim();
 
-    // Check block start/end
-    if (trimmed.startsWith("<Objectives>")) {
+    // Check block start/end — <Objectives> optionally with a title="…" attribute
+    if (trimmed.startsWith("<Objectives")) {
       currentBlockType = "objectives";
       blockLines = [];
+      blockTitle = trimmed.match(/title="([^"]*)"/)?.[1] ?? "";
       continue;
     }
     if (trimmed.startsWith("</Objectives>")) {
@@ -342,7 +344,7 @@ function parseMarkdown(text: string) {
           <div key={`obj-${i}`} id="objectives-block" className="rounded-card border border-border bg-muted/50 p-5 my-6 scroll-mt-20">
             <div className="mb-3 flex items-center gap-2 font-sans text-sm font-semibold text-foreground">
               <Target className="h-4 w-4 text-brand-warm animate-pulse" />
-              Al terminar serás capaz de:
+              {blockTitle || "Al terminar serás capaz de:"}
             </div>
             <ol className="list-decimal space-y-2 pl-5 font-reader text-[16px] leading-[1.6] text-muted-foreground">
               {listItemsParsed.map((item, idx) => (

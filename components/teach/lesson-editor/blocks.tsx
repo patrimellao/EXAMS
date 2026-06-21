@@ -10,6 +10,7 @@ import {
   createPlatePlugin,
   PlateElement,
   PlateLeaf,
+  useEditorRef,
   type PlateElementProps,
   type PlateLeafProps,
 } from 'platejs/react';
@@ -17,7 +18,20 @@ import { Target, Lightbulb, Play, Video as VideoIcon, Image as ImageIcon } from 
 import { cn } from '@/lib/utils';
 import { OBJECTIVES, KEY_IDEA, VIDEO } from './markdown-rules';
 
+export const OBJECTIVES_DEFAULT_TITLE = 'Al terminar serás capaz de:';
+
 function ObjectivesElement(props: PlateElementProps) {
+  const editor = useEditorRef();
+  const element = props.element as { title?: string };
+  const title = element.title ?? OBJECTIVES_DEFAULT_TITLE;
+  // Local draft so typing is smooth (writing to Slate on every keystroke resets
+  // the field and staleens the element ref). Persist to Slate on blur.
+  const [draft, setDraft] = React.useState(title);
+  React.useEffect(() => setDraft(title), [title]);
+  const commit = () => {
+    const path = editor.api.findPath(props.element);
+    if (path) editor.tf.setNodes({ title: draft } as any, { at: path });
+  };
   return (
     <PlateElement
       {...props}
@@ -27,8 +41,15 @@ function ObjectivesElement(props: PlateElementProps) {
         contentEditable={false}
         className="mb-3 flex select-none items-center gap-2 font-sans text-sm font-semibold text-foreground"
       >
-        <Target className="h-4 w-4 text-brand-warm" />
-        Al terminar serás capaz de:
+        <Target className="h-4 w-4 shrink-0 text-brand-warm" />
+        <input
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onBlur={commit}
+          aria-label="Título del bloque de objetivos"
+          className="w-full bg-transparent font-sans text-sm font-semibold text-foreground outline-none placeholder:text-muted-foreground/50 focus:underline focus:decoration-dotted focus:underline-offset-4"
+          placeholder={OBJECTIVES_DEFAULT_TITLE}
+        />
       </div>
       <div className="[&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5 font-reader text-[16px] leading-[1.6] text-muted-foreground [&_li]:marker:text-brand-primary">
         {props.children}
