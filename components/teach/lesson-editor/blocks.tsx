@@ -7,7 +7,7 @@
  */
 import * as React from 'react';
 import { createPlatePlugin, PlateElement, type PlateElementProps } from 'platejs/react';
-import { Target, Lightbulb, Play, Video as VideoIcon } from 'lucide-react';
+import { Target, Lightbulb, Play, Video as VideoIcon, Image as ImageIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { OBJECTIVES, KEY_IDEA, VIDEO } from './markdown-rules';
 
@@ -76,6 +76,39 @@ function VideoElement(props: PlateElementProps) {
   );
 }
 
+function ImageElement(props: PlateElementProps) {
+  const element = props.element as { url?: string; caption?: { text: string }[] };
+  const alt = element.caption?.map((c) => c.text).join('') || '';
+  const url = element.url || '';
+  const isRemote = /^https?:\/\//.test(url);
+  return (
+    <PlateElement {...props} className="my-6">
+      <figure contentEditable={false} className="select-none space-y-2">
+        {isRemote ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={url} alt={alt} className="w-full rounded-card border bg-card shadow-card" />
+        ) : (
+          <div className="flex aspect-video items-center justify-center rounded-card border border-dashed bg-muted/40 text-muted-foreground">
+            <span className="flex flex-col items-center gap-2 text-xs">
+              <ImageIcon className="h-7 w-7 opacity-60" />
+              {url || 'Imagen'}
+            </span>
+          </div>
+        )}
+        {alt && (
+          <figcaption className="px-1 font-sans text-xs text-muted-foreground">{alt}</figcaption>
+        )}
+      </figure>
+      {props.children}
+    </PlateElement>
+  );
+}
+
+export const ImagePlugin = createPlatePlugin({
+  key: 'img',
+  node: { isElement: true, isVoid: true, type: 'img' },
+}).withComponent(ImageElement);
+
 export const ObjectivesPlugin = createPlatePlugin({
   key: OBJECTIVES,
   node: { isElement: true, type: OBJECTIVES },
@@ -91,4 +124,4 @@ export const VideoPlugin = createPlatePlugin({
   node: { isElement: true, isVoid: true, type: VIDEO },
 }).withComponent(VideoElement);
 
-export const lessonCustomPlugins = [ObjectivesPlugin, KeyIdeaPlugin, VideoPlugin];
+export const lessonCustomPlugins = [ObjectivesPlugin, KeyIdeaPlugin, VideoPlugin, ImagePlugin];

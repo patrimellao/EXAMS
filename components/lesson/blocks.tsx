@@ -4,7 +4,7 @@
  * (components/teach/lesson-editor/blocks.tsx) so authoring matches reading.
  */
 import * as React from 'react';
-import { Target, Lightbulb, Play, Video as VideoIcon } from 'lucide-react';
+import { Target, Lightbulb, Play, Video as VideoIcon, Image as ImageIcon } from 'lucide-react';
 
 export function Objectives({ children }: { children?: React.ReactNode }) {
   return (
@@ -85,6 +85,26 @@ const baseMdxComponents = {
   code: (p: React.HTMLAttributes<HTMLElement>) => (
     <code {...p} className="rounded bg-muted px-1.5 py-0.5 font-mono text-sm text-pink-600 dark:text-pink-400" />
   ),
+  img: ({ src, alt }: React.ImgHTMLAttributes<HTMLImageElement>) => {
+    const url = typeof src === 'string' ? src : '';
+    const isRemote = /^https?:\/\//.test(url);
+    return (
+      <figure className="my-6 space-y-2">
+        {isRemote ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={url} alt={alt || ''} className="w-full rounded-card border bg-card shadow-card" />
+        ) : (
+          <div className="flex aspect-video items-center justify-center rounded-card border border-dashed bg-muted/40 text-muted-foreground">
+            <span className="flex flex-col items-center gap-2 text-xs">
+              <ImageIcon className="h-7 w-7 opacity-60" />
+              {url || 'Imagen'}
+            </span>
+          </div>
+        )}
+        {alt && <figcaption className="px-1 font-sans text-xs text-muted-foreground">{alt}</figcaption>}
+      </figure>
+    );
+  },
 };
 
 export const lessonMdxComponents = { ...baseMdxComponents, Objectives, KeyIdea, Video };
