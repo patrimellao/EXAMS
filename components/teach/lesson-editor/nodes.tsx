@@ -53,15 +53,4 @@ export const lessonNodeComponents = {
   underline: leaf('u'),
   strikethrough: leaf('s'),
   code: leaf('code', 'rounded bg-muted px-1.5 py-0.5 font-mono text-sm text-pink-600 dark:text-pink-400'),
-  backgroundColor: function BackgroundColorLeaf(props: PlateLeafProps) {
-    const color = (props.leaf as { backgroundColor?: string }).backgroundColor;
-    return (
-      <PlateLeaf
-        {...props}
-        as="span"
-        className={cn('rounded px-0.5', props.className)}
-        style={{ ...props.style, backgroundColor: color }}
-      />
-    );
-  },
 };

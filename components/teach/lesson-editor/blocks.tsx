@@ -6,7 +6,13 @@
  * `parseMarkdown` so the editor preview matches the student lesson view.
  */
 import * as React from 'react';
-import { createPlatePlugin, PlateElement, type PlateElementProps } from 'platejs/react';
+import {
+  createPlatePlugin,
+  PlateElement,
+  PlateLeaf,
+  type PlateElementProps,
+  type PlateLeafProps,
+} from 'platejs/react';
 import { Target, Lightbulb, Play, Video as VideoIcon, Image as ImageIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { OBJECTIVES, KEY_IDEA, VIDEO } from './markdown-rules';
@@ -124,4 +130,30 @@ export const VideoPlugin = createPlatePlugin({
   node: { isElement: true, isVoid: true, type: VIDEO },
 }).withComponent(VideoElement);
 
-export const lessonCustomPlugins = [ObjectivesPlugin, KeyIdeaPlugin, VideoPlugin, ImagePlugin];
+// Highlight (background-color) as a single leaf element — one rounded span, so it
+// doesn't double-render a sharp full-line-height rectangle like the basic-styles
+// font plugin does. The mark key is `backgroundColor` (see markdown-rules).
+function HighlightLeaf(props: PlateLeafProps) {
+  const color = (props.leaf as { backgroundColor?: string }).backgroundColor;
+  return (
+    <PlateLeaf
+      {...props}
+      as="span"
+      className={cn('rounded px-0.5', props.className)}
+      style={{ ...props.style, backgroundColor: color }}
+    />
+  );
+}
+
+export const HighlightColorPlugin = createPlatePlugin({
+  key: 'backgroundColor',
+  node: { isLeaf: true },
+}).withComponent(HighlightLeaf);
+
+export const lessonCustomPlugins = [
+  ObjectivesPlugin,
+  KeyIdeaPlugin,
+  VideoPlugin,
+  ImagePlugin,
+  HighlightColorPlugin,
+];

@@ -10,7 +10,6 @@
 import * as React from 'react';
 import { Plate, PlateContent, usePlateEditor, useEditorRef } from 'platejs/react';
 import { BasicBlocksPlugin, BasicMarksPlugin } from '@platejs/basic-nodes/react';
-import { FontBackgroundColorPlugin } from '@platejs/basic-styles/react';
 import { ListPlugin } from '@platejs/list-classic/react';
 import { MarkdownPlugin, remarkMdx } from '@platejs/markdown';
 import {
@@ -260,7 +259,6 @@ export function LessonPlateEditor({
     plugins: [
       BasicBlocksPlugin,
       BasicMarksPlugin,
-      FontBackgroundColorPlugin,
       ListPlugin,
       ...lessonCustomPlugins,
       MarkdownPlugin.configure({ options: lessonMarkdownOptions(remarkMdx) }),
