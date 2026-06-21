@@ -9,7 +9,8 @@
  */
 import * as React from 'react';
 import { Plate, PlateContent, usePlateEditor, useEditorRef } from 'platejs/react';
-import { BasicBlocksPlugin, BasicMarksPlugin, HighlightPlugin } from '@platejs/basic-nodes/react';
+import { BasicBlocksPlugin, BasicMarksPlugin } from '@platejs/basic-nodes/react';
+import { FontBackgroundColorPlugin } from '@platejs/basic-styles/react';
 import { ListPlugin } from '@platejs/list-classic/react';
 import { MarkdownPlugin, remarkMdx } from '@platejs/markdown';
 import {
@@ -18,6 +19,7 @@ import {
   Underline as UnderlineIcon,
   Strikethrough,
   Highlighter,
+  Ban,
   Code as CodeIcon,
   Heading1,
   Heading2,
@@ -63,6 +65,16 @@ export interface LessonPlateEditorProps {
   placeholder?: string;
   className?: string;
 }
+
+// Highlight palette — soft, readable background colors. Values are CSS colors so
+// they round-trip as `<span style="background-color: …">`.
+const HIGHLIGHT_COLORS: { label: string; value: string }[] = [
+  { label: 'Amarillo', value: 'rgb(254, 240, 138)' },
+  { label: 'Verde', value: 'rgb(187, 247, 208)' },
+  { label: 'Azul', value: 'rgb(186, 230, 253)' },
+  { label: 'Rosa', value: 'rgb(251, 207, 232)' },
+  { label: 'Naranja', value: 'rgb(254, 215, 170)' },
+];
 
 function ToolbarButton({
   icon: Icon,
@@ -141,7 +153,40 @@ function LessonEditorToolbar({ onPickMedia }: { onPickMedia: (type: 'image' | 'v
       <ToolbarButton icon={Italic} label="Cursiva (⌘I)" onClick={run(() => tf.italic.toggle())} />
       <ToolbarButton icon={UnderlineIcon} label="Subrayado (⌘U)" onClick={run(() => tf.underline.toggle())} />
       <ToolbarButton icon={Strikethrough} label="Tachado" onClick={run(() => tf.strikethrough.toggle())} />
-      <ToolbarButton icon={Highlighter} label="Resaltar" onClick={run(() => tf.highlight.toggle())} />
+      {/* Highlight with a color palette (background-color mark) */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <UIButton
+            type="button"
+            variant="ghost"
+            size="icon"
+            title="Resaltar"
+            aria-label="Resaltar"
+            onMouseDown={(e) => e.preventDefault()}
+            className="h-8 w-8 text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand-primary data-[state=open]:bg-muted"
+          >
+            <Highlighter className="h-4 w-4" />
+          </UIButton>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-44">
+          {HIGHLIGHT_COLORS.map((c) => (
+            <DropdownMenuItem
+              key={c.value}
+              onClick={run(() => tf.addMark('backgroundColor', c.value))}
+            >
+              <span
+                className="mr-2 h-4 w-4 rounded border border-border"
+                style={{ backgroundColor: c.value }}
+              />
+              {c.label}
+            </DropdownMenuItem>
+          ))}
+          <DropdownMenuItem onClick={run(() => tf.removeMark('backgroundColor'))}>
+            <Ban className="mr-2 h-4 w-4" />
+            Sin resaltado
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
       <ToolbarButton icon={CodeIcon} label="Código" onClick={run(() => tf.code.toggle())} />
       <div className="mx-1 h-4 w-px bg-border" />
       <ToolbarButton icon={ListIcon} label="Lista" onClick={run(() => tf.toggle.bulletedList())} />
@@ -215,7 +260,7 @@ export function LessonPlateEditor({
     plugins: [
       BasicBlocksPlugin,
       BasicMarksPlugin,
-      HighlightPlugin,
+      FontBackgroundColorPlugin,
       ListPlugin,
       ...lessonCustomPlugins,
       MarkdownPlugin.configure({ options: lessonMarkdownOptions(remarkMdx) }),

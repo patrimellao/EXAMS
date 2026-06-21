@@ -47,6 +47,28 @@ const blockRule = (name: string) => ({
 export const lessonMarkdownRules = {
   [OBJECTIVES]: blockRule(OBJECTIVES),
   [KEY_IDEA]: blockRule(KEY_IDEA),
+  // Highlight (background-color mark) — serialize to a capitalized <Highlight color>
+  // component rather than `<span style>`, because MDX routes capitalized JSX through
+  // the components map but renders lowercase JSX (like span) as a raw host element,
+  // which crashes on a string `style` prop in the reader.
+  backgroundColor: {
+    mark: true,
+    serialize: (node: any) => ({
+      type: 'mdxJsxTextElement',
+      name: 'Highlight',
+      attributes: [{ type: 'mdxJsxAttribute', name: 'color', value: node.backgroundColor }],
+      children: [{ type: 'text', value: node.text }],
+    }),
+  },
+  Highlight: {
+    mark: true,
+    deserialize: (mdastNode: any, deco: any, options: any) =>
+      convertChildrenDeserialize(
+        mdastNode.children,
+        { ...deco, backgroundColor: parseAttributes(mdastNode.attributes).color },
+        options,
+      ),
+  },
   // Self-closing void element: attributes (url, label) become element props.
   [VIDEO]: {
     deserialize: (mdastNode: any) => ({

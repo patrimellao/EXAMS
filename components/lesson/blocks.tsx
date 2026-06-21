@@ -52,6 +52,15 @@ export function Video({ url, label }: { url?: string; label?: string }) {
   );
 }
 
+/** Highlighted text — `<Highlight color="…">` from the editor's background-color mark. */
+export function Highlight({ color, children }: { color?: string; children?: React.ReactNode }) {
+  return (
+    <mark className="rounded px-0.5 text-foreground" style={{ backgroundColor: color }}>
+      {children}
+    </mark>
+  );
+}
+
 /**
  * Styled standard markdown elements (the project has no @tailwindcss/typography,
  * so each element is styled explicitly to the lesson reader look — matching the
@@ -85,9 +94,6 @@ const baseMdxComponents = {
   code: (p: React.HTMLAttributes<HTMLElement>) => (
     <code {...p} className="rounded bg-muted px-1.5 py-0.5 font-mono text-sm text-pink-600 dark:text-pink-400" />
   ),
-  mark: (p: React.HTMLAttributes<HTMLElement>) => (
-    <mark {...p} className="rounded bg-brand-warm/30 px-0.5 text-foreground" />
-  ),
   img: ({ src, alt }: React.ImgHTMLAttributes<HTMLImageElement>) => {
     const url = typeof src === 'string' ? src : '';
     const isRemote = /^https?:\/\//.test(url);
@@ -110,4 +116,4 @@ const baseMdxComponents = {
   },
 };
 
-export const lessonMdxComponents = { ...baseMdxComponents, Objectives, KeyIdea, Video };
+export const lessonMdxComponents = { ...baseMdxComponents, Objectives, KeyIdea, Video, Highlight };
