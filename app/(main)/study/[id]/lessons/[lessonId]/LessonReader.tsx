@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Download, Clock, BookOpen, Loader2 } from 'lucide-react';
@@ -17,7 +17,10 @@ type Props = {
   lessonId: number;
   title: string;
   type: string;
-  contentText: string | null;
+  /** Whether this article has body content (drives the content vs. resource view). */
+  hasContent: boolean;
+  /** Server-rendered MDX node for the lesson body. */
+  content: ReactNode;
   estimatedDurationMinutes: number | null;
   xpReward: number;
   resources: Resource[];
@@ -28,7 +31,8 @@ export function LessonReader({
   lessonId,
   title,
   type,
-  contentText,
+  hasContent,
+  content,
   estimatedDurationMinutes,
   xpReward,
   resources,
@@ -85,12 +89,12 @@ export function LessonReader({
       </div>
 
       {/* Content */}
-      {type === 'article' && contentText ? (
+      {type === 'article' && hasContent ? (
         <div
-          className="prose prose-neutral dark:prose-invert max-w-none leading-relaxed whitespace-pre-wrap border rounded-lg p-6 bg-muted/20"
+          className="prose prose-neutral dark:prose-invert max-w-none leading-relaxed border rounded-lg p-6 bg-muted/20"
           data-testid="lesson-content"
         >
-          {contentText}
+          {content}
         </div>
       ) : (
         <div className="rounded-lg border border-dashed p-10 text-center text-muted-foreground">

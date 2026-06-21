@@ -4,6 +4,7 @@ import { getLessonWithProgress } from '@/controllers/lessons';
 import { getActiveUnits } from '@/controllers/unit';
 import { UUID } from 'crypto';
 import { LessonReader } from './LessonReader';
+import { renderLessonMdx } from '@/components/lesson/MdxContent';
 import BackLink from '@/components/BackLink';
 
 type Props = {
@@ -18,6 +19,9 @@ export default async function LessonPage({ params }: Props) {
   if (!data) notFound();
 
   const { lesson, progress, resources } = data;
+
+  const hasContent = lesson.type === 'article' && !!lesson.contentText;
+  const content = hasContent ? await renderLessonMdx(lesson.contentText as string) : null;
 
   return (
     <div className="flex gap-6 p-6 max-w-5xl mx-auto">
@@ -35,7 +39,8 @@ export default async function LessonPage({ params }: Props) {
           lessonId={lesson.id}
           title={lesson.title}
           type={lesson.type}
-          contentText={lesson.contentText ?? null}
+          hasContent={hasContent}
+          content={content}
           estimatedDurationMinutes={lesson.estimatedDurationMinutes ?? null}
           xpReward={lesson.xpReward}
           resources={resources}
