@@ -427,6 +427,31 @@ function parseMarkdown(text: string) {
       }
     }
 
+    // Standalone image: ![alt](url)
+    const imgMatch = trimmed.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+    if (imgMatch) {
+      const alt = imgMatch[1];
+      const url = imgMatch[2];
+      const isRemote = /^https?:\/\//.test(url);
+      elements.push(
+        <figure key={`img-${i}`} className="my-6 space-y-2">
+          {isRemote ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={url} alt={alt} className="w-full rounded-card border bg-card shadow-card" />
+          ) : (
+            <div className="flex aspect-video items-center justify-center rounded-card border border-dashed bg-muted/40 text-muted-foreground">
+              <span className="flex flex-col items-center gap-2 text-xs">
+                <ImageIcon className="h-7 w-7 opacity-60" />
+                {url || "Imagen"}
+              </span>
+            </div>
+          )}
+          {alt && <figcaption className="px-1 font-sans text-xs text-muted-foreground">{alt}</figcaption>}
+        </figure>
+      );
+      continue;
+    }
+
     if (trimmed.startsWith("## ")) {
       const headingText = trimmed.substring(3);
       elements.push(
