@@ -112,6 +112,30 @@ function LessonEditorToolbar({ onPickMedia }: { onPickMedia: (type: 'image' | 'v
     fn();
     editor.tf.focus();
   };
+  // Read the current selection's text (empty if nothing selected), removing it so
+  // the new block replaces it.
+  const takeSelectedText = () => {
+    const hasSel = editor.selection && !editor.api.isCollapsed();
+    const text = hasSel ? editor.api.string(editor.selection) : '';
+    if (hasSel) editor.tf.delete();
+    return text;
+  };
+  const insertObjectives = run(() => {
+    const text = takeSelectedText();
+    const items = text ? text.split('\n').map((s) => s.trim()).filter(Boolean) : [];
+    const lis = (items.length ? items : ['']).map((t) => ({
+      type: 'li',
+      children: [{ type: 'lic', children: [{ text: t }] }],
+    }));
+    tf.insertNodes({ type: OBJECTIVES, children: [{ type: 'ul', children: lis }] }, { select: true });
+  });
+  const insertKeyIdea = run(() => {
+    const text = takeSelectedText();
+    tf.insertNodes(
+      { type: KEY_IDEA, children: [{ type: 'p', children: [{ text: text.replace(/\n+/g, ' ') }] }] },
+      { select: true },
+    );
+  });
   return (
     <div className="flex flex-wrap items-center gap-0.5">
       {/* Block type — headings are block-level, so this converts the whole line. */}
@@ -195,31 +219,13 @@ function LessonEditorToolbar({ onPickMedia }: { onPickMedia: (type: 'image' | 'v
       <div className="mx-1 h-4 w-px bg-border" />
       <ToolbarButton
         icon={Target}
-        label="Bloque de Objetivos"
-        onClick={run(() =>
-          tf.insertNodes(
-            {
-              type: OBJECTIVES,
-              children: [
-                {
-                  type: 'ul',
-                  children: [{ type: 'li', children: [{ type: 'lic', children: [{ text: '' }] }] }],
-                },
-              ],
-            },
-            { select: true },
-          ),
-        )}
+        label="Bloque de Objetivos (usa el texto seleccionado)"
+        onClick={insertObjectives}
       />
       <ToolbarButton
         icon={Lightbulb}
-        label="Bloque de Idea Clave"
-        onClick={run(() =>
-          tf.insertNodes(
-            { type: KEY_IDEA, children: [{ type: 'p', children: [{ text: '' }] }] },
-            { select: true },
-          ),
-        )}
+        label="Bloque de Idea Clave (usa el texto seleccionado)"
+        onClick={insertKeyIdea}
       />
       {/* Attach media (image / video) from the media library */}
       <DropdownMenu>
