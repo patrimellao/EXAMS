@@ -48,6 +48,13 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import {
+  ContextMenu,
+  ContextMenuTrigger,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+} from '@/components/ui/context-menu';
+import {
   MediaLibraryPanel,
   type MediaAsset,
 } from '@/components/teach/MediaLibraryPanel';
@@ -76,6 +83,34 @@ const HIGHLIGHT_COLORS: { label: string; value: string }[] = [
   { label: 'Rosa', value: 'rgba(244, 114, 182, 0.35)' },
   { label: 'Naranja', value: 'rgba(251, 146, 60, 0.35)' },
 ];
+
+// Shared editor actions (used by both the toolbar and the right-click menu).
+// Read the current selection's text (empty if nothing selected), removing it so
+// a new block replaces it.
+function takeSelectedText(editor: any) {
+  const hasSel = editor.selection && !editor.api.isCollapsed();
+  const text = hasSel ? editor.api.string(editor.selection) : '';
+  if (hasSel) editor.tf.delete();
+  return text;
+}
+function insertObjectivesNode(editor: any) {
+  const text = takeSelectedText(editor);
+  const items = text ? text.split('\n').map((s: string) => s.trim()).filter(Boolean) : [];
+  const lis = (items.length ? items : ['']).map((t: string) => ({
+    type: 'li',
+    children: [{ type: 'lic', children: [{ text: t }] }],
+  }));
+  editor.tf.insertNodes({ type: OBJECTIVES, children: [{ type: 'ul', children: lis }] }, { select: true });
+  editor.tf.focus();
+}
+function insertKeyIdeaNode(editor: any) {
+  const text = takeSelectedText(editor);
+  editor.tf.insertNodes(
+    { type: KEY_IDEA, children: [{ type: 'p', children: [{ text: text.replace(/\n+/g, ' ') }] }] },
+    { select: true },
+  );
+  editor.tf.focus();
+}
 
 function ToolbarButton({
   icon: Icon,
@@ -112,30 +147,8 @@ function LessonEditorToolbar({ onPickMedia }: { onPickMedia: (type: 'image' | 'v
     fn();
     editor.tf.focus();
   };
-  // Read the current selection's text (empty if nothing selected), removing it so
-  // the new block replaces it.
-  const takeSelectedText = () => {
-    const hasSel = editor.selection && !editor.api.isCollapsed();
-    const text = hasSel ? editor.api.string(editor.selection) : '';
-    if (hasSel) editor.tf.delete();
-    return text;
-  };
-  const insertObjectives = run(() => {
-    const text = takeSelectedText();
-    const items = text ? text.split('\n').map((s) => s.trim()).filter(Boolean) : [];
-    const lis = (items.length ? items : ['']).map((t) => ({
-      type: 'li',
-      children: [{ type: 'lic', children: [{ text: t }] }],
-    }));
-    tf.insertNodes({ type: OBJECTIVES, children: [{ type: 'ul', children: lis }] }, { select: true });
-  });
-  const insertKeyIdea = run(() => {
-    const text = takeSelectedText();
-    tf.insertNodes(
-      { type: KEY_IDEA, children: [{ type: 'p', children: [{ text: text.replace(/\n+/g, ' ') }] }] },
-      { select: true },
-    );
-  });
+  const insertObjectives = () => insertObjectivesNode(editor);
+  const insertKeyIdea = () => insertKeyIdeaNode(editor);
   return (
     <div className="flex flex-wrap items-center gap-0.5">
       {/* Block type — headings are block-level, so this converts the whole line. */}
@@ -257,6 +270,63 @@ function LessonEditorToolbar({ onPickMedia }: { onPickMedia: (type: 'image' | 'v
   );
 }
 
+// Right-click menu over the editor — mirrors the toolbar's common actions, like
+// the legacy markdown editor's context menu.
+function EditorContextMenu({
+  children,
+  onPickMedia,
+}: {
+  children: React.ReactNode;
+  onPickMedia: (type: 'image' | 'video') => void;
+}) {
+  const editor = useEditorRef();
+  const tf = editor.tf as any;
+  const act = (fn: () => void) => () => {
+    fn();
+    editor.tf.focus();
+  };
+  return (
+    <ContextMenu>
+      <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
+      <ContextMenuContent className="w-56">
+        <ContextMenuItem onClick={act(() => tf.bold.toggle())}>
+          <Bold className="mr-2 h-4 w-4" /> Negrita
+        </ContextMenuItem>
+        <ContextMenuItem onClick={act(() => tf.italic.toggle())}>
+          <Italic className="mr-2 h-4 w-4" /> Cursiva
+        </ContextMenuItem>
+        <ContextMenuItem onClick={act(() => tf.underline.toggle())}>
+          <UnderlineIcon className="mr-2 h-4 w-4" /> Subrayado
+        </ContextMenuItem>
+        <ContextMenuItem onClick={act(() => tf.code.toggle())}>
+          <CodeIcon className="mr-2 h-4 w-4" /> Código
+        </ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuItem onClick={act(() => tf.toggle.bulletedList())}>
+          <ListIcon className="mr-2 h-4 w-4" /> Lista
+        </ContextMenuItem>
+        <ContextMenuItem onClick={act(() => tf.blockquote.toggle())}>
+          <Quote className="mr-2 h-4 w-4" /> Cita
+        </ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuItem onClick={() => insertObjectivesNode(editor)}>
+          <Target className="mr-2 h-4 w-4" /> Bloque de Objetivos
+        </ContextMenuItem>
+        <ContextMenuItem onClick={() => insertKeyIdeaNode(editor)}>
+          <Lightbulb className="mr-2 h-4 w-4" /> Bloque de Idea Clave
+        </ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuItem onClick={() => onPickMedia('image')}>
+          <ImageIcon className="mr-2 h-4 w-4" /> Insertar imagen
+        </ContextMenuItem>
+        <ContextMenuItem onClick={() => onPickMedia('video')}>
+          <VideoIcon className="mr-2 h-4 w-4" /> Insertar vídeo
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
+  );
+}
+
 export function LessonPlateEditor({
   value,
   onChange,
@@ -326,16 +396,18 @@ export function LessonPlateEditor({
       <div className="sticky top-0 z-30 border-b bg-card/95 px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-card/80 md:px-8">
         <LessonEditorToolbar onPickMedia={handlePickMedia} />
       </div>
-      <div className="px-4 py-6 md:px-8">
-        <PlateContent
-          placeholder={placeholder}
-          className={cn(
-            'min-h-[480px] w-full outline-none font-reader text-[17px] leading-[1.7] text-foreground',
-            'placeholder:text-muted-foreground/30',
-            className,
-          )}
-        />
-      </div>
+      <EditorContextMenu onPickMedia={handlePickMedia}>
+        <div className="px-4 py-6 md:px-8">
+          <PlateContent
+            placeholder={placeholder}
+            className={cn(
+              'min-h-[480px] w-full outline-none font-reader text-[17px] leading-[1.7] text-foreground',
+              'placeholder:text-muted-foreground/30',
+              className,
+            )}
+          />
+        </div>
+      </EditorContextMenu>
 
       <Dialog open={!!mediaPick} onOpenChange={(open) => !open && setMediaPick(null)}>
         <DialogContent className="max-w-5xl max-h-[88vh] overflow-y-auto p-0 sm:rounded-card">
