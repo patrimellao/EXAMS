@@ -40,6 +40,7 @@ import {
   BookmarkPlus,
   Printer,
   ArrowLeft,
+  History,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/game/Button";
@@ -98,6 +99,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
+import { PageHeader } from "@/components/teach/PageHeader";
+import { LessonHistorySheet } from "@/components/teach/LessonHistorySheet";
 
 // Initial questions data with deep integration
 const initialQuestions = [
@@ -824,6 +827,7 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
   const [lessonsList, setLessonsList] = useState(initialLessons);
   const [activeLessonId, setActiveLessonId] = useState(1);
   const [configSheetOpen, setConfigSheetOpen] = useState(false);
+  const [historySheetOpen, setHistorySheetOpen] = useState(false);
   const [editorMode, setEditorMode] = useState<"edit" | "preview" | "split">("edit");
   const [isUploading, setIsUploading] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "dirty" | "saving" | "saved">("idle");
@@ -958,31 +962,6 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
       setQuestionSaveStatus("saved");
       setTimeout(() => setQuestionSaveStatus("idle"), 2000);
     }, 800);
-  };
-
-  const createNewLesson = () => {
-    const nextId = Math.max(...lessonsList.map((l) => l.id), 0) + 1;
-    const nextOrder = Math.max(...lessonsList.map((l) => l.order), 0) + 1;
-    const newL = {
-      id: nextId,
-      title: `Nueva Lección ${nextId}`,
-      subtitle: "",
-      hero: {
-        type: "gradient" as "gradient" | "solid" | "image" | "image-gradient",
-        gradient: "warm" as "warm" | "trust" | "brand",
-        color: "brand-warm",
-        image: { url: "", alt: "" },
-      },
-      order: nextOrder,
-      duration: 5,
-      xp: 10,
-      type: "article",
-      content: `## Nueva Lección\n\nEscribe el contenido aquí en Markdown...`,
-      files: [],
-    };
-    setLessonsList((prev) => [...prev, newL]);
-    setActiveLessonId(nextId);
-    setSaveStatus("dirty");
   };
 
   const deleteLesson = (id: number) => {
@@ -1289,41 +1268,54 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
 
   return (
     <TooltipProvider delayDuration={300}>
-    <div className="mx-auto max-w-5xl space-y-6 transition-all duration-normal">
-      {/* Breadcrumb Navigation */}
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href="/wireframes/teach" className="transition-colors duration-fast hover:text-foreground">
-                Asignaturas
-              </Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href="/wireframes/teach/derecho-civil" className="transition-colors duration-fast hover:text-foreground">
-                Derecho Civil
-              </Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>
-              U2 · {mode === "lessons" ? "Lecciones" : "Preguntas"}
-            </BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
-      {/* WordPress-Style Global Control Header */}
-      <header className="flex flex-col gap-4 border-b pb-5 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-display font-sans">
-              Unidad 2 · Capacidad jurídica
-            </h1>
+    <div className="w-full space-y-6 transition-all duration-normal">
+      <PageHeader
+        breadcrumb={
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/wireframes/teach" className="transition-colors duration-fast hover:text-foreground">
+                    Asignaturas
+                  </Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/wireframes/teach/derecho-civil" className="transition-colors duration-fast hover:text-foreground">
+                    Derecho Civil
+                  </Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                {mode === "lessons" ? (
+                  <BreadcrumbLink asChild>
+                    <Link href="/wireframes/teach/derecho-civil" className="transition-colors duration-fast hover:text-foreground">
+                      U2 · Lecciones
+                    </Link>
+                  </BreadcrumbLink>
+                ) : (
+                  <BreadcrumbPage>U2 · Preguntas</BreadcrumbPage>
+                )}
+              </BreadcrumbItem>
+              {mode === "lessons" && (
+                <>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>
+                      {activeLesson?.title || "Lección sin título"}
+                    </BreadcrumbPage>
+                  </BreadcrumbItem>
+                </>
+              )}
+            </BreadcrumbList>
+          </Breadcrumb>
+        }
+        title={
+          <span className="flex items-center gap-3">
+            Unidad 2 · Capacidad jurídica
             {saveStatus === "dirty" || questionSaveStatus === "dirty" ? (
               <Badge variant="secondary" className="gap-1 bg-brand-warm/10 text-brand-warm border-brand-warm/20 font-medium">
                 <span className="h-1.5 w-1.5 rounded-pill bg-brand-warm animate-pulse" />
@@ -1335,14 +1327,11 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                 Guardado
               </Badge>
             )}
-          </div>
-          <p className="mt-1 text-sm text-muted-foreground font-sans">
-            Gestiona las preguntas y lecciones con el editor premium.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {activeTab === "lessons" ? (
+          </span>
+        }
+        subtitle="Gestiona las preguntas y lecciones con el editor premium."
+        actions={
+          activeTab === "lessons" ? (
             <>
               {saveStatus === "dirty" ? (
                 <UIButton
@@ -1456,6 +1445,16 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
               <UIButton
                 variant="outline"
                 size="icon"
+                onClick={() => setHistorySheetOpen(true)}
+                className="h-10 w-10 border text-muted-foreground hover:bg-muted/40 hover:text-foreground transition-all duration-fast"
+                title="Historial de versiones"
+                aria-label="Historial de versiones"
+              >
+                <History className="h-4 w-4" />
+              </UIButton>
+              <UIButton
+                variant="outline"
+                size="icon"
                 onClick={() => setConfigSheetOpen(true)}
                 className="h-10 w-10 border text-muted-foreground hover:bg-muted/40 hover:text-foreground transition-all duration-fast"
                 title="Configurar lección"
@@ -1502,109 +1501,83 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                 )}
               </Button>
             </>
+          )
+        }
+      />
+
+      {/* Full-width editor tool bar — pinned flush under the header (WordPress-style).
+          Edit/split: markdown tools. Preview: the "what the student sees" banner. */}
+      {mode === "lessons" && (
+        <div className="sticky top-0 z-30 -mx-4 -mt-6 border-b bg-card/95 px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-card/80 md:-mx-8 md:px-8">
+          {editorMode === "preview" ? (
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-3.5 w-3.5 animate-pulse text-brand-primary" />
+              <span className="text-[11px] font-bold uppercase tracking-wider text-foreground font-sans">
+                Vista previa · esto es lo que verá el estudiante
+              </span>
+            </div>
+          ) : (
+            <div className="flex flex-wrap items-center gap-0.5">
+              <MarkdownToolbarButton icon={Bold} label="Negrita" shortcut="⌘B" onClick={() => insertMarkdown("bold")} />
+              <MarkdownToolbarButton icon={Italic} label="Cursiva" shortcut="⌘I" onClick={() => insertMarkdown("italic")} />
+              <MarkdownToolbarButton icon={List} label="Lista" onClick={() => insertMarkdown("list")} />
+              <MarkdownToolbarButton icon={Link2} label="Enlace" shortcut="⌘K" onClick={() => insertMarkdown("link")} />
+              <MarkdownToolbarButton icon={FileCode} label="Código" shortcut="⌘E" onClick={() => insertMarkdown("code")} />
+              <MarkdownToolbarButton icon={HelpCircle} label="Cita" onClick={() => insertMarkdown("quote")} />
+
+              <div className="mx-1 h-4 w-px bg-border" />
+
+              {/* Single attach entry point — opens the media flow with
+                  both the library and video (R2) options inside. */}
+              <DropdownMenu>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <DropdownMenuTrigger asChild>
+                      <UIButton
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand-primary data-[state=open]:bg-muted data-[state=open]:text-foreground"
+                        aria-label="Adjuntar media"
+                      >
+                        <Paperclip className="h-4 w-4" />
+                      </UIButton>
+                    </DropdownMenuTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>Adjuntar media</TooltipContent>
+                </Tooltip>
+                <DropdownMenuContent align="start" className="w-60">
+                  <DropdownMenuItem onClick={() => insertMarkdown("library")}>
+                    <Library className="mr-2 h-4 w-4" />
+                    Desde biblioteca de media
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => insertMarkdown("video")}>
+                    <Video className="mr-2 h-4 w-4" />
+                    Insertar vídeo (R2)
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <MarkdownToolbarButton icon={Target} label="Bloque de Objetivos" onClick={() => insertMarkdown("objectives")} />
+              <MarkdownToolbarButton icon={Lightbulb} label="Bloque de Idea Clave" onClick={() => insertMarkdown("keyidea")} />
+            </div>
           )}
         </div>
-      </header>
+      )}
 
       {/* Tabs Layout */}
       <Tabs value={activeTab}>
         {/* ---------- LECCIONES TAB (WordPress Editor) ---------- */}
         <TabsContent value="lessons" className="mt-4 outline-none">
-          <div className="space-y-4">
-            {/* Lesson pills — scrollable selector so the editor spans full width */}
-            <PillStrip
-              items={[...lessonsList]
-                .sort((a, b) => a.order - b.order)
-                .map((l) => ({
-                  id: l.id,
-                  label: l.title,
-                  prefix: `${l.order}.`,
-                  icon:
-                    l.type === "file" ? (
-                      <Paperclip className="h-3.5 w-3.5 shrink-0" />
-                    ) : (
-                      <FileText className="h-3.5 w-3.5 shrink-0" />
-                    ),
-                  dirty: l.id === activeLessonId && saveStatus === "dirty",
-                }))}
-              activeId={activeLessonId}
-              onSelect={(id) => {
-                setActiveLessonId(id);
-                setEditorMode("edit");
-              }}
-              onCreate={createNewLesson}
-              createLabel="Nueva lección"
-            />
-
-            {/* Content Editor Canvas (WordPress Gutenberg Style) — full width */}
-            <main className="min-w-0 space-y-4">
-              <section className={`relative flex min-h-[620px] flex-col rounded-card border bg-card shadow-card transition-all duration-normal ${
-                editorMode === "preview" ? "p-0 overflow-hidden" : "p-6 md:p-8"
-              }`}>
-                {/* 1. Header toolbar for Preview Mode */}
-                {editorMode === "preview" && (
-                  <div className="flex items-center gap-2 border-b bg-muted/40 px-6 py-2.5 w-full">
-                    <Sparkles className="h-3.5 w-3.5 text-brand-primary animate-pulse" />
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-foreground font-sans">
-                      Vista previa · esto es lo que verá el estudiante
-                    </span>
-                  </div>
-                )}
-
-                {/* Borderless Title - Gutenberg style */}
-                {/* Markdown Toolbar */}
-                {editorMode !== "preview" && (
-                  <div className="border-b pb-3 mb-5 w-full">
-                    <div className="flex flex-wrap items-center gap-0.5 rounded-lg border bg-muted/40 p-0.5">
-                      <MarkdownToolbarButton icon={Bold} label="Negrita" shortcut="⌘B" onClick={() => insertMarkdown("bold")} />
-                      <MarkdownToolbarButton icon={Italic} label="Cursiva" shortcut="⌘I" onClick={() => insertMarkdown("italic")} />
-                      <MarkdownToolbarButton icon={List} label="Lista" onClick={() => insertMarkdown("list")} />
-                      <MarkdownToolbarButton icon={Link2} label="Enlace" shortcut="⌘K" onClick={() => insertMarkdown("link")} />
-                      <MarkdownToolbarButton icon={FileCode} label="Código" shortcut="⌘E" onClick={() => insertMarkdown("code")} />
-                      <MarkdownToolbarButton icon={HelpCircle} label="Cita" onClick={() => insertMarkdown("quote")} />
-
-                      <div className="h-4 w-px bg-border mx-1" />
-
-                      {/* Single attach entry point — opens the media flow with
-                          both the library and video (R2) options inside. */}
-                      <DropdownMenu>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <DropdownMenuTrigger asChild>
-                              <UIButton
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand-primary data-[state=open]:bg-muted data-[state=open]:text-foreground"
-                                aria-label="Adjuntar media"
-                              >
-                                <Paperclip className="h-4 w-4" />
-                              </UIButton>
-                            </DropdownMenuTrigger>
-                          </TooltipTrigger>
-                          <TooltipContent>Adjuntar media</TooltipContent>
-                        </Tooltip>
-                        <DropdownMenuContent align="start" className="w-60">
-                          <DropdownMenuItem onClick={() => insertMarkdown("library")}>
-                            <Library className="mr-2 h-4 w-4" />
-                            Desde biblioteca de media
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => insertMarkdown("video")}>
-                            <Video className="mr-2 h-4 w-4" />
-                            Insertar vídeo (R2)
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                      <MarkdownToolbarButton icon={Target} label="Bloque de Objetivos" onClick={() => insertMarkdown("objectives")} />
-                      <MarkdownToolbarButton icon={Lightbulb} label="Bloque de Idea Clave" onClick={() => insertMarkdown("keyidea")} />
-                    </div>
-                  </div>
-                )}
-
-                {/* Editor Content Canvas — fills the card width for an open writing surface */}
+          <div>
+            {/* Content Editor Canvas (WordPress Gutenberg Style) — full width now that
+                lesson switching lives in the subject-detail lessons table */}
+            <main className="min-w-0">
+              {/* Full-bleed writing canvas — no card chrome, rides the layout gutter
+                  from the sidebar to the screen edge; modest internal text padding. */}
+              <section className="relative -mx-4 flex min-h-[620px] flex-col bg-card md:-mx-8">
                 <div className="flex-1 w-full">
                   {editorMode === "edit" && (
-                    <div className="w-full h-full">
+                    <div className="h-full w-full px-4 py-6 md:px-8">
                       <Textarea
                         id="l-content"
                         value={activeLesson?.content || ""}
@@ -1815,7 +1788,7 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                   )}
 
                   {editorMode === "split" && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full min-h-[480px]">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full min-h-[480px] px-4 py-6 md:px-8">
                       {/* Left: Input */}
                       <div className="border-r pr-6 border-muted/50">
                         <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground block mb-2 font-mono">Editor Markdown</span>
@@ -1852,6 +1825,13 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
             </main>
 
           </div>
+
+          {/* Version history Sheet (slides in from the right, like config) */}
+          <LessonHistorySheet
+            open={historySheetOpen}
+            onOpenChange={setHistorySheetOpen}
+            lessonTitle={activeLesson?.title}
+          />
 
           {/* Lesson configuration Sheet (slides in from the right) */}
           <Sheet open={configSheetOpen} onOpenChange={setConfigSheetOpen}>

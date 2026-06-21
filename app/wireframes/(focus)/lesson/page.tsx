@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -32,7 +35,75 @@ const resources = [
 const dropCap =
   "[&>p:first-of-type]:first-letter:float-left [&>p:first-of-type]:first-letter:mr-2 [&>p:first-of-type]:first-letter:mt-1 [&>p:first-of-type]:first-letter:text-5xl [&>p:first-of-type]:first-letter:font-semibold [&>p:first-of-type]:first-letter:leading-none [&>p:first-of-type]:first-letter:text-foreground";
 
+// When the reader arrives from a quiz "Repasar" link, scroll to and highlight
+// the exact passage the question was drawn from (passed as ?focus=…).
+function highlightFocus(focus: string, color: string) {
+  const article = document.querySelector("article");
+  if (!article) return;
+  const target = focus.replace(/\s+/g, " ").trim();
+  if (!target) return;
+  // Accept only an "r, g, b" triple from the link; fall back to amber.
+  const rgb = /^\d{1,3},\s*\d{1,3},\s*\d{1,3}$/.test(color)
+    ? color
+    : "234, 161, 70";
+
+  for (const el of Array.from(article.querySelectorAll("p, li"))) {
+    // Only handle plain single-text-node blocks so we can wrap a clean range.
+    const node = el.firstChild;
+    if (el.childNodes.length !== 1 || !node || node.nodeType !== Node.TEXT_NODE)
+      continue;
+
+    const raw = node.nodeValue ?? "";
+    // Collapse whitespace while mapping each collapsed char back to its raw index.
+    let collapsed = "";
+    const map: number[] = [];
+    let prevSpace = true; // start "in space" to drop leading whitespace
+    for (let i = 0; i < raw.length; i++) {
+      if (/\s/.test(raw[i])) {
+        if (prevSpace) continue;
+        collapsed += " ";
+        map.push(i);
+        prevSpace = true;
+      } else {
+        collapsed += raw[i];
+        map.push(i);
+        prevSpace = false;
+      }
+    }
+    if (collapsed.endsWith(" ")) {
+      collapsed = collapsed.slice(0, -1);
+      map.pop();
+    }
+
+    const idx = collapsed.indexOf(target);
+    if (idx < 0) continue;
+
+    const range = document.createRange();
+    range.setStart(node, map[idx]);
+    range.setEnd(node, map[idx + target.length - 1] + 1);
+    const mark = document.createElement("mark");
+    mark.style.cssText = `background: rgba(${rgb}, 0.28); border-radius: 3px; box-shadow: 0 0 0 3px rgba(${rgb}, 0.28); scroll-margin-top: 6rem;`;
+    try {
+      range.surroundContents(mark);
+      mark.scrollIntoView({ behavior: "smooth", block: "center" });
+    } catch {
+      // surroundContents throws if the range crosses element boundaries — skip.
+    }
+    return;
+  }
+}
+
 export default function LessonWireframe() {
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const focus = params.get("focus");
+    if (!focus) return;
+    const color = params.get("hl") ?? "";
+    // Let the article paint before measuring/scrolling.
+    const id = window.setTimeout(() => highlightFocus(focus, color), 80);
+    return () => window.clearTimeout(id);
+  }, []);
+
   return (
     <div className="min-h-[calc(100vh-2.5rem)]">
       {/* Hero header: warm gradient per spec §2 (Lesson reader) */}

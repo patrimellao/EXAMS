@@ -119,6 +119,14 @@
   .focus-ring {
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-primary;
   }
+  /* Hide the scrollbar (the trailing fade is applied dynamically inline,
+     only when there's actually more content to scroll). */
+  .no-scrollbar {
+    scrollbar-width: none; /* Firefox */
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer base {

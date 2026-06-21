@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BookOpen, Layers, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/game/Button";
+import { PageHeader } from "@/components/teach/PageHeader";
 
 type Subject = {
   id: string;
@@ -58,21 +59,19 @@ function EmptyState() {
 
 export default function TeachSubjectsPage() {
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      {/* Compact slate header */}
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-display">Asignaturas</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {subjects.length} asignaturas ·{" "}
-            {subjects.filter((s) => s.active).length} publicadas
-          </p>
-        </div>
-        <Button variant="learning">
-          <Plus className="mr-2 h-4 w-4" />
-          Nueva asignatura
-        </Button>
-      </header>
+    <div className="w-full space-y-6">
+      <PageHeader
+        title="Asignaturas"
+        subtitle={`${subjects.length} asignaturas · ${
+          subjects.filter((s) => s.active).length
+        } publicadas`}
+        actions={
+          <Button variant="learning">
+            <Plus className="mr-2 h-4 w-4" />
+            Nueva asignatura
+          </Button>
+        }
+      />
 
       {subjects.length === 0 ? (
         <EmptyState />

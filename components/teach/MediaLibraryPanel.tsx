@@ -26,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { PageHeader } from "@/components/teach/PageHeader";
 import { cn } from "@/lib/utils";
 
 export type AssetType = "image" | "pdf" | "video" | "doc";
@@ -304,16 +305,12 @@ export function MediaLibraryPanel({
   const isPicker = mode !== "library";
 
   return (
-    <div className={cn("space-y-5", embedded ? "" : "mx-auto max-w-5xl")}>
+    <div className={cn("space-y-5", embedded ? "" : "w-full")}>
       {!embedded && (
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="text-display">Media</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {MEDIA_ASSETS.length} archivos · biblioteca global, etiquetada por asignatura
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
+        <PageHeader
+          title="Media"
+          subtitle={`${MEDIA_ASSETS.length} archivos · biblioteca global, etiquetada por asignatura`}
+          actions={
             <UIButton
               variant="outline"
               size="sm"
@@ -323,8 +320,8 @@ export function MediaLibraryPanel({
               <UploadCloud className="mr-1.5 h-4 w-4" />
               {dropzoneOpen ? "Cerrar zona de subida" : "Subir archivos"}
             </UIButton>
-          </div>
-        </header>
+          }
+        />
       )}
 
       {/* Toolbar */}

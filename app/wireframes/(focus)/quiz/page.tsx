@@ -1,6 +1,15 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, Flag, Timer } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  BookOpen,
+  CheckCircle2,
+  Flag,
+  Timer,
+  XCircle,
+} from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import {
   AlertDialog,
@@ -32,6 +41,51 @@ const questionMap: Array<"correct" | "wrong" | "current" | "pending"> = [
   "pending",
 ];
 
+// Difficulty of the current question (mirrors the builder's fácil/normal/difícil scale).
+const QUESTION_DIFFICULTY: "fácil" | "normal" | "difícil" = "normal";
+
+const DIFFICULTY_BADGE: Record<
+  "fácil" | "normal" | "difícil",
+  { label: string; className: string }
+> = {
+  fácil: {
+    label: "Fácil",
+    className: "bg-brand-success/10 text-brand-success border-brand-success/20",
+  },
+  normal: {
+    label: "Normal",
+    className: "bg-muted text-muted-foreground border-border",
+  },
+  difícil: {
+    label: "Difícil",
+    className: "bg-brand-warm/10 text-brand-warm border-brand-warm/20",
+  },
+};
+
+// Answer key + post-answer feedback for this question (practice mode reveals it).
+// Mirrors the builder's first question (Q1) so the same question reads the same
+// in both views.
+const CORRECT_ANSWER = "c";
+const EXPLANATION =
+  "El art. 315 del Código Civil fija la mayoría de edad en los 18 años cumplidos.";
+
+// Reference back to the lesson section this question is drawn from. The quote is
+// pulled from the lesson content by the teacher in the builder.
+const LESSON_REF = {
+  unit: "2.1",
+  section: "Capacidad de obrar",
+  quote:
+    "La capacidad de obrar es la aptitud para realizar válidamente actos jurídicos por sí mismo.",
+  // Highlight color (rgb triple) chosen by the teacher in the builder.
+  color: "234, 161, 70",
+};
+
+// Deep-link to the lesson, carrying the exact quoted passage and its highlight
+// color so the lesson page can scroll to and mark that precise text.
+const LESSON_HREF = `/wireframes/lesson?focus=${encodeURIComponent(
+  LESSON_REF.quote,
+)}&hl=${encodeURIComponent(LESSON_REF.color)}`;
+
 // Quiz timer: 20 minutes total, ~12 minutes elapsed in this mock state.
 const TIMER_TOTAL_SECONDS = 20 * 60;
 const TIMER_REMAINING_SECONDS = 8 * 60 + 24;
@@ -46,6 +100,10 @@ function formatTime(seconds: number) {
 
 export default function QuizWireframe() {
   const [answer, setAnswer] = useState<string | undefined>("c");
+  // Practice mode: "Comprobar" reveals correctness, the explanation, and the
+  // link back to the source lesson section.
+  const [revealed, setRevealed] = useState(false);
+  const isCorrect = answer === CORRECT_ANSWER;
 
   const timerPercent = (TIMER_REMAINING_SECONDS / TIMER_TOTAL_SECONDS) * 100;
 
@@ -152,9 +210,21 @@ export default function QuizWireframe() {
             {/* Question card: prominent surface, popover-tier shadow. */}
             <article className="space-y-6 rounded-hero border bg-card p-6 shadow-popover md:p-8">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Pregunta 4 de 10
-                </p>
+                <div className="flex items-center gap-2.5">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Pregunta 4 de 10
+                  </p>
+                  {QUESTION_DIFFICULTY !== "normal" && (
+                    <span
+                      className={cn(
+                        "rounded-pill border px-2 py-0.5 text-[11px] font-semibold",
+                        DIFFICULTY_BADGE[QUESTION_DIFFICULTY].className,
+                      )}
+                    >
+                      {DIFFICULTY_BADGE[QUESTION_DIFFICULTY].label}
+                    </span>
+                  )}
+                </div>
                 <h2 className="mt-2 text-2xl font-bold leading-snug tracking-tight text-foreground md:text-3xl">
                   ¿Qué edad establece el Código Civil para la plena capacidad
                   de obrar?
@@ -164,7 +234,7 @@ export default function QuizWireframe() {
               <RadioGroup
                 value={answer}
                 onValueChange={setAnswer}
-                className="space-y-3"
+                className={cn("space-y-3", revealed && "pointer-events-none")}
                 aria-label="Opciones de respuesta"
               >
                 {[
@@ -174,17 +244,27 @@ export default function QuizWireframe() {
                   { v: "d", label: "21 años" },
                 ].map((opt) => {
                   const isSelected = answer === opt.v;
+                  const showCorrect = revealed && opt.v === CORRECT_ANSWER;
+                  const showWrong =
+                    revealed && isSelected && opt.v !== CORRECT_ANSWER;
                   return (
                     <Label
                       key={opt.v}
                       htmlFor={`opt-${opt.v}`}
                       className={cn(
                         "group flex cursor-pointer items-center gap-4 rounded-card border bg-card p-4 font-normal shadow-card transition-shadow duration-normal ease-out",
-                        "hover:bg-muted/30 hover:shadow-card-hover",
-                        "focus-within:outline-none focus-within:ring-2 focus-within:ring-brand-primary focus-within:ring-offset-2",
-                        isSelected
-                          ? "border-brand-primary bg-brand-primary/5 ring-2 ring-brand-primary"
-                          : "border-border",
+                        !revealed &&
+                          "hover:bg-muted/30 hover:shadow-card-hover focus-within:outline-none focus-within:ring-2 focus-within:ring-brand-primary focus-within:ring-offset-2",
+                        showCorrect &&
+                          "border-brand-success bg-brand-success/5 ring-2 ring-brand-success",
+                        showWrong &&
+                          "border-destructive bg-destructive/5 ring-2 ring-destructive",
+                        !showCorrect &&
+                          !showWrong &&
+                          (isSelected && !revealed
+                            ? "border-brand-primary bg-brand-primary/5 ring-2 ring-brand-primary"
+                            : "border-border"),
+                        revealed && !showCorrect && !showWrong && "opacity-60",
                       )}
                     >
                       <RadioGroupItem
@@ -195,12 +275,22 @@ export default function QuizWireframe() {
                       <span
                         className={cn(
                           "flex h-8 w-8 shrink-0 items-center justify-center rounded-card font-mono text-sm font-bold uppercase transition-colors duration-fast",
-                          isSelected
-                            ? "bg-brand-primary text-white"
-                            : "bg-muted text-muted-foreground group-hover:bg-muted/80",
+                          showCorrect
+                            ? "bg-brand-success text-white"
+                            : showWrong
+                              ? "bg-destructive text-white"
+                              : isSelected && !revealed
+                                ? "bg-brand-primary text-white"
+                                : "bg-muted text-muted-foreground group-hover:bg-muted/80",
                         )}
                       >
-                        {opt.v}
+                        {showCorrect ? (
+                          <CheckCircle2 className="h-4 w-4" />
+                        ) : showWrong ? (
+                          <XCircle className="h-4 w-4" />
+                        ) : (
+                          opt.v
+                        )}
                       </span>
                       <span className="text-base font-medium text-foreground">
                         {opt.label}
@@ -209,6 +299,41 @@ export default function QuizWireframe() {
                   );
                 })}
               </RadioGroup>
+
+              {/* Answer review: verdict, explanation, and the lesson reference. */}
+              {revealed && (
+                <div className="space-y-4 rounded-card border bg-muted/20 p-4 md:p-5">
+                  <div
+                    className={cn(
+                      "flex items-center gap-2 text-sm font-bold",
+                      isCorrect ? "text-brand-success" : "text-destructive",
+                    )}
+                  >
+                    {isCorrect ? (
+                      <CheckCircle2 className="h-5 w-5" />
+                    ) : (
+                      <XCircle className="h-5 w-5" />
+                    )}
+                    {isCorrect ? "¡Correcto!" : "Respuesta incorrecta"}
+                  </div>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    {EXPLANATION}
+                  </p>
+                  <Link
+                    href={LESSON_HREF}
+                    className="group block rounded-card border-l-2 border-brand-primary bg-brand-primary/5 p-3 transition-colors duration-fast hover:bg-brand-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+                  >
+                    <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-brand-primary">
+                      <BookOpen className="h-3.5 w-3.5" />
+                      Repasar · {LESSON_REF.unit} · {LESSON_REF.section}
+                      <ArrowRight className="ml-auto h-3.5 w-3.5 transition-transform duration-fast group-hover:translate-x-0.5" />
+                    </p>
+                    <p className="mt-1.5 text-sm italic leading-relaxed text-foreground/80">
+                      “{LESSON_REF.quote}”
+                    </p>
+                  </Link>
+                </div>
+              )}
             </article>
 
             <Separator className="my-6" />
@@ -218,10 +343,16 @@ export default function QuizWireframe() {
                 <ArrowLeft className="mr-1 h-4 w-4" />
                 Anterior
               </Button>
-              <Button disabled={!answer}>
-                Siguiente
-                <ArrowRight className="ml-1 h-4 w-4" />
-              </Button>
+              {revealed ? (
+                <Button>
+                  Siguiente
+                  <ArrowRight className="ml-1 h-4 w-4" />
+                </Button>
+              ) : (
+                <Button disabled={!answer} onClick={() => setRevealed(true)}>
+                  Comprobar respuesta
+                </Button>
+              )}
             </div>
           </div>
         </main>

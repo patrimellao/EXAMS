@@ -50,6 +50,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { PageHeader } from "@/components/teach/PageHeader";
 
 type Unit = {
   order: number;
@@ -137,44 +138,43 @@ export default function TeachSubjectDetailPage({
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href="/wireframes/teach">Asignaturas</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Derecho Civil</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
-      {/* Subject header + status toggle */}
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-display">Derecho Civil</h1>
+    <div className="w-full space-y-6">
+      <PageHeader
+        breadcrumb={
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/wireframes/teach">Asignaturas</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Derecho Civil</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        }
+        title={
+          <span className="flex items-center gap-3">
+            Derecho Civil
             <Badge variant="default">Publicada</Badge>
-          </div>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Temario completo de civil para oposiciones de Justicia ·{" "}
-            {units.length} unidades · {lessons.length} lecciones
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <UIButton variant="outline" size="sm">
-            <Archive className="mr-1.5 h-3.5 w-3.5" />
-            Archivar asignatura
-          </UIButton>
-          <Button variant="learning">
-            <Plus className="mr-2 h-4 w-4" />
-            Nueva unidad
-          </Button>
-        </div>
-      </header>
+          </span>
+        }
+        subtitle={`Temario completo de civil para oposiciones de Justicia · ${units.length} unidades · ${lessons.length} lecciones`}
+        actions={
+          <>
+            <UIButton variant="outline" size="sm">
+              <Archive className="mr-1.5 h-3.5 w-3.5" />
+              Archivar asignatura
+            </UIButton>
+            <Button variant="learning">
+              <Plus className="mr-2 h-4 w-4" />
+              Nueva unidad
+            </Button>
+          </>
+        }
+      />
 
       {/* Toolbar: buscador + filtros */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
