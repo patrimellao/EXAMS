@@ -53,4 +53,5 @@ export const lessonNodeComponents = {
   underline: leaf('u'),
   strikethrough: leaf('s'),
   code: leaf('code', 'rounded bg-muted px-1.5 py-0.5 font-mono text-sm text-pink-600 dark:text-pink-400'),
+  highlight: leaf('mark', 'rounded bg-brand-warm/30 px-0.5 text-foreground'),
 };

@@ -85,6 +85,9 @@ const baseMdxComponents = {
   code: (p: React.HTMLAttributes<HTMLElement>) => (
     <code {...p} className="rounded bg-muted px-1.5 py-0.5 font-mono text-sm text-pink-600 dark:text-pink-400" />
   ),
+  mark: (p: React.HTMLAttributes<HTMLElement>) => (
+    <mark {...p} className="rounded bg-brand-warm/30 px-0.5 text-foreground" />
+  ),
   img: ({ src, alt }: React.ImgHTMLAttributes<HTMLImageElement>) => {
     const url = typeof src === 'string' ? src : '';
     const isRemote = /^https?:\/\//.test(url);

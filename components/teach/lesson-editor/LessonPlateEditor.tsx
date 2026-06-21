@@ -9,15 +9,21 @@
  */
 import * as React from 'react';
 import { Plate, PlateContent, usePlateEditor, useEditorRef } from 'platejs/react';
-import { BasicBlocksPlugin, BasicMarksPlugin } from '@platejs/basic-nodes/react';
+import { BasicBlocksPlugin, BasicMarksPlugin, HighlightPlugin } from '@platejs/basic-nodes/react';
 import { ListPlugin } from '@platejs/list-classic/react';
 import { MarkdownPlugin, remarkMdx } from '@platejs/markdown';
 import {
   Bold,
   Italic,
+  Underline as UnderlineIcon,
+  Strikethrough,
+  Highlighter,
   Code as CodeIcon,
+  Heading1,
   Heading2,
   Heading3,
+  Pilcrow,
+  ChevronDown,
   Quote,
   List as ListIcon,
   Target,
@@ -95,12 +101,49 @@ function LessonEditorToolbar({ onPickMedia }: { onPickMedia: (type: 'image' | 'v
   };
   return (
     <div className="flex flex-wrap items-center gap-0.5">
+      {/* Block type — headings are block-level, so this converts the whole line. */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <UIButton
+            type="button"
+            variant="ghost"
+            size="sm"
+            title="Tipo de bloque"
+            aria-label="Tipo de bloque"
+            onMouseDown={(e) => e.preventDefault()}
+            className="h-8 gap-1 px-2 text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand-primary data-[state=open]:bg-muted"
+          >
+            <Pilcrow className="h-4 w-4" />
+            <ChevronDown className="h-3 w-3 opacity-60" />
+          </UIButton>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-48">
+          <DropdownMenuItem onClick={run(() => tf.toggleBlock('p'))}>
+            <Pilcrow className="mr-2 h-4 w-4" />
+            Texto normal
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={run(() => tf.toggleBlock('h1'))}>
+            <Heading1 className="mr-2 h-4 w-4" />
+            Título 1
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={run(() => tf.toggleBlock('h2'))}>
+            <Heading2 className="mr-2 h-4 w-4" />
+            Título 2
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={run(() => tf.toggleBlock('h3'))}>
+            <Heading3 className="mr-2 h-4 w-4" />
+            Título 3
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <div className="mx-1 h-4 w-px bg-border" />
       <ToolbarButton icon={Bold} label="Negrita (⌘B)" onClick={run(() => tf.bold.toggle())} />
       <ToolbarButton icon={Italic} label="Cursiva (⌘I)" onClick={run(() => tf.italic.toggle())} />
+      <ToolbarButton icon={UnderlineIcon} label="Subrayado (⌘U)" onClick={run(() => tf.underline.toggle())} />
+      <ToolbarButton icon={Strikethrough} label="Tachado" onClick={run(() => tf.strikethrough.toggle())} />
+      <ToolbarButton icon={Highlighter} label="Resaltar" onClick={run(() => tf.highlight.toggle())} />
       <ToolbarButton icon={CodeIcon} label="Código" onClick={run(() => tf.code.toggle())} />
       <div className="mx-1 h-4 w-px bg-border" />
-      <ToolbarButton icon={Heading2} label="Título" onClick={run(() => tf.h2.toggle())} />
-      <ToolbarButton icon={Heading3} label="Subtítulo" onClick={run(() => tf.h3.toggle())} />
       <ToolbarButton icon={ListIcon} label="Lista" onClick={run(() => tf.toggle.bulletedList())} />
       <ToolbarButton icon={Quote} label="Cita" onClick={run(() => tf.blockquote.toggle())} />
       <div className="mx-1 h-4 w-px bg-border" />
@@ -172,6 +215,7 @@ export function LessonPlateEditor({
     plugins: [
       BasicBlocksPlugin,
       BasicMarksPlugin,
+      HighlightPlugin,
       ListPlugin,
       ...lessonCustomPlugins,
       MarkdownPlugin.configure({ options: lessonMarkdownOptions(remarkMdx) }),
@@ -181,6 +225,10 @@ export function LessonPlateEditor({
   });
 
   const handleChange = React.useCallback(() => {
+    // Plate fires onChange for selection moves too; only propagate real edits so
+    // clicking around doesn't mark the lesson dirty.
+    const docChanged = editor.operations.some((op) => op.type !== 'set_selection');
+    if (!docChanged) return;
     onChange(editor.getApi(MarkdownPlugin).markdown.serialize());
   }, [editor, onChange]);
 

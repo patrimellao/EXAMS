@@ -20,6 +20,7 @@ import {
   parseAttributes,
   propsToAttributes,
 } from '@platejs/markdown';
+import remarkGfm from 'remark-gfm';
 
 export const OBJECTIVES = 'Objectives';
 export const KEY_IDEA = 'KeyIdea';
@@ -73,7 +74,9 @@ export const lessonMarkdownRules = {
  */
 export function lessonMarkdownOptions(remarkMdx: any) {
   return {
-    remarkPlugins: [remarkMdx],
+    // remarkGfm handles strikethrough (~~) on both parse and stringify; without it
+    // serializing a `delete` node throws "Cannot handle unknown node".
+    remarkPlugins: [remarkGfm, remarkMdx],
     rules: lessonMarkdownRules as any,
     remarkStringifyOptions: { bullet: '-' as const },
   };
