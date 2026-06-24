@@ -143,29 +143,33 @@ export function QuoteSidebar(props: QuoteSidebarProps) {
   return (
     <aside
       aria-label="Citas de la lección"
-      className="flex w-80 flex-col border-l bg-muted/30"
+      className="flex w-80 shrink-0 flex-col rounded-card border bg-card shadow-card lg:max-h-[680px] lg:self-start"
     >
-      <div className="border-b p-3">
-        <div className="flex items-center justify-between">
-          <b className="text-[13px]">Citas de la lección</b>
-          <span className="text-[11px] text-muted-foreground">
-            {props.rows.length} · {review} a revisar
-          </span>
-        </div>
-        <div className="mt-2.5 flex gap-1.5">
-          <button type="button" onClick={() => setFilter('all')}
-            className={cn('rounded-full border px-2.5 py-0.5 text-[11px] font-semibold',
-              filter === 'all' ? 'border-brand-primary bg-brand-primary text-white' : 'bg-card text-muted-foreground')}>
-            Todas
-          </button>
-          <button type="button" onClick={() => setFilter('review')}
-            className={cn('rounded-full border px-2.5 py-0.5 text-[11px] font-semibold',
-              filter === 'review' ? 'border-amber-600 bg-amber-600 text-white' : 'bg-card text-muted-foreground')}>
-            ⚠ A revisar ({review})
-          </button>
-        </div>
+      <div className="flex items-center justify-between gap-2 border-b px-3 py-2.5">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+          Citas de la lección
+        </span>
+        <span className="rounded-pill bg-muted px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-muted-foreground">
+          {props.rows.length}
+        </span>
       </div>
-      <div className="flex flex-col gap-2 overflow-y-auto p-2">
+      <div className="flex gap-1.5 border-b px-3 py-2">
+        <button type="button" onClick={() => setFilter('all')}
+          className={cn('rounded-pill border px-2.5 py-0.5 text-[11px] font-semibold transition-colors duration-fast focus-ring',
+            filter === 'all'
+              ? 'border-primary/30 bg-primary/10 text-primary'
+              : 'border-transparent bg-card text-muted-foreground hover:bg-muted hover:text-foreground')}>
+          Todas
+        </button>
+        <button type="button" onClick={() => setFilter('review')}
+          className={cn('rounded-pill border px-2.5 py-0.5 text-[11px] font-semibold transition-colors duration-fast focus-ring',
+            filter === 'review'
+              ? 'border-amber-300 bg-amber-100 text-amber-700'
+              : 'border-transparent bg-card text-muted-foreground hover:bg-muted hover:text-foreground')}>
+          ⚠ A revisar ({review})
+        </button>
+      </div>
+      <div className="flex-1 space-y-2 overflow-y-auto p-2">
         {shown.length === 0 ? (
           <p className="px-2 py-6 text-center text-xs text-muted-foreground">
             Aún no hay citas en esta lección.

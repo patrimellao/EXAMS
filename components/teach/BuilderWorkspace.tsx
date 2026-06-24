@@ -1598,13 +1598,15 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                 )}
               </Button>
               {/* Quote sidebar toggle */}
-              <button
+              <UIButton
                 type="button"
+                variant={quoteSidebarOpen ? "secondary" : "outline"}
+                aria-pressed={quoteSidebarOpen}
                 onClick={() => setQuoteSidebarOpen((v) => !v)}
-                className="inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-semibold"
               >
-                <BookOpen className="h-3.5 w-3.5" /> Citas de la lección
-              </button>
+                <BookOpen className="mr-1.5 h-3.5 w-3.5" />
+                Citas de la lección
+              </UIButton>
               {/* View mode segmented control (Escribir · Vista previa · Dividido) */}
               <div
                 role="group"
