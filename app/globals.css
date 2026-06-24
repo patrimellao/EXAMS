@@ -139,6 +139,8 @@
   }
 }
 
+.quote-anchor-flash { background: rgba(13, 148, 136, 0.18); border-radius: 3px; transition: background 1.2s ease; }
+
 .animate-in {
   animation: animateIn 0.3s ease 0.15s both;
 }

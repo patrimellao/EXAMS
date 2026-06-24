@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { LessonPreview } from "@/components/teach/lesson-editor/LessonPreview";
 import {
@@ -111,7 +112,7 @@ import {
   QuoteSentence,
   LessonQuoteCard,
 } from "@/components/lesson/quote-reference";
-import { findAnchors, deriveQuoteStatus, unwrapAnchor } from '@/lib/lesson-quotes';
+import { findAnchors, deriveQuoteStatus, unwrapAnchor, wrapAnchorAt } from '@/lib/lesson-quotes';
 import { QuoteSidebar, type QuoteRow } from '@/components/teach/lesson-editor/QuoteSidebar';
 import type { AnchorMeta } from '@/components/teach/lesson-editor/blocks';
 
@@ -653,6 +654,7 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
   // Which editor is shown is decided by the route (full-page editor per mode),
   // not by local tab state.
   const activeTab = mode;
+  const router = useRouter();
 
   // Lesson states
   const [lessonsList, setLessonsList] = useState(initialLessons);
@@ -1383,6 +1385,93 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
     setBubbleMenu(null);
   };
 
+  // ── Quote sidebar resolution handlers ───────────────────────────────────
+
+  const findQuestion = (row: QuoteRow) =>
+    questionsList.find((q) => q.id === row.questionId);
+
+  // Adopt the current marked text into the question's quote.
+  const onUseCurrent = (row: QuoteRow) => {
+    const q = findQuestion(row);
+    if (!q?.lessonRef || !row.currentText) return;
+    setQuestionsList((prev) =>
+      prev.map((x) =>
+        x.id === row.questionId
+          ? { ...x, lessonRef: { ...x.lessonRef!, quote: row.currentText! }, dirty: true }
+          : x,
+      ),
+    );
+  };
+
+  // Keep the original wording; release the live link so it stops flagging.
+  const onKeep = (row: QuoteRow) => {
+    const q = findQuestion(row);
+    if (!q?.lessonRef) return;
+    if (q.lessonRef.anchorId && activeLesson) {
+      handleLessonChange({
+        content: unwrapAnchor(activeLesson.content || '', q.lessonRef.anchorId),
+      });
+    }
+    setQuestionsList((prev) =>
+      prev.map((x) =>
+        x.id === row.questionId
+          ? { ...x, lessonRef: { ...x.lessonRef!, anchorId: undefined, frozen: true }, dirty: true }
+          : x,
+      ),
+    );
+  };
+
+  // Re-anchor an orphan onto the relocated occurrence.
+  const onRelink = (row: QuoteRow) => {
+    const q = findQuestion(row);
+    if (!q?.lessonRef || !activeLesson) return;
+    const newId = `qa_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
+    handleLessonChange({
+      content: wrapAnchorAt(activeLesson.content || '', q.lessonRef.quote, newId),
+    });
+    setQuestionsList((prev) =>
+      prev.map((x) =>
+        x.id === row.questionId
+          ? { ...x, lessonRef: { ...x.lessonRef!, anchorId: newId, frozen: false }, dirty: true }
+          : x,
+      ),
+    );
+  };
+
+  const onRemove = (row: QuoteRow) => {
+    const q = findQuestion(row);
+    if (q?.lessonRef?.anchorId && activeLesson) {
+      handleLessonChange({
+        content: unwrapAnchor(activeLesson.content || '', q.lessonRef.anchorId),
+      });
+    }
+    setQuestionsList((prev) =>
+      prev.map((x) => (x.id === row.questionId ? { ...x, lessonRef: null, dirty: true } : x)),
+    );
+  };
+
+  // Scroll the editor to the anchor and flash it.
+  const onJump = (row: QuoteRow) => {
+    const q = findQuestion(row);
+    const id = q?.lessonRef?.anchorId;
+    if (!id) return;
+    const el = document.querySelector(`[data-quote-anchor="${id}"]`);
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.add('quote-anchor-flash');
+    window.setTimeout(() => el.classList.remove('quote-anchor-flash'), 1200);
+  };
+
+  // Switch to the questions view focused on this question.
+  // Mode is route-driven: navigate to /questions, then set the active question
+  // id so QuestionNavigator pre-selects it when the page mounts.
+  const onGoToQuestion = (row: QuoteRow) => {
+    setActiveQuestionId(row.questionId);
+    router.push('/wireframes/teach/build/questions');
+  };
+
+  // ────────────────────────────────────────────────────────────────────────
+
   return (
     <TooltipProvider delayDuration={300}>
     <div className="w-full space-y-6 transition-all duration-normal">
@@ -1963,12 +2052,12 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                 {quoteSidebarOpen && (
                   <QuoteSidebar
                     rows={quoteRows}
-                    onJump={() => {}}
-                    onGoToQuestion={() => {}}
-                    onUseCurrent={() => {}}
-                    onKeep={() => {}}
-                    onRelink={() => {}}
-                    onRemove={() => {}}
+                    onJump={onJump}
+                    onGoToQuestion={onGoToQuestion}
+                    onUseCurrent={onUseCurrent}
+                    onKeep={onKeep}
+                    onRelink={onRelink}
+                    onRemove={onRemove}
                   />
                 )}
                 </div>

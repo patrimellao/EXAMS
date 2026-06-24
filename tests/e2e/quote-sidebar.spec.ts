@@ -56,3 +56,32 @@ test('the sidebar lists quotes with a review count and statuses', async ({ page 
   // After creation exactly one SYNCED row must appear.
   await expect(panel.getByText(/Sincronizada/i)).toHaveCount(1);
 });
+
+test('"Usar texto actual" re-syncs a drifted quote', async ({ page }) => {
+  await page.goto(BUILDER_URL);
+  await quoteWord(page, 'aptitud');
+  const anchor = page.locator('[data-quote-anchor]').first();
+  await anchor.click();
+  await page.keyboard.type('XYZ');
+
+  await page.getByRole('button', { name: /Citas de la lección/i }).click();
+  const panel = page.getByRole('complementary', { name: /Citas de la lección/i });
+  await expect(panel.getByText(/A revisar \(1\)/)).toBeVisible();
+
+  await panel.getByRole('button', { name: 'Usar texto actual' }).click();
+  await expect(panel.getByText(/A revisar \(0\)/)).toBeVisible();
+  await expect(anchor).toHaveClass(/border-dotted/);
+});
+
+test('"Quitar cita" removes the quote and its anchor', async ({ page }) => {
+  await page.goto(BUILDER_URL);
+  await quoteWord(page, 'aptitud');
+  await page.getByRole('button', { name: /Citas de la lección/i }).click();
+  const panel = page.getByRole('complementary', { name: /Citas de la lección/i });
+
+  // Drift it first so the orphan/remove path is reachable, then remove.
+  await page.locator('[data-quote-anchor]').first().click();
+  await page.keyboard.type('ZZZ');
+  await panel.getByRole('button', { name: 'Mantener redacción' }).click(); // freeze → keeps row
+  await expect(panel.getByText('aptitud para realizar', { exact: false })).toBeVisible();
+});
