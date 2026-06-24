@@ -112,6 +112,7 @@ import {
   LessonQuoteCard,
 } from "@/components/lesson/quote-reference";
 import { findAnchors, deriveQuoteStatus, unwrapAnchor } from '@/lib/lesson-quotes';
+import { QuoteSidebar, type QuoteRow } from '@/components/teach/lesson-editor/QuoteSidebar';
 import type { AnchorMeta } from '@/components/teach/lesson-editor/blocks';
 
 // Initial questions data with deep integration
@@ -659,6 +660,7 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
   const [configSheetOpen, setConfigSheetOpen] = useState(false);
   const [historySheetOpen, setHistorySheetOpen] = useState(false);
   const [editorMode, setEditorMode] = useState<"edit" | "preview" | "split">("edit");
+  const [quoteSidebarOpen, setQuoteSidebarOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "dirty" | "saving" | "saved">("idle");
 
@@ -872,6 +874,33 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
       );
       anchorMeta[ref.anchorId!] = { label: `P${i + 1}`, drift: info.status === 'drift' };
     });
+
+  // Build sidebar rows for the active lesson, ordered by anchor position in content.
+  const quoteRows: QuoteRow[] = questionsList
+    .filter((q) => q.lessonId === activeLesson?.id && q.lessonRef)
+    .map((q, i) => {
+      const ref = q.lessonRef!;
+      const info = deriveQuoteStatus(
+        { anchorId: ref.anchorId, quote: ref.quote, frozen: ref.frozen },
+        activeLessonAnchors,
+        activeLesson?.content || '',
+      );
+      const orderIndex = ref.anchorId
+        ? activeLessonAnchors.findIndex((a) => a.id === ref.anchorId)
+        : -1;
+      return {
+        questionId: q.id,
+        label: `P${i + 1}`,
+        status: info.status,
+        quote: ref.quote,
+        sentence: ref.sentence,
+        currentText: info.currentText,
+        relocatedSection: info.relocatedSection,
+        // Unanchored (orphan/frozen) quotes sort to the bottom.
+        orderIndex: orderIndex < 0 ? Number.MAX_SAFE_INTEGER : orderIndex,
+      };
+    })
+    .sort((a, b) => a.orderIndex - b.orderIndex);
 
   // Auto-dirty state triggers
   const handleLessonChange = (fields: Partial<typeof initialLessons[0]>) => {
@@ -1456,6 +1485,14 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                   </>
                 )}
               </Button>
+              {/* Quote sidebar toggle */}
+              <button
+                type="button"
+                onClick={() => setQuoteSidebarOpen((v) => !v)}
+                className="inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-semibold"
+              >
+                <BookOpen className="h-3.5 w-3.5" /> Citas de la lección
+              </button>
               {/* View mode segmented control (Escribir · Vista previa · Dividido) */}
               <div
                 role="group"
@@ -1665,7 +1702,8 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
               {/* Full-bleed writing canvas — no card chrome, rides the layout gutter
                   from the sidebar to the screen edge; modest internal text padding. */}
               <section className="relative -mx-4 flex min-h-[620px] flex-col bg-card md:-mx-8">
-                <div className="flex-1 w-full">
+                <div className="flex flex-1 w-full">
+                <div className="flex-1 min-w-0">
                   {editorMode === "edit" && (
                     <LessonPlateEditor
                       key={activeLessonId}
@@ -1920,6 +1958,19 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                       </div>
                     </div>
                   )}
+                </div>
+                {/* Quote sidebar — docked to the right of the editor when open */}
+                {quoteSidebarOpen && (
+                  <QuoteSidebar
+                    rows={quoteRows}
+                    onJump={() => {}}
+                    onGoToQuestion={() => {}}
+                    onUseCurrent={() => {}}
+                    onKeep={() => {}}
+                    onRelink={() => {}}
+                    onRemove={() => {}}
+                  />
+                )}
                 </div>
               </section>
             </main>

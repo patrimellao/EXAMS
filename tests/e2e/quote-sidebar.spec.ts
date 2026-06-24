@@ -39,3 +39,14 @@ test('editing the quoted text turns its anchor amber (drift)', async ({ page }) 
 
   await expect(anchor).toHaveClass(/border-dashed/);
 });
+
+test('the sidebar lists quotes with a review count and statuses', async ({ page }) => {
+  await page.goto(BUILDER_URL);
+  await quoteWord(page, 'aptitud');
+
+  await page.getByRole('button', { name: /Citas de la lección/i }).click();
+  const panel = page.getByRole('complementary', { name: /Citas de la lección/i });
+  await expect(panel).toBeVisible();
+  await expect(panel.getByText('aptitud para realizar', { exact: false })).toBeVisible();
+  await expect(panel.getByText(/Sincronizada/i)).toBeVisible();
+});
