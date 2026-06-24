@@ -73,15 +73,44 @@ test('"Usar texto actual" re-syncs a drifted quote', async ({ page }) => {
   await expect(anchor).toHaveClass(/border-dotted/);
 });
 
-test('"Quitar cita" removes the quote and its anchor', async ({ page }) => {
+test('"Quitar cita" removes the quote row and its anchor from the editor', async ({ page }) => {
   await page.goto(BUILDER_URL);
+
+  // Create a synced quote on "aptitud".
   await quoteWord(page, 'aptitud');
+  const anchor = page.locator('[data-quote-anchor]');
+  await expect(anchor).toHaveCount(1);
+
+  // Open the sidebar.
   await page.getByRole('button', { name: /Citas de la lección/i }).click();
   const panel = page.getByRole('complementary', { name: /Citas de la lección/i });
 
-  // Drift it first so the orphan/remove path is reachable, then remove.
+  // Make the quote orphan by deleting its anchored text from the Plate editor.
+  // A quote is ORPHAN when its <QuoteAnchor id="…"> tag no longer exists in the
+  // serialized markdown — which happens when the wrapped text is fully deleted.
   await page.locator('[data-quote-anchor]').first().click();
-  await page.keyboard.type('ZZZ');
-  await panel.getByRole('button', { name: 'Mantener redacción' }).click(); // freeze → keeps row
-  await expect(panel.getByText('aptitud para realizar', { exact: false })).toBeVisible();
+  await page.evaluate(() => {
+    const el = document.querySelector('[data-quote-anchor]') as HTMLElement | null;
+    if (!el) return;
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    const sel = window.getSelection();
+    sel?.removeAllRanges();
+    sel?.addRange(range);
+  });
+  await page.keyboard.press('Delete');
+
+  // Wait for the anchor to disappear from the editor DOM and the row to turn orphan.
+  await expect(page.locator('[data-quote-anchor]')).toHaveCount(0);
+
+  // The sidebar row is now orphan — "Quitar cita" button must be visible.
+  const removeBtn = panel.getByRole('button', { name: 'Quitar cita' }).first();
+  await expect(removeBtn).toBeVisible();
+
+  // Click it.
+  await removeBtn.click();
+
+  // The row must be gone from the sidebar and no anchor remains in the body.
+  await expect(panel.getByRole('button', { name: 'Quitar cita' })).toHaveCount(0);
+  await expect(page.locator('[data-quote-anchor]')).toHaveCount(0);
 });

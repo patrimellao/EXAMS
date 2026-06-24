@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { LessonPreview } from "@/components/teach/lesson-editor/LessonPreview";
 import {
@@ -655,6 +655,7 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
   // not by local tab state.
   const activeTab = mode;
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // Lesson states
   const [lessonsList, setLessonsList] = useState(initialLessons);
@@ -668,7 +669,15 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
 
   // Question states
   const [questionsList, setQuestionsList] = useState(initialQuestions);
-  const [activeQuestionId, setActiveQuestionId] = useState(1);
+  // When navigating here from the quote sidebar, a ?questionId= param tells us
+  // which question to pre-select. Fall back to question 1 when absent or invalid.
+  const [activeQuestionId, setActiveQuestionId] = useState(() => {
+    const param = searchParams.get('questionId');
+    if (!param) return 1;
+    const parsed = parseInt(param, 10);
+    const found = initialQuestions.find((q) => q.id === parsed);
+    return found ? parsed : 1;
+  });
   const [questionSaveStatus, setQuestionSaveStatus] = useState<"idle" | "dirty" | "saving" | "saved">("idle");
   // Questions are scoped to one lesson at a time, so the author never faces the
   // whole unit's pool at once. Defaults to the first lesson.
@@ -1397,7 +1406,7 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
     setQuestionsList((prev) =>
       prev.map((x) =>
         x.id === row.questionId
-          ? { ...x, lessonRef: { ...x.lessonRef!, quote: row.currentText! }, dirty: true }
+          ? { ...x, lessonRef: { ...x.lessonRef!, quote: row.currentText!, frozen: false }, dirty: true }
           : x,
       ),
     );
@@ -1463,11 +1472,12 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
   };
 
   // Switch to the questions view focused on this question.
-  // Mode is route-driven: navigate to /questions, then set the active question
-  // id so QuestionNavigator pre-selects it when the page mounts.
+  // Preserve all existing search params (subject, unit, lesson…) and add/overwrite
+  // questionId so the questions route can initialize activeQuestionId from it.
   const onGoToQuestion = (row: QuoteRow) => {
-    setActiveQuestionId(row.questionId);
-    router.push('/wireframes/teach/build/questions');
+    const next = new URLSearchParams(searchParams.toString());
+    next.set('questionId', String(row.questionId));
+    router.push(`/wireframes/teach/build/questions?${next.toString()}`);
   };
 
   // ────────────────────────────────────────────────────────────────────────
