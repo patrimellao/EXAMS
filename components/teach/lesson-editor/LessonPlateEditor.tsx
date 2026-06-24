@@ -69,6 +69,7 @@ import { InlineRich } from '@/components/lesson/inline-rich';
 import { collectFromNodes, orderCitations, type CiteRef } from '@/components/lesson/citations';
 import { CitationsProvider, ReferenceList } from '@/components/lesson/citations-view';
 import { DiagramDialogContext, ChartDialogContext, MediaDialogContext, CiteDialogContext, QuoteAnchorContext, type AnchorMeta } from './blocks';
+import { newAnchorId } from '@/lib/lesson-quotes';
 import { lessonNodeComponents } from './nodes';
 import { DiagramDialog } from './DiagramDialog';
 import { ChartDialog } from './ChartDialog';
@@ -130,7 +131,7 @@ export type QuoteCapture =
 // Mutating the doc triggers onChange, so the <QuoteAnchor> tag lands in the
 // serialized markdown immediately (even before a question is picked).
 function applyQuoteAnchor(editor: any): string {
-  const id = `qa_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
+  const id = newAnchorId();
   // addMark is the canonical Plate API for applying a mark to the active selection
   // (same pattern as backgroundColor highlight). It calls setNodes with split:true
   // internally, so the selection is correctly split at its boundaries.

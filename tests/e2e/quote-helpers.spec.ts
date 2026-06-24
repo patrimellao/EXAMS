@@ -90,3 +90,25 @@ test('wrapAnchorAt preserves newlines in multi-line matches', () => {
   expect(out).toContain('<QuoteAnchor id="qa_x">sede jurídica\nde la persona</QuoteAnchor>');
   expect(out).not.toContain('sede jurídica de la persona</QuoteAnchor>');
 });
+
+test('wrapAnchorAt does NOT nest inside an existing anchor (phrase only inside anchor)', () => {
+  // The phrase "actos jurídicos" appears ONLY inside an existing <QuoteAnchor> span.
+  const md = 'La <QuoteAnchor id="other">aptitud para realizar actos jurídicos</QuoteAnchor> por sí mismo.';
+  const out = wrapAnchorAt(md, 'actos jurídicos', 'qa_new');
+  // Must not introduce any new QuoteAnchor tag
+  expect(out).toBe(md);
+  expect(out).not.toContain('<QuoteAnchor id="qa_new"');
+  // Confirm no nesting: the only QuoteAnchor present is the original one
+  const matches = out.match(/<QuoteAnchor/g) ?? [];
+  expect(matches).toHaveLength(1);
+});
+
+test('wrapAnchorAt wraps bare text outside any existing anchor', () => {
+  // "actos jurídicos" appears both inside an anchor AND as bare text after it.
+  const md = 'La <QuoteAnchor id="other">aptitud</QuoteAnchor> para realizar actos jurídicos.';
+  const out = wrapAnchorAt(md, 'actos jurídicos', 'qa_new');
+  // The bare occurrence should be wrapped
+  expect(out).toContain('<QuoteAnchor id="qa_new">actos jurídicos</QuoteAnchor>');
+  // And the original anchor must still be intact
+  expect(out).toContain('<QuoteAnchor id="other">aptitud</QuoteAnchor>');
+});

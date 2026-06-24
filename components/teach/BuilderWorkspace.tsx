@@ -112,7 +112,7 @@ import {
   QuoteSentence,
   LessonQuoteCard,
 } from "@/components/lesson/quote-reference";
-import { findAnchors, deriveQuoteStatus, unwrapAnchor, wrapAnchorAt } from '@/lib/lesson-quotes';
+import { findAnchors, deriveQuoteStatus, unwrapAnchor, wrapAnchorAt, newAnchorId } from '@/lib/lesson-quotes';
 import { QuoteSidebar, type QuoteRow } from '@/components/teach/lesson-editor/QuoteSidebar';
 import type { AnchorMeta } from '@/components/teach/lesson-editor/blocks';
 
@@ -871,40 +871,29 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
     : [];
   const lessonRef = activeQuestion?.lessonRef ?? null;
 
-  // Anchor id → chip label + drift flag, for the in-body quote marks.
+  // Single shared derivation pass: sort by lesson position FIRST, then assign
+  // P{n} labels so chip (in-body) and sidebar always agree.
   const activeLessonAnchors = findAnchors(activeLesson?.content || '');
-  const anchorMeta: AnchorMeta = {};
-  questionsList
-    .filter((q) => q.lessonId === activeLesson?.id && q.lessonRef?.anchorId)
-    .forEach((q, i) => {
-      const ref = q.lessonRef!;
-      const info = deriveQuoteStatus(
-        { anchorId: ref.anchorId, quote: ref.quote, frozen: ref.frozen },
-        activeLessonAnchors,
-        activeLesson?.content || '',
-      );
-      anchorMeta[ref.anchorId!] = { label: `P${i + 1}`, drift: info.status === 'drift' };
-    });
+  const activeLessonContent = activeLesson?.content || '';
 
-  // Build sidebar rows for the active lesson, ordered by anchor position in content.
-  const quoteRows: QuoteRow[] = questionsList
+  const _derivedRows = questionsList
     .filter((q) => q.lessonId === activeLesson?.id && q.lessonRef)
-    .map((q, i) => {
+    .map((q) => {
       const ref = q.lessonRef!;
       const info = deriveQuoteStatus(
         { anchorId: ref.anchorId, quote: ref.quote, frozen: ref.frozen },
         activeLessonAnchors,
-        activeLesson?.content || '',
+        activeLessonContent,
       );
       const orderIndex = ref.anchorId
         ? activeLessonAnchors.findIndex((a) => a.id === ref.anchorId)
         : -1;
       return {
         questionId: q.id,
-        label: `P${i + 1}`,
+        anchorId: ref.anchorId,
         status: info.status,
         quote: ref.quote,
-        sentence: ref.sentence,
+        sentence: (ref as { sentence?: string }).sentence,
         currentText: info.currentText,
         relocatedSection: info.relocatedSection,
         // Unanchored (orphan/frozen) quotes sort to the bottom.
@@ -912,6 +901,26 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
       };
     })
     .sort((a, b) => a.orderIndex - b.orderIndex);
+
+  // anchorMeta: keyed by anchorId — only entries that have one.
+  const anchorMeta: AnchorMeta = {};
+  _derivedRows.forEach((row, i) => {
+    if (row.anchorId) {
+      anchorMeta[row.anchorId] = { label: `P${i + 1}`, drift: row.status === 'drift' };
+    }
+  });
+
+  // quoteRows for the sidebar — labels already match anchorMeta.
+  const quoteRows: QuoteRow[] = _derivedRows.map((row, i) => ({
+    questionId: row.questionId,
+    label: `P${i + 1}`,
+    status: row.status,
+    quote: row.quote,
+    sentence: row.sentence,
+    currentText: row.currentText,
+    relocatedSection: row.relocatedSection,
+    orderIndex: row.orderIndex,
+  }));
 
   // Auto-dirty state triggers
   const handleLessonChange = (fields: Partial<typeof initialLessons[0]>) => {
@@ -1434,10 +1443,14 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
   const onRelink = (row: QuoteRow) => {
     const q = findQuestion(row);
     if (!q?.lessonRef || !activeLesson) return;
-    const newId = `qa_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
-    handleLessonChange({
-      content: wrapAnchorAt(activeLesson.content || '', q.lessonRef.quote, newId),
-    });
+    const newId = newAnchorId();
+    const original = activeLesson.content || '';
+    const updated = wrapAnchorAt(original, q.lessonRef.quote, newId);
+    // Only update the question's lessonRef when a tag was actually inserted.
+    // If no outside match was found, wrapAnchorAt returns the original string
+    // unchanged — we must not write a dangling anchorId in that case.
+    if (updated === original) return;
+    handleLessonChange({ content: updated });
     setQuestionsList((prev) =>
       prev.map((x) =>
         x.id === row.questionId
