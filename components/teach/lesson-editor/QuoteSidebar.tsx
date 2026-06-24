@@ -171,7 +171,7 @@ export function QuoteSidebar(props: QuoteSidebarProps) {
             Aún no hay citas en esta lección.
           </p>
         ) : (
-          shown.map((r) => <Row key={`${r.questionId}-${r.orderIndex}`} row={r} {...props} />)
+          shown.map((r) => <Row key={r.questionId} row={r} {...props} />)
         )}
       </div>
     </aside>

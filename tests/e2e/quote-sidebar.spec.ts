@@ -42,11 +42,17 @@ test('editing the quoted text turns its anchor amber (drift)', async ({ page }) 
 
 test('the sidebar lists quotes with a review count and statuses', async ({ page }) => {
   await page.goto(BUILDER_URL);
-  await quoteWord(page, 'aptitud');
 
+  // Open the sidebar BEFORE creating any quote.
+  // The pre-seeded Q1 row is an ORPHAN (no anchorId), so "Sincronizada" must be absent.
   await page.getByRole('button', { name: /Citas de la lección/i }).click();
   const panel = page.getByRole('complementary', { name: /Citas de la lección/i });
   await expect(panel).toBeVisible();
-  await expect(panel.getByText('aptitud para realizar', { exact: false })).toBeVisible();
-  await expect(panel.getByText(/Sincronizada/i)).toBeVisible();
+  await expect(panel.getByText(/Sincronizada/i)).toHaveCount(0);
+
+  // Now create a quote — this is the only path that produces a SYNCED row.
+  await quoteWord(page, 'aptitud');
+
+  // After creation exactly one SYNCED row must appear.
+  await expect(panel.getByText(/Sincronizada/i)).toHaveCount(1);
 });
