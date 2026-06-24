@@ -17,7 +17,7 @@
 - Brand color is `brand-primary` (teal); drift color is amber (`amber-500`/`amber-600`).
 - Editor instances are typed `any` in this codebase (Plate transforms via `editor.tf.*`, api via `editor.api.*`) — follow that existing convention; do not add Slate type imports.
 - Wireframe e2e route: `/wireframes/teach/build/lessons?subject=1&unit=1&lesson=1` — public, no auth/seeding. Editor root locator: `[data-slate-editor="true"]`. Text selection in tests: `.dblclick()` on a word.
-- Run a single spec with `npx playwright test <file>`; full gate is `npm run typecheck` → `npm run build` → `npm run test:ralph`.
+- Run a single spec with `npx playwright test <file>`; full gate is `npm run typecheck` → `npm run build` → `npx playwright test` (these are wireframe specs on public mock data — no DB seeding / `test:ralph` needed).
 
 ---
 
@@ -1153,9 +1153,9 @@ Expected: no errors.
 Run: `npm run build`
 Expected: compiles successfully.
 
-- [ ] **Step 3: Full e2e suite**
+- [ ] **Step 3: e2e suite (no seeding — wireframe mock data)**
 
-Run: `npm run test:ralph`
+Run: `npx playwright test`
 Expected: green, including `quote-helpers.spec.ts` and `quote-sidebar.spec.ts`, and the pre-existing `lesson-plate-editor.spec.ts` (regression — quote capture still works).
 
 - [ ] **Step 4: Commit (if any incidental fixes were needed)**
