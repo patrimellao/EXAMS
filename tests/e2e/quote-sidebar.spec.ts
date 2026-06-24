@@ -25,3 +25,17 @@ test('creating a quote drops a persistent dotted anchor in the lesson body', asy
   await expect(anchor).toBeVisible();
   await expect(anchor).toHaveClass(/quote-anchor/);
 });
+
+test('editing the quoted text turns its anchor amber (drift)', async ({ page }) => {
+  await page.goto(BUILDER_URL);
+  await quoteWord(page, 'aptitud');
+
+  const anchor = page.locator('[data-quote-anchor]').first();
+  await expect(anchor).toHaveClass(/border-dotted/);
+
+  // Edit inside the quoted range: place caret and type.
+  await anchor.click();
+  await page.keyboard.type('XYZ');
+
+  await expect(anchor).toHaveClass(/border-dashed/);
+});

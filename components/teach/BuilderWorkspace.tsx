@@ -111,6 +111,8 @@ import {
   QuoteSentence,
   LessonQuoteCard,
 } from "@/components/lesson/quote-reference";
+import { findAnchors, deriveQuoteStatus, unwrapAnchor } from '@/lib/lesson-quotes';
+import type { AnchorMeta } from '@/components/teach/lesson-editor/blocks';
 
 // Initial questions data with deep integration
 const initialQuestions = [
@@ -129,7 +131,7 @@ const initialQuestions = [
       sentence:
         "La capacidad de obrar es la aptitud para realizar válidamente actos jurídicos por sí mismo.",
       color: "234, 161, 70",
-    } as { section: string; quote: string; color: string; sentence?: string } | null,
+    } as { section: string; quote: string; color: string; sentence?: string; anchorId?: string; frozen?: boolean } | null,
     explanation: "El art. 315 del Código Civil fija la mayoría de edad en los 18 años cumplidos.",
     answers: [
       { text: "16 años", correct: false },
@@ -780,6 +782,7 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
     quote: string;
     sentence: string;
     color: string;
+    anchorId: string;
   } | null>(null);
   // Transient confirmation pill shown after a quote is pushed to a question.
   const [quoteConfirm, setQuoteConfirm] = useState<string | null>(null);
@@ -807,6 +810,10 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
     end: number;
   } | null>(null);
 
+  // Stable ref to the latest cancelQuoteToQuestion — lets the empty-dep effect
+  // call cancel without capturing stale state.
+  const cancelQuoteToQuestionRef = useRef<() => void>(() => setQuoteToQuestion(null));
+
   // Global click and scroll listener to close floating menus when appropriate
   useEffect(() => {
     const handleGlobalClick = (e: MouseEvent) => {
@@ -816,19 +823,19 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
         setContextMenu(null);
       }
       if (!target.closest(".quote-question-menu")) {
-        setQuoteToQuestion(null);
+        cancelQuoteToQuestionRef.current();
       }
     };
 
     const handleGlobalScroll = () => {
       setBubbleMenu(null);
       setContextMenu(null);
-      setQuoteToQuestion(null);
+      cancelQuoteToQuestionRef.current();
     };
 
     document.addEventListener("mousedown", handleGlobalClick);
     window.addEventListener("scroll", handleGlobalScroll, true);
-    
+
     return () => {
       document.removeEventListener("mousedown", handleGlobalClick);
       window.removeEventListener("scroll", handleGlobalScroll, true);
@@ -850,6 +857,21 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
     ? parseLessonSections(activeQuestionLesson.content)
     : [];
   const lessonRef = activeQuestion?.lessonRef ?? null;
+
+  // Anchor id → chip label + drift flag, for the in-body quote marks.
+  const activeLessonAnchors = findAnchors(activeLesson?.content || '');
+  const anchorMeta: AnchorMeta = {};
+  questionsList
+    .filter((q) => q.lessonId === activeLesson?.id && q.lessonRef?.anchorId)
+    .forEach((q, i) => {
+      const ref = q.lessonRef!;
+      const info = deriveQuoteStatus(
+        { anchorId: ref.anchorId, quote: ref.quote, frozen: ref.frozen },
+        activeLessonAnchors,
+        activeLesson?.content || '',
+      );
+      anchorMeta[ref.anchorId!] = { label: `P${i + 1}`, drift: info.status === 'drift' };
+    });
 
   // Auto-dirty state triggers
   const handleLessonChange = (fields: Partial<typeof initialLessons[0]>) => {
@@ -953,6 +975,7 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
       quote: res.quote,
       sentence: res.sentence,
       color: res.color,
+      anchorId: '',
     });
   };
 
@@ -978,17 +1001,18 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
       quote: data.quote,
       sentence: data.sentence,
       color: DEFAULT_HL,
+      anchorId: data.anchorId,
     });
   };
 
   // Attaches the captured quote to an existing question.
   const applyQuoteToQuestion = (questionId: number) => {
     if (!quoteToQuestion) return;
-    const { section, quote, sentence, color } = quoteToQuestion;
+    const { section, quote, sentence, color, anchorId } = quoteToQuestion;
     setQuestionsList((prev) =>
       prev.map((q) =>
         q.id === questionId
-          ? { ...q, lessonRef: { section, quote, sentence, color }, dirty: true }
+          ? { ...q, lessonRef: { section, quote, sentence, color, anchorId }, dirty: true }
           : q,
       ),
     );
@@ -1000,7 +1024,7 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
   // Creates a new question for this lesson, seeded with the captured quote.
   const createQuestionWithQuote = () => {
     if (!quoteToQuestion) return;
-    const { section, quote, sentence, color } = quoteToQuestion;
+    const { section, quote, sentence, color, anchorId } = quoteToQuestion;
     const nextId = Math.max(...questionsList.map((q) => q.id), 0) + 1;
     setQuestionsList((prev) => [
       ...prev,
@@ -1011,7 +1035,7 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
         text: "¿Enunciado de la nueva pregunta?",
         difficulty: "normal",
         lessonId: activeLesson?.id ?? questionLessonId,
-        lessonRef: { section, quote, sentence, color },
+        lessonRef: { section, quote, sentence, color, anchorId },
         explanation: "",
         answers: [
           { text: "Opción A", correct: true },
@@ -1023,6 +1047,19 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
     setQuoteToQuestion(null);
   };
 
+  // Dismissing the "add cita to…" menu without choosing a question leaves an
+  // orphan <QuoteAnchor> in the content — strip it back out.
+  const cancelQuoteToQuestion = () => {
+    if (quoteToQuestion?.anchorId && activeLesson) {
+      handleLessonChange({
+        content: unwrapAnchor(activeLesson.content || '', quoteToQuestion.anchorId),
+      });
+    }
+    setQuoteToQuestion(null);
+  };
+  // Keep the ref in sync so the empty-dep effect always calls the latest version.
+  cancelQuoteToQuestionRef.current = cancelQuoteToQuestion;
+
   const createNewQuestion = () => {
     const nextId = Math.max(...questionsList.map((q) => q.id), 0) + 1;
     const newQ = {
@@ -1033,7 +1070,7 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
       difficulty: "normal",
       // New questions belong to the lesson currently being authored.
       lessonId: questionLessonId,
-      lessonRef: null as { section: string; quote: string; color: string; sentence?: string } | null,
+      lessonRef: null as { section: string; quote: string; color: string; sentence?: string; anchorId?: string; frozen?: boolean } | null,
       explanation: "",
       answers: [
         { text: "Opción A", correct: true },
@@ -1634,6 +1671,7 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                       key={activeLessonId}
                       value={activeLesson?.content || ""}
                       onChange={(md) => handleLessonChange({ content: md })}
+                      anchorMeta={anchorMeta}
                       onAttachResource={(file) => {
                         if (!activeLesson) return;
                         // Insertion-time linking: attach the resource to the lesson's
