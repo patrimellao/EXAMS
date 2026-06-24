@@ -83,3 +83,10 @@ test('deriveQuoteStatus: frozen is always synced', () => {
   );
   expect(info.status).toBe('synced');
 });
+
+test('wrapAnchorAt preserves newlines in multi-line matches', () => {
+  const multilineContent = 'El domicilio es la sede jurídica\nde la persona.';
+  const out = wrapAnchorAt(multilineContent, 'sede jurídica de la persona', 'qa_x');
+  expect(out).toContain('<QuoteAnchor id="qa_x">sede jurídica\nde la persona</QuoteAnchor>');
+  expect(out).not.toContain('sede jurídica de la persona</QuoteAnchor>');
+});

@@ -56,7 +56,7 @@ export function wrapAnchorAt(markdown: string, quote: string, id: string): strin
   if (!m) return markdown;
   return (
     markdown.slice(0, m.index) +
-    `<QuoteAnchor id="${id}">${norm(m[0])}</QuoteAnchor>` +
+    `<QuoteAnchor id="${id}">${m[0]}</QuoteAnchor>` +
     markdown.slice(m.index + m[0].length)
   );
 }
@@ -82,7 +82,7 @@ export function deriveQuoteStatus(
     const hit = anchors.find((a) => a.id === ref.anchorId);
     if (hit) {
       return norm(hit.text) === norm(ref.quote)
-        ? { status: 'synced', currentText: hit.text }
+        ? { status: 'synced' }
         : { status: 'drift', currentText: hit.text };
     }
   }
