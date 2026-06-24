@@ -74,6 +74,26 @@ export const lessonMarkdownRules = {
         options,
       ),
   },
+  quoteAnchor: {
+    mark: true,
+    serialize: (node: any) => ({
+      type: 'mdxJsxTextElement',
+      name: 'QuoteAnchor',
+      attributes: [
+        { type: 'mdxJsxAttribute', name: 'id', value: node.quoteAnchor },
+      ],
+      children: [{ type: 'text', value: node.text }],
+    }),
+  },
+  QuoteAnchor: {
+    mark: true,
+    deserialize: (mdastNode: any, deco: any, options: any) =>
+      convertChildrenDeserialize(
+        mdastNode.children,
+        { ...deco, quoteAnchor: parseAttributes(mdastNode.attributes).id },
+        options,
+      ),
+  },
   // Definition (glossary term) — an inline element wrapping a run of text, with the
   // definition in a `def` attribute. Serializes to <Definition def="…">term</Definition>
   // (capitalized JSX so MDX routes it through the components map, like Highlight).

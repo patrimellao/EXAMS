@@ -68,7 +68,7 @@ import { cn } from '@/lib/utils';
 import { InlineRich } from '@/components/lesson/inline-rich';
 import { collectFromNodes, orderCitations, type CiteRef } from '@/components/lesson/citations';
 import { CitationsProvider, ReferenceList } from '@/components/lesson/citations-view';
-import { DiagramDialogContext, ChartDialogContext, MediaDialogContext, CiteDialogContext } from './blocks';
+import { DiagramDialogContext, ChartDialogContext, MediaDialogContext, CiteDialogContext, QuoteAnchorContext, type AnchorMeta } from './blocks';
 import { lessonNodeComponents } from './nodes';
 import { DiagramDialog } from './DiagramDialog';
 import { ChartDialog } from './ChartDialog';
@@ -92,6 +92,8 @@ export interface LessonPlateEditorProps {
    * selection, with the captured reference and a screen anchor for the menu.
    */
   onUseAsQuote?: (data: QuoteCapture, anchor: { x: number; y: number }) => void;
+  /** id → { chip label, drift } for rendering quote anchors in the body. */
+  anchorMeta?: AnchorMeta;
   placeholder?: string;
   className?: string;
 }
@@ -121,8 +123,20 @@ function takeSelectedText(editor: any) {
 // Result of reading a quotable reference out of the current selection.
 export type QuoteCapture =
   | { invalid: true }
-  | { invalid: false; quote: string; sentence: string; section: string }
+  | { invalid: false; quote: string; sentence: string; section: string; anchorId: string }
   | null;
+
+// Applies the quoteAnchor mark to the current selection and returns its new id.
+// Mutating the doc triggers onChange, so the <QuoteAnchor> tag lands in the
+// serialized markdown immediately (even before a question is picked).
+function applyQuoteAnchor(editor: any): string {
+  const id = `qa_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
+  // addMark is the canonical Plate API for applying a mark to the active selection
+  // (same pattern as backgroundColor highlight). It calls setNodes with split:true
+  // internally, so the selection is correctly split at its boundaries.
+  (editor.tf as any).addMark('quoteAnchor', id);
+  return id;
+}
 
 // Non-destructively derives a quote from the selection: the clean fragment, its
 // sentence (the block's text), and the section (nearest heading above). Returns
@@ -154,7 +168,7 @@ export function captureQuoteSelection(editor: any): QuoteCapture {
       break;
     }
   }
-  return { invalid: false, quote, sentence, section };
+  return { invalid: false, quote, sentence, section, anchorId: '' };
 }
 
 // Screen anchor for the follow-up menu: just below the current selection.
@@ -340,7 +354,15 @@ function LessonEditorToolbar({
           <ToolbarButton
             icon={MessageSquareQuote}
             label="Usar como cita en una pregunta"
-            onClick={() => onUseAsQuote(captureQuoteSelection(editor), selectionAnchor())}
+            onClick={() => {
+              const data = captureQuoteSelection(editor);
+              if (data && !data.invalid) {
+                const anchorId = applyQuoteAnchor(editor);
+                onUseAsQuote({ ...data, anchorId }, selectionAnchor());
+              } else {
+                onUseAsQuote(data, selectionAnchor());
+              }
+            }}
           />
         </>
       )}
@@ -412,9 +434,15 @@ function EditorContextMenu({
         {onUseAsQuote && (
           <>
             <ContextMenuItem
-              onClick={() =>
-                onUseAsQuote(captureQuoteSelection(editor), selectionAnchor())
-              }
+              onClick={() => {
+                const data = captureQuoteSelection(editor);
+                if (data && !data.invalid) {
+                  const anchorId = applyQuoteAnchor(editor);
+                  onUseAsQuote({ ...data, anchorId }, selectionAnchor());
+                } else {
+                  onUseAsQuote(data, selectionAnchor());
+                }
+              }}
             >
               <MessageSquareQuote className="mr-2 h-4 w-4 text-brand-primary" />{' '}
               Usar como cita en una pregunta
@@ -483,6 +511,7 @@ export function LessonPlateEditor({
   onChange,
   onAttachResource,
   onUseAsQuote,
+  anchorMeta,
   placeholder = 'Escribe aquí el contenido de la lección…',
   className,
 }: LessonPlateEditorProps) {
@@ -1032,14 +1061,16 @@ export function LessonPlateEditor({
         onUseAsQuote={onUseAsQuote}
       >
         <div className="px-4 py-6 md:px-8">
-          <PlateContent
-            placeholder={placeholder}
-            className={cn(
-              'min-h-[480px] w-full outline-none font-reader text-[17px] leading-[1.7] text-foreground',
-              'placeholder:text-muted-foreground/30',
-              className,
-            )}
-          />
+          <QuoteAnchorContext.Provider value={anchorMeta ?? {}}>
+            <PlateContent
+              placeholder={placeholder}
+              className={cn(
+                'min-h-[480px] w-full outline-none font-reader text-[17px] leading-[1.7] text-foreground',
+                'placeholder:text-muted-foreground/30',
+                className,
+              )}
+            />
+          </QuoteAnchorContext.Provider>
           {/* Numbered references, like the student reader will show. Entries jump
               to their marker; usage counts surface reuse. */}
           <ReferenceList references={citeReferences} onSelect={handleJumpToCite} />

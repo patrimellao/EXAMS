@@ -452,6 +452,57 @@ export const HighlightColorPlugin = createPlatePlugin({
   node: { isLeaf: true },
 }).withComponent(HighlightLeaf);
 
+// Quote anchor — a leaf mark carrying the id of the question quote that lifted
+// this text. Rendered as a dotted underline (teal) or dashed amber when the
+// source has drifted, plus a small question chip. The chip/drift state come from
+// QuoteAnchorContext (supplied by BuilderWorkspace via LessonPlateEditor) keyed
+// by anchor id, so the leaf itself stays serialization-only (just the id).
+export type AnchorMeta = Record<string, { label: string; drift: boolean }>;
+export const QuoteAnchorContext = React.createContext<AnchorMeta>({});
+
+function QuoteAnchorLeaf(props: PlateLeafProps) {
+  const id = (props.leaf as { quoteAnchor?: string }).quoteAnchor;
+  const meta = React.useContext(QuoteAnchorContext);
+  const info = id ? meta[id] : undefined;
+  const drift = info?.drift ?? false;
+  // Pass data-quote-anchor through props.attributes so PlateLeaf's useNodeAttributes
+  // spreads it onto the DOM element (PlateLeaf only forwards attributes, className,
+  // style from its props; arbitrary HTML attributes must go through attributes).
+  const augmentedAttributes = { ...props.attributes, 'data-quote-anchor': id } as any;
+  return (
+    <PlateLeaf
+      {...props}
+      as="span"
+      attributes={augmentedAttributes}
+      className={cn(
+        'quote-anchor',
+        drift
+          ? 'border-b-2 border-dashed border-amber-500 bg-amber-500/[0.07]'
+          : 'border-b-2 border-dotted border-brand-primary',
+        props.className,
+      )}
+    >
+      {props.children}
+      {info?.label ? (
+        <sup
+          contentEditable={false}
+          className={cn(
+            'ml-0.5 select-none rounded px-1 align-super text-[9px] font-bold text-white',
+            drift ? 'bg-amber-600' : 'bg-brand-primary',
+          )}
+        >
+          {info.label}
+        </sup>
+      ) : null}
+    </PlateLeaf>
+  );
+}
+
+export const QuoteAnchorPlugin = createPlatePlugin({
+  key: 'quoteAnchor',
+  node: { isLeaf: true },
+}).withComponent(QuoteAnchorLeaf);
+
 export const lessonCustomPlugins = [
   ObjectivesPlugin,
   KeyIdeaPlugin,
@@ -464,4 +515,5 @@ export const lessonCustomPlugins = [
   DiagramPlugin,
   ChartPlugin,
   HighlightColorPlugin,
+  QuoteAnchorPlugin,
 ];
