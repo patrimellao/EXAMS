@@ -13,6 +13,8 @@ import { compileMDX } from 'next-mdx-remote/rsc';
 import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
 import { lessonMdxComponents } from './blocks';
+import { collectFromMarkdown, orderCitations } from './citations';
+import { CitationsProvider, ReferenceList } from './citations-view';
 
 export async function renderLessonMdx(source: string): Promise<React.ReactElement> {
   try {
@@ -27,7 +29,15 @@ export async function renderLessonMdx(source: string): Promise<React.ReactElemen
         },
       },
     });
-    return content;
+    // Citations are numbered by document order (pre-scanned from the source); the
+    // markers read their number from context, and the list renders after the body.
+    const { references, numbers } = orderCitations(collectFromMarkdown(source));
+    return (
+      <CitationsProvider numbers={numbers}>
+        {content}
+        <ReferenceList references={references} />
+      </CitationsProvider>
+    );
   } catch (err) {
     // Graceful degradation — never blank-screen a lesson on bad MDX.
     return (

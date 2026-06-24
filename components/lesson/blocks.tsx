@@ -4,7 +4,12 @@
  * (components/teach/lesson-editor/blocks.tsx) so authoring matches reading.
  */
 import * as React from 'react';
-import { Target, Lightbulb, Play, Video as VideoIcon, Image as ImageIcon } from 'lucide-react';
+import { Target, Lightbulb, Play, Video as VideoIcon, Image as ImageIcon, FileText, Download } from 'lucide-react';
+import { Button as GameButton } from '@/components/game/Button';
+import { MermaidDiagram } from './MermaidDiagram';
+import { ChartView } from './ChartView';
+import { InlineRich } from './inline-rich';
+import { CiteMarker } from './citations-view';
 
 export function Objectives({ title, children }: { title?: string; children?: React.ReactNode }) {
   return (
@@ -52,12 +57,81 @@ export function Video({ url, label }: { url?: string; label?: string }) {
   );
 }
 
+/** Uppercase format badge derived from a file name's extension (e.g. "PDF"). */
+export function resourceExt(name?: string): string {
+  const m = /\.([a-z0-9]+)$/i.exec(name?.trim() ?? '');
+  return m ? m[1].toUpperCase() : 'FILE';
+}
+
+/**
+ * Downloadable resource — `<Resource url name size ext />`, a self-closing void
+ * block rendering the download card from the wireframe reader (focus/lesson):
+ * a dashed-border card with a file-icon chip, the file name, an "EXT · size"
+ * meta line, and a "Descargar" button.
+ */
+export function Resource({
+  url,
+  name,
+  size,
+  ext,
+}: {
+  url?: string;
+  name?: string;
+  size?: string;
+  ext?: string;
+}) {
+  const label = name || 'Recurso descargable';
+  const badge = (ext || resourceExt(name)).toUpperCase();
+  const meta = [badge, size].filter(Boolean).join(' · ');
+  return (
+    <a
+      href={url || '#'}
+      data-resource-url={url}
+      className="group my-6 flex items-center gap-4 rounded-card border-2 border-dashed border-border bg-card p-6 shadow-card transition-shadow duration-normal hover:border-brand-primary/40 hover:shadow-card-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+    >
+      <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-card bg-brand-primary/10 text-brand-primary">
+        <FileText className="h-6 w-6" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate font-sans text-base font-semibold text-foreground">
+          {label}
+        </span>
+        <span className="block text-xs text-muted-foreground">{meta}</span>
+      </span>
+      <GameButton variant="learning" size="lg" className="flex-shrink-0" asChild>
+        <span>
+          <Download className="mr-1.5 h-4 w-4" />
+          Descargar
+        </span>
+      </GameButton>
+    </a>
+  );
+}
+
 /** Highlighted text — `<Highlight color="…">` from the editor's background-color mark. */
 export function Highlight({ color, children }: { color?: string; children?: React.ReactNode }) {
   return (
     <mark className="rounded px-0.5 text-foreground" style={{ backgroundColor: color }}>
       {children}
     </mark>
+  );
+}
+
+/**
+ * Glossary term — `<Definition def="…">term</Definition>`. The term gets a dotted
+ * underline and reveals its definition in a small box on hover (CSS-only, so it
+ * works in the server-rendered reader without client JS).
+ */
+export function Definition({ def, children }: { def?: string; children?: React.ReactNode }) {
+  return (
+    <span className="group/def relative inline cursor-help underline decoration-dotted decoration-brand-primary/60 underline-offset-4">
+      {children}
+      {def && (
+        <span className="absolute left-0 top-full z-50 hidden w-max max-w-xs rounded-md border bg-card px-3 py-2 font-sans text-xs font-normal leading-snug text-foreground shadow-card group-hover/def:block">
+          <InlineRich text={def} />
+        </span>
+      )}
+    </span>
   );
 }
 
@@ -94,6 +168,30 @@ const baseMdxComponents = {
   code: (p: React.HTMLAttributes<HTMLElement>) => (
     <code {...p} className="rounded bg-muted px-1.5 py-0.5 font-mono text-sm text-pink-600 dark:text-pink-400" />
   ),
+  // Fenced code blocks compile to <pre><code class="language-…">. A `mermaid`
+  // fence is a diagram — render it live (client) instead of as raw code. Other
+  // languages fall through to a styled <pre>.
+  pre: (p: React.HTMLAttributes<HTMLPreElement>) => {
+    const child = React.Children.toArray(p.children).find((c) => React.isValidElement(c)) as
+      | React.ReactElement<{ className?: string; children?: React.ReactNode }>
+      | undefined;
+    if (child?.props?.className?.includes('language-mermaid')) {
+      const raw = child.props.children;
+      const code = Array.isArray(raw) ? raw.join('') : String(raw ?? '');
+      return <MermaidDiagram code={code} />;
+    }
+    if (child?.props?.className?.includes('language-chart')) {
+      const raw = child.props.children;
+      const config = Array.isArray(raw) ? raw.join('') : String(raw ?? '');
+      return <ChartView config={config} />;
+    }
+    return (
+      <pre
+        {...p}
+        className="my-4 overflow-x-auto rounded-card border bg-muted/40 p-3 font-mono text-sm leading-relaxed text-foreground [&_code]:bg-transparent [&_code]:p-0 [&_code]:text-foreground"
+      />
+    );
+  },
   img: ({ src, alt }: React.ImgHTMLAttributes<HTMLImageElement>) => {
     const url = typeof src === 'string' ? src : '';
     const isRemote = /^https?:\/\//.test(url);
@@ -116,4 +214,4 @@ const baseMdxComponents = {
   },
 };
 
-export const lessonMdxComponents = { ...baseMdxComponents, Objectives, KeyIdea, Video, Highlight };
+export const lessonMdxComponents = { ...baseMdxComponents, Objectives, KeyIdea, Video, Resource, Highlight, Definition, Cite: CiteMarker };

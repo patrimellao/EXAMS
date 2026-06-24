@@ -3,13 +3,11 @@
 import {
   ArrowLeft,
   ArrowRight,
-  BookOpen,
   CheckCircle2,
   Flag,
   Timer,
   XCircle,
 } from "lucide-react";
-import Link from "next/link";
 import { useState } from "react";
 import {
   AlertDialog,
@@ -26,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
+import { LessonQuoteCard } from "@/components/lesson/quote-reference";
 import { cn } from "@/lib/utils";
 
 const questionMap: Array<"correct" | "wrong" | "current" | "pending"> = [
@@ -74,7 +73,9 @@ const EXPLANATION =
 const LESSON_REF = {
   unit: "2.1",
   section: "Capacidad de obrar",
-  quote:
+  quote: "aptitud para realizar válidamente actos jurídicos",
+  // Full line the fragment was lifted from, so the card highlights it in context.
+  sentence:
     "La capacidad de obrar es la aptitud para realizar válidamente actos jurídicos por sí mismo.",
   // Highlight color (rgb triple) chosen by the teacher in the builder.
   color: "234, 161, 70",
@@ -319,19 +320,13 @@ export default function QuizWireframe() {
                   <p className="text-sm leading-relaxed text-muted-foreground">
                     {EXPLANATION}
                   </p>
-                  <Link
+                  <LessonQuoteCard
+                    label={`Lección ${LESSON_REF.unit} · ${LESSON_REF.section}`}
+                    quote={LESSON_REF.quote}
+                    sentence={LESSON_REF.sentence}
+                    color={LESSON_REF.color}
                     href={LESSON_HREF}
-                    className="group block rounded-card border-l-2 border-brand-primary bg-brand-primary/5 p-3 transition-colors duration-fast hover:bg-brand-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
-                  >
-                    <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-brand-primary">
-                      <BookOpen className="h-3.5 w-3.5" />
-                      Repasar · {LESSON_REF.unit} · {LESSON_REF.section}
-                      <ArrowRight className="ml-auto h-3.5 w-3.5 transition-transform duration-fast group-hover:translate-x-0.5" />
-                    </p>
-                    <p className="mt-1.5 text-sm italic leading-relaxed text-foreground/80">
-                      “{LESSON_REF.quote}”
-                    </p>
-                  </Link>
+                  />
                 </div>
               )}
             </article>

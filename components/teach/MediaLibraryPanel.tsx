@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   Check,
   Download,
@@ -253,6 +253,8 @@ export type MediaLibraryPanelProps = {
   onAttach?: (asset: MediaAsset) => void;
   /** Override the CTA label for picker-insert mode. */
   insertLabel?: string;
+  /** Rendered directly below the picker-insert button (e.g. an extra option). */
+  insertFooter?: ReactNode;
   /** When true, hides the page-level header (used inside Dialog). */
   embedded?: boolean;
 };
@@ -264,6 +266,7 @@ export function MediaLibraryPanel({
   onInsert,
   onAttach,
   insertLabel,
+  insertFooter,
   embedded = false,
 }: MediaLibraryPanelProps) {
   const [selectedId, setSelectedId] = useState<string | null>(
@@ -790,13 +793,16 @@ export function MediaLibraryPanel({
                 )}
 
                 {mode === "picker-insert" && (
-                  <UIButton
-                    onClick={() => onInsert?.(selected)}
-                    className="h-10 w-full"
-                  >
-                    <Check className="mr-2 h-4 w-4" />
-                    {insertLabel ?? "Insertar en texto"}
-                  </UIButton>
+                  <>
+                    <UIButton
+                      onClick={() => onInsert?.(selected)}
+                      className="h-10 w-full"
+                    >
+                      <Check className="mr-2 h-4 w-4" />
+                      {insertLabel ?? "Insertar en texto"}
+                    </UIButton>
+                    {insertFooter}
+                  </>
                 )}
 
                 {mode === "picker-resource" && (
@@ -828,6 +834,9 @@ export function formatAssetInsert(asset: MediaAsset): string {
     const alt = asset.alt || asset.name;
     return `\n![${alt}](${url})\n`;
   }
-  const label = asset.alt || asset.name;
-  return `[${label}](${url})`;
+  // Non-media assets (pdf / doc) become a downloadable-resource card. `ext` is the
+  // uppercase file extension (the format badge); falls back to "FILE".
+  const m = /\.([a-z0-9]+)$/i.exec(asset.name.trim());
+  const ext = m ? m[1].toUpperCase() : "FILE";
+  return `\n<Resource url="${url}" name="${asset.name}" size="${asset.size}" ext="${ext}" />\n`;
 }

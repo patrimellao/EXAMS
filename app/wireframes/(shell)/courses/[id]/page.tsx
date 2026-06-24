@@ -5,7 +5,9 @@ import {
   BookOpen,
   Check,
   Clock,
+  Download,
   FileQuestion,
+  FileText,
   Lock,
   Play,
   TrendingUp,
@@ -35,10 +37,14 @@ import { cn } from "@/lib/utils";
 
 type LessonState = "done" | "active" | "todo" | "locked";
 
+// Mirrors the "Tipo de lección" selector in the builder (BuilderWorkspace).
+type LessonType = "article" | "video" | "file";
+
 type Lesson = {
   n: string;
   title: string;
   state: LessonState;
+  type: LessonType;
   quizScore?: number;
 };
 
@@ -57,8 +63,8 @@ const units: Unit[] = [
     progress: 100,
     status: "done",
     lessons: [
-      { n: "1.1", title: "Introducción", state: "done", quizScore: 95 },
-      { n: "1.2", title: "Fuentes del derecho", state: "done", quizScore: 88 },
+      { n: "1.1", title: "Introducción", state: "done", type: "article", quizScore: 95 },
+      { n: "1.2", title: "Fuentes del derecho", state: "done", type: "article", quizScore: 88 },
     ],
   },
   {
@@ -67,10 +73,10 @@ const units: Unit[] = [
     progress: 65,
     status: "active",
     lessons: [
-      { n: "2.1", title: "Personalidad", state: "done", quizScore: 92 },
-      { n: "2.2", title: "Capacidad jurídica", state: "done", quizScore: 78 },
-      { n: "2.3", title: "Capacidad de obrar", state: "active" },
-      { n: "2.4", title: "Restricciones legales", state: "todo" },
+      { n: "2.1", title: "Personalidad", state: "done", type: "article", quizScore: 92 },
+      { n: "2.2", title: "Capacidad jurídica", state: "done", type: "video", quizScore: 78 },
+      { n: "2.3", title: "Capacidad de obrar", state: "active", type: "video" },
+      { n: "2.4", title: "Restricciones legales", state: "todo", type: "file" },
     ],
   },
   {
@@ -106,6 +112,14 @@ const stateMeta: Record<
     chip: "bg-muted text-muted-foreground",
     icon: Lock,
   },
+};
+
+// Per-lesson content type — shown as a subtle marker next to the title so the
+// student knows what kind of lesson it is before opening it.
+const typeMeta: Record<LessonType, { label: string; icon: typeof Check }> = {
+  article: { label: "Artículo", icon: FileText },
+  video: { label: "Vídeo", icon: Play },
+  file: { label: "Recurso", icon: Download },
 };
 
 function UnitTrigger({ unit }: { unit: Unit }) {
@@ -163,8 +177,11 @@ function UnitTrigger({ unit }: { unit: Unit }) {
 
 function LessonRow({ lesson }: { lesson: Lesson }) {
   const Meta = stateMeta[lesson.state];
+  const TypeMeta = typeMeta[lesson.type];
   const canRead = lesson.state !== "locked";
   const canTest = lesson.state === "done" || lesson.state === "active";
+  // Carry the type through so the reader opens in the matching layout.
+  const lessonHref = `/wireframes/lesson?type=${lesson.type}`;
   return (
     <li
       className={cn(
@@ -186,6 +203,11 @@ function LessonRow({ lesson }: { lesson: Lesson }) {
         </p>
         <div className="mt-0.5 flex flex-wrap items-center gap-2">
           <span className="text-xs text-muted-foreground">{Meta.label}</span>
+          <span className="text-muted-foreground/40">·</span>
+          <span className="flex items-center gap-1 text-xs text-muted-foreground">
+            <TypeMeta.icon className="h-3 w-3" strokeWidth={2.5} />
+            {TypeMeta.label}
+          </span>
           {lesson.quizScore !== undefined && (
             <Badge
               variant="outline"
@@ -208,7 +230,7 @@ function LessonRow({ lesson }: { lesson: Lesson }) {
           asChild
           className="hidden sm:inline-flex"
         >
-          <Link href="/wireframes/lesson">
+          <Link href={lessonHref}>
             <BookOpen className="mr-1 h-3.5 w-3.5" />
             Continuar
           </Link>
@@ -222,7 +244,7 @@ function LessonRow({ lesson }: { lesson: Lesson }) {
           className="hidden sm:inline-flex"
         >
           {canRead ? (
-            <Link href="/wireframes/lesson">
+            <Link href={lessonHref}>
               <BookOpen className="mr-1 h-3.5 w-3.5" />
               {lesson.state === "done" ? "Repasar" : "Leer"}
             </Link>
@@ -346,7 +368,7 @@ export default function CourseDetailWireframe() {
       <section className="mx-auto max-w-6xl space-y-6 px-4 py-6 md:px-8">
         {/* Continue inside course */}
         <ContinueCTA
-          href="/wireframes/lesson"
+          href="/wireframes/lesson?type=video"
           course="Derecho Civil"
           unit="Unidad 2"
           lesson="2.3 · Capacidad de obrar"

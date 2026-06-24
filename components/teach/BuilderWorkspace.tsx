@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { LessonPreview } from "@/components/teach/lesson-editor/LessonPreview";
 import {
   Bold,
   Check,
@@ -31,7 +32,7 @@ import {
   AlertCircle,
   Save,
   ChevronRight,
-  Split,
+  FlipHorizontal,
   Laptop,
   Target,
   Lightbulb,
@@ -40,6 +41,7 @@ import {
   BookmarkPlus,
   Printer,
   ArrowLeft,
+  MessageSquareQuote,
   History,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -101,7 +103,14 @@ import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { PageHeader } from "@/components/teach/PageHeader";
 import { LessonHistorySheet } from "@/components/teach/LessonHistorySheet";
-import { LessonPlateEditor } from "@/components/teach/lesson-editor/LessonPlateEditor";
+import {
+  LessonPlateEditor,
+  type QuoteCapture,
+} from "@/components/teach/lesson-editor/LessonPlateEditor";
+import {
+  QuoteSentence,
+  LessonQuoteCard,
+} from "@/components/lesson/quote-reference";
 
 // Initial questions data with deep integration
 const initialQuestions = [
@@ -114,10 +123,13 @@ const initialQuestions = [
     lessonId: 1,
     lessonRef: {
       section: "Capacidad de obrar",
-      quote:
+      quote: "aptitud para realizar válidamente actos jurídicos",
+      // Full line the fragment was lifted from, so the box can highlight the
+      // fragment in context. Falls back to `quote` when absent.
+      sentence:
         "La capacidad de obrar es la aptitud para realizar válidamente actos jurídicos por sí mismo.",
       color: "234, 161, 70",
-    } as { section: string; quote: string; color: string } | null,
+    } as { section: string; quote: string; color: string; sentence?: string } | null,
     explanation: "El art. 315 del Código Civil fija la mayoría de edad en los 18 años cumplidos.",
     answers: [
       { text: "16 años", correct: false },
@@ -293,225 +305,6 @@ function MarkdownToolbarButton({
   );
 }
 
-// Custom Markdown parsing matching Decision B and C
-function parseMarkdown(text: string) {
-  if (!text) return null;
-  const lines = text.split("\n");
-  let inList = false;
-  let paragraphCount = 0;
-  const listItems: string[] = [];
-  const elements: React.ReactNode[] = [];
-
-  const parseInline = (str: string) => {
-    let html = str
-      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-      .replace(/\*(.*?)\*/g, "<em>$1</em>")
-      .replace(/_(.+?)_/g, "<em>$1</em>")
-      .replace(/~~(.*?)~~/g, "<del>$1</del>")
-      // <Highlight color="…">text</Highlight> → styled mark (matches the editor/reader)
-      .replace(
-        /<Highlight color="([^"]+)">([\s\S]*?)<\/Highlight>/g,
-        "<mark style='background-color: $1; border-radius: 3px; padding: 0 2px;'>$2</mark>",
-      )
-      .replace(/`(.*?)`/g, "<code class='bg-muted px-1.5 py-0.5 rounded text-sm font-mono text-pink-600 dark:text-pink-400'>$1</code>");
-    return <span dangerouslySetInnerHTML={{ __html: html }} />;
-  };
-
-  // State machine for block tags
-  let currentBlockType: "none" | "objectives" | "keyidea" = "none";
-  let blockLines: string[] = [];
-  let blockTitle = "";
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    const trimmed = line.trim();
-
-    // Check block start/end — <Objectives> optionally with a title="…" attribute
-    if (trimmed.startsWith("<Objectives")) {
-      currentBlockType = "objectives";
-      blockLines = [];
-      blockTitle = trimmed.match(/title="([^"]*)"/)?.[1] ?? "";
-      continue;
-    }
-    if (trimmed.startsWith("</Objectives>")) {
-      if (currentBlockType === "objectives") {
-        const listItemsParsed = blockLines
-          .map(l => l.trim())
-          .filter(l => l.startsWith("- ") || l.startsWith("* ") || /^\d+\.\s/.test(l))
-          .map(l => l.replace(/^(-|\*|\d+\.)\s+/, ""));
-
-        elements.push(
-          <div key={`obj-${i}`} id="objectives-block" className="rounded-card border border-border bg-muted/50 p-5 my-6 scroll-mt-20">
-            <div className="mb-3 flex items-center gap-2 font-sans text-sm font-semibold text-foreground">
-              <Target className="h-4 w-4 text-brand-warm animate-pulse" />
-              {blockTitle || "Al terminar serás capaz de:"}
-            </div>
-            <ol className="list-decimal space-y-2 pl-5 font-reader text-[16px] leading-[1.6] text-muted-foreground">
-              {listItemsParsed.map((item, idx) => (
-                <li key={idx}>{parseInline(item)}</li>
-              ))}
-            </ol>
-          </div>
-        );
-        currentBlockType = "none";
-      }
-      continue;
-    }
-
-    if (trimmed.startsWith("<KeyIdea>")) {
-      currentBlockType = "keyidea";
-      blockLines = [];
-      continue;
-    }
-    if (trimmed.startsWith("</KeyIdea>")) {
-      if (currentBlockType === "keyidea") {
-        const ideaText = blockLines.join(" ");
-        elements.push(
-          <div key={`idea-${i}`} id="keyidea-block" className="rounded-card border border-border bg-background p-5 my-6 shadow-card transition-shadow duration-normal hover:shadow-card-hover scroll-mt-20">
-            <div className="mb-2 flex items-center gap-2 font-sans text-sm font-semibold text-foreground">
-              <Lightbulb className="h-4 w-4 text-brand-warm animate-pulse fill-brand-warm/25" />
-              Idea clave
-            </div>
-            <p className="font-reader text-[15px] leading-[1.65] text-muted-foreground">
-              {parseInline(ideaText)}
-            </p>
-          </div>
-        );
-        currentBlockType = "none";
-      }
-      continue;
-    }
-
-    // If inside a block, collect lines
-    if (currentBlockType !== "none") {
-      blockLines.push(line);
-      continue;
-    }
-
-    // Check self-closing Video tag: <Video url="..." label="..." />
-    if (trimmed.startsWith("<Video ") && trimmed.endsWith("/>")) {
-      const urlMatch = trimmed.match(/url="([^"]+)"/);
-      const labelMatch = trimmed.match(/label="([^"]+)"/);
-      const url = urlMatch ? urlMatch[1] : "";
-      const label = labelMatch ? labelMatch[1] : "Vídeo de la lección";
-
-      elements.push(
-        <section key={`vid-${i}`} id="video-block" className="space-y-3 my-6 scroll-mt-20">
-          <div className="overflow-hidden rounded-card border bg-card shadow-card transition-shadow duration-normal hover:shadow-card-hover">
-            <div className="flex aspect-video items-center justify-center bg-slate-900 text-white relative group">
-              <button
-                type="button"
-                aria-label="Reproducir vídeo"
-                className="relative z-10 flex h-16 w-16 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/30 backdrop-blur-sm transition-all duration-normal hover:bg-white/20 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 shadow-popover"
-              >
-                <Play className="h-7 w-7 text-white fill-white translate-x-0.5" />
-              </button>
-            </div>
-          </div>
-          <p className="font-sans text-xs text-muted-foreground flex items-center gap-1.5 px-1">
-            <Video className="h-3.5 w-3.5 text-muted-foreground/80" />
-            {label}
-          </p>
-        </section>
-      );
-      continue;
-    }
-
-    // Normal markdown parsing...
-    if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
-      inList = true;
-      listItems.push(trimmed.substring(2));
-      continue;
-    } else {
-      if (inList && listItems.length > 0) {
-        elements.push(
-          <ul key={`ul-${i}`} className="list-disc list-inside space-y-1.5 my-3 pl-2 text-muted-foreground font-reader text-[17px] leading-[1.7]">
-            {listItems.map((item, idx) => (
-              <li key={idx} className="marker:text-brand-primary">{parseInline(item)}</li>
-            ))}
-          </ul>
-        );
-        listItems.length = 0;
-        inList = false;
-      }
-    }
-
-    // Standalone image: ![alt](url)
-    const imgMatch = trimmed.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
-    if (imgMatch) {
-      const alt = imgMatch[1];
-      const url = imgMatch[2];
-      const isRemote = /^https?:\/\//.test(url);
-      elements.push(
-        <figure key={`img-${i}`} className="my-6 space-y-2">
-          {isRemote ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={url} alt={alt} className="w-full rounded-card border bg-card shadow-card" />
-          ) : (
-            <div className="flex aspect-video items-center justify-center rounded-card border border-dashed bg-muted/40 text-muted-foreground">
-              <span className="flex flex-col items-center gap-2 text-xs">
-                <ImageIcon className="h-7 w-7 opacity-60" />
-                {url || "Imagen"}
-              </span>
-            </div>
-          )}
-          {alt && <figcaption className="px-1 font-sans text-xs text-muted-foreground">{alt}</figcaption>}
-        </figure>
-      );
-      continue;
-    }
-
-    if (trimmed.startsWith("## ")) {
-      const headingText = trimmed.substring(3);
-      elements.push(
-        <h2 key={i} id={encodeURIComponent(headingText.toLowerCase())} className="text-2xl font-bold font-sans mt-8 mb-4 text-foreground tracking-tight border-b border-muted pb-1 scroll-mt-20">
-          {headingText}
-        </h2>
-      );
-    } else if (trimmed.startsWith("### ")) {
-      elements.push(
-        <h3 key={i} className="text-xl font-semibold font-sans mt-5 mb-2 text-foreground tracking-tight">
-          {trimmed.substring(4)}
-        </h3>
-      );
-    } else if (trimmed.startsWith("> ")) {
-      elements.push(
-        <blockquote key={i} className="border-l-4 border-brand-primary pl-4 py-2 my-4 text-muted-foreground italic bg-brand-primary/5 rounded-r">
-          {parseInline(trimmed.substring(2))}
-        </blockquote>
-      );
-    } else if (trimmed === "") {
-      // Empty line
-    } else {
-      const isFirstParagraph = paragraphCount === 0;
-      paragraphCount++;
-      elements.push(
-        <p
-          key={i}
-          className={`font-reader text-[17px] leading-[1.7] text-muted-foreground mb-4 font-feature-liga-kern-onum ${
-            isFirstParagraph
-              ? "first-letter:float-left first-letter:text-4xl first-letter:font-bold first-letter:mr-2.5 first-letter:text-brand-primary first-letter:leading-none first-letter:mt-1"
-              : ""
-          }`}
-        >
-          {parseInline(trimmed)}
-        </p>
-      );
-    }
-  }
-
-  if (inList && listItems.length > 0) {
-    elements.push(
-      <ul key="ul-final" className="list-disc list-inside space-y-1.5 my-3 pl-2 text-muted-foreground font-reader text-[17px] leading-[1.7]">
-        {listItems.map((item, idx) => (
-          <li key={idx} className="marker:text-brand-primary">{parseInline(item)}</li>
-        ))}
-      </ul>
-    );
-  }
-
-  return <div className="space-y-1">{elements}</div>;
-}
 
 // Extract Table of Contents items dynamically from markdown
 function extractTOC(text: string) {
@@ -877,7 +670,91 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
   // Sidebar for picking the exact lesson passage to quote in an explanation.
   const [refSheetOpen, setRefSheetOpen] = useState(false);
   const [pendingQuote, setPendingQuote] = useState("");
+  // The line the fragment was lifted from + the section that line lives in —
+  // both inferred from the selection so the quote box can highlight in context.
+  const [pendingSentence, setPendingSentence] = useState("");
+  const [pendingSection, setPendingSection] = useState("");
   const [pendingColor, setPendingColor] = useState(DEFAULT_HL);
+
+  // Picker scroll container + the section currently scrolled into view, so the
+  // sticky header can show "Estás en {section}" as you move through the lesson.
+  const pickerScrollRef = useRef<HTMLDivElement>(null);
+  const [pickerSection, setPickerSection] = useState("");
+
+  // Opens the lesson quote picker, seeding the highlight color (from an
+  // existing reference when re-selecting) and clearing the pending selection.
+  const openQuotePicker = (seedColor: string = DEFAULT_HL) => {
+    setPendingQuote("");
+    setPendingSentence("");
+    setPendingSection("");
+    setPickerSection("");
+    setPendingColor(seedColor);
+    setRefSheetOpen(true);
+  };
+
+  // Scroll-spy: the heading nearest the top of the picker viewport.
+  const handlePickerScroll = () => {
+    const root = pickerScrollRef.current;
+    if (!root) return;
+    const top = root.getBoundingClientRect().top;
+    const headings = root.querySelectorAll<HTMLElement>("h1, h2, h3, h4");
+    let current = headings[0]?.textContent?.trim() ?? "";
+    headings.forEach((h) => {
+      if (h.getBoundingClientRect().top - top <= 12) {
+        current = h.textContent?.trim() || current;
+      }
+    });
+    setPickerSection(current);
+  };
+
+  // Captures a text selection (or click) inside the rendered lesson: the exact
+  // fragment, the block it sits in (sentence), and the nearest heading above
+  // it (section). Multimedia is non-selectable, so this only ever sees prose.
+  const capturePickerSelection = () => {
+    const root = pickerScrollRef.current;
+    const selObj = window.getSelection();
+    const fragment = selObj?.toString().replace(/\s+/g, " ").trim();
+    if (!fragment || !root) return;
+    const anchor =
+      selObj?.anchorNode?.nodeType === 3
+        ? selObj.anchorNode.parentElement
+        : (selObj?.anchorNode as HTMLElement | null);
+    const block = anchor?.closest<HTMLElement>(
+      "p, li, h1, h2, h3, h4, blockquote",
+    );
+    // Use the block as surrounding context only when the fragment actually fits
+    // inside it. A selection that spans blocks (e.g. a paragraph into a list)
+    // has no single sentence, so the fragment IS the quote — otherwise the box
+    // would fall back to highlighting the whole block.
+    const norm = (s: string) => s.replace(/\s+/g, " ").trim();
+    const blockText = norm(block?.textContent ?? "");
+    const sentence =
+      blockText && blockText.toLowerCase().includes(fragment.toLowerCase())
+        ? blockText
+        : fragment;
+    // Nearest heading that appears before the block in document order.
+    let section = "";
+    if (block) {
+      root.querySelectorAll<HTMLElement>("h1, h2, h3, h4").forEach((h) => {
+        if (
+          block.compareDocumentPosition(h) & Node.DOCUMENT_POSITION_PRECEDING
+        ) {
+          section = h.textContent?.trim() || section;
+        }
+      });
+    }
+    setPendingQuote(fragment);
+    setPendingSentence(sentence);
+    setPendingSection(section);
+  };
+
+  // Seed the sticky section header once the rendered lesson has mounted.
+  useEffect(() => {
+    if (!refSheetOpen) return;
+    const id = setTimeout(handlePickerScroll, 60);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refSheetOpen]);
 
   // Floating / context menu states
   const [bubbleMenu, setBubbleMenu] = useState<{
@@ -893,6 +770,19 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
     y: number;
     targetId: string;
   } | null>(null);
+
+  // "Usar como cita en una pregunta" submenu — opened from the lesson editor's
+  // bubble/context menu. Holds the captured selection and where to anchor it.
+  const [quoteToQuestion, setQuoteToQuestion] = useState<{
+    x: number;
+    y: number;
+    section: string;
+    quote: string;
+    sentence: string;
+    color: string;
+  } | null>(null);
+  // Transient confirmation pill shown after a quote is pushed to a question.
+  const [quoteConfirm, setQuoteConfirm] = useState<string | null>(null);
 
   // WordPress-style Media/Link Modal state
   const [mediaModal, setMediaModal] = useState<{
@@ -925,11 +815,15 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
         setBubbleMenu(null);
         setContextMenu(null);
       }
+      if (!target.closest(".quote-question-menu")) {
+        setQuoteToQuestion(null);
+      }
     };
-    
+
     const handleGlobalScroll = () => {
       setBubbleMenu(null);
       setContextMenu(null);
+      setQuoteToQuestion(null);
     };
 
     document.addEventListener("mousedown", handleGlobalClick);
@@ -956,9 +850,6 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
     ? parseLessonSections(activeQuestionLesson.content)
     : [];
   const lessonRef = activeQuestion?.lessonRef ?? null;
-  const refSection = lessonRef
-    ? lessonSections.find((s) => s.heading === lessonRef.section)
-    : undefined;
 
   // Auto-dirty state triggers
   const handleLessonChange = (fields: Partial<typeof initialLessons[0]>) => {
@@ -1007,6 +898,131 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
     setSaveStatus("dirty");
   };
 
+  // Reads the lesson textarea's current selection and derives a quotable
+  // reference from it: the clean fragment, the sentence (its line), and the
+  // section (nearest heading above). Returns { invalid } when the selection is
+  // empty or touches media/MDX blocks — quotes are plain prose only.
+  const buildQuoteFromSelection = (targetId: string) => {
+    const ta = document.getElementById(targetId) as HTMLTextAreaElement | null;
+    if (!ta) return null;
+    const content = ta.value;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    if (start === end) return null;
+    const raw = content.slice(start, end);
+    // Safeguard: reject images, fenced blocks (chart/diagram) and MDX tags.
+    if (/!\[|```|<[A-Za-z]/.test(raw)) return { invalid: true as const };
+    const norm = (s: string) => s.replace(/\s+/g, " ").trim();
+    const fragment = norm(stripMarkdown(raw));
+    if (!fragment) return { invalid: true as const };
+    // Sentence = the line the selection sits in; multi-line → just the fragment.
+    const lineStart = content.lastIndexOf("\n", start - 1) + 1;
+    const lineEndRaw = content.indexOf("\n", end);
+    const lineEnd = lineEndRaw === -1 ? content.length : lineEndRaw;
+    const sentence = raw.includes("\n")
+      ? fragment
+      : norm(stripMarkdown(content.slice(lineStart, lineEnd))) || fragment;
+    // Section = nearest heading above the selection.
+    let section = "";
+    const before = content.slice(0, start).split("\n");
+    for (let i = before.length - 1; i >= 0; i--) {
+      const m = before[i].match(/^#{1,3}\s+(.+)$/);
+      if (m) {
+        section = m[1].trim();
+        break;
+      }
+    }
+    return { invalid: false as const, section, quote: fragment, sentence, color: DEFAULT_HL };
+  };
+
+  // Opens the question submenu from a lesson-editor selection, or warns when the
+  // selection isn't quotable (empty / contains multimedia).
+  const openQuoteToQuestion = (targetId: string, x: number, y: number) => {
+    const res = buildQuoteFromSelection(targetId);
+    setBubbleMenu(null);
+    setContextMenu(null);
+    if (!res || res.invalid) {
+      setQuoteConfirm("Selecciona solo texto (sin multimedia) para citar.");
+      window.setTimeout(() => setQuoteConfirm(null), 2400);
+      return;
+    }
+    setQuoteToQuestion({
+      x,
+      y,
+      section: res.section,
+      quote: res.quote,
+      sentence: res.sentence,
+      color: res.color,
+    });
+  };
+
+  const flashQuoteConfirm = (msg: string) => {
+    setQuoteConfirm(msg);
+    window.setTimeout(() => setQuoteConfirm(null), 2400);
+  };
+
+  // Entry from the Plate lesson editor (toolbar / right-click). Opens the
+  // question submenu with the captured quote, or warns if it isn't quotable.
+  const handlePlateUseAsQuote = (
+    data: QuoteCapture,
+    anchor: { x: number; y: number },
+  ) => {
+    if (!data || data.invalid) {
+      flashQuoteConfirm("Selecciona solo texto (sin multimedia) para citar.");
+      return;
+    }
+    setQuoteToQuestion({
+      x: anchor.x,
+      y: anchor.y,
+      section: data.section,
+      quote: data.quote,
+      sentence: data.sentence,
+      color: DEFAULT_HL,
+    });
+  };
+
+  // Attaches the captured quote to an existing question.
+  const applyQuoteToQuestion = (questionId: number) => {
+    if (!quoteToQuestion) return;
+    const { section, quote, sentence, color } = quoteToQuestion;
+    setQuestionsList((prev) =>
+      prev.map((q) =>
+        q.id === questionId
+          ? { ...q, lessonRef: { section, quote, sentence, color }, dirty: true }
+          : q,
+      ),
+    );
+    const target = questionsList.find((q) => q.id === questionId);
+    flashQuoteConfirm(`Cita añadida a «${target?.label ?? "la pregunta"}»`);
+    setQuoteToQuestion(null);
+  };
+
+  // Creates a new question for this lesson, seeded with the captured quote.
+  const createQuestionWithQuote = () => {
+    if (!quoteToQuestion) return;
+    const { section, quote, sentence, color } = quoteToQuestion;
+    const nextId = Math.max(...questionsList.map((q) => q.id), 0) + 1;
+    setQuestionsList((prev) => [
+      ...prev,
+      {
+        id: nextId,
+        label: `Nueva pregunta ${nextId}`,
+        dirty: true,
+        text: "¿Enunciado de la nueva pregunta?",
+        difficulty: "normal",
+        lessonId: activeLesson?.id ?? questionLessonId,
+        lessonRef: { section, quote, sentence, color },
+        explanation: "",
+        answers: [
+          { text: "Opción A", correct: true },
+          { text: "Opción B", correct: false },
+        ],
+      },
+    ]);
+    flashQuoteConfirm("Nueva pregunta creada con la cita");
+    setQuoteToQuestion(null);
+  };
+
   const createNewQuestion = () => {
     const nextId = Math.max(...questionsList.map((q) => q.id), 0) + 1;
     const newQ = {
@@ -1017,7 +1033,7 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
       difficulty: "normal",
       // New questions belong to the lesson currently being authored.
       lessonId: questionLessonId,
-      lessonRef: null as { section: string; quote: string; color: string } | null,
+      lessonRef: null as { section: string; quote: string; color: string; sentence?: string } | null,
       explanation: "",
       answers: [
         { text: "Opción A", correct: true },
@@ -1449,7 +1465,7 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  <Split className="h-3.5 w-3.5" />
+                  <FlipHorizontal className="h-3.5 w-3.5" />
                 </button>
               </div>
               {/* Mobile fallback: cycle button */}
@@ -1474,7 +1490,7 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                 ) : editorMode === "preview" ? (
                   <Eye className="h-4 w-4" />
                 ) : (
-                  <Split className="h-4 w-4" />
+                  <FlipHorizontal className="h-4 w-4" />
                 )}
               </UIButton>
               <UIButton
@@ -1545,7 +1561,7 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
       {/* In "edit" mode the Plate editor renders its own WYSIWYG toolbar, so this
           legacy markdown toolbar is only shown for preview (banner) and split (source). */}
       {mode === "lessons" && editorMode !== "edit" && (
-        <div className="sticky top-0 z-30 -mx-4 -mt-6 border-b bg-card/95 px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-card/80 md:-mx-8 md:px-8">
+        <div className="sticky -top-6 z-30 -mx-4 -mt-6 border-b bg-card/95 px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-card/80 md:-mx-8 md:px-8">
           {editorMode === "preview" ? (
             <div className="flex items-center gap-2">
               <Sparkles className="h-3.5 w-3.5 animate-pulse text-brand-primary" />
@@ -1618,6 +1634,23 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                       key={activeLessonId}
                       value={activeLesson?.content || ""}
                       onChange={(md) => handleLessonChange({ content: md })}
+                      onAttachResource={(file) => {
+                        if (!activeLesson) return;
+                        // Insertion-time linking: attach the resource to the lesson's
+                        // downloadable-resources sidebar, deduping by name (mirrors
+                        // handlePickerAttach).
+                        const already = activeLesson.files?.some(
+                          (f) => f.name === file.name,
+                        );
+                        if (already) return;
+                        handleLessonChange({
+                          files: [
+                            ...(activeLesson.files ?? []),
+                            { name: file.name, size: file.size, status: "ready" },
+                          ],
+                        });
+                      }}
+                      onUseAsQuote={handlePlateUseAsQuote}
                     />
                   )}
 
@@ -1732,7 +1765,7 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                         >
                           <div className="max-w-2xl space-y-8">
                             {activeLesson?.content ? (
-                              parseMarkdown(activeLesson.content)
+                              <LessonPreview content={activeLesson.content} />
                             ) : (
                               <div className="flex flex-col items-center justify-center py-20 text-center text-muted-foreground">
                                 <BookOpen className="h-8 w-8 mb-2 opacity-40" />
@@ -1841,7 +1874,7 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                         </span>
                         <div className="font-reader text-sm leading-relaxed text-muted-foreground">
                           {activeLesson?.content ? (
-                            parseMarkdown(activeLesson.content)
+                            <LessonPreview content={activeLesson.content} />
                           ) : (
                             <p className="text-xs italic text-muted-foreground/60">Esperando texto...</p>
                           )}
@@ -1930,9 +1963,24 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                       <SelectValue placeholder="Selecciona el tipo" />
                     </SelectTrigger>
                     <SelectContent className="shadow-popover rounded-md">
-                      <SelectItem value="article" className="text-xs">📚 Artículo (texto)</SelectItem>
-                      <SelectItem value="file" className="text-xs">📎 Archivo (recurso)</SelectItem>
-                      <SelectItem value="video" className="text-xs">🎥 Vídeo instructivo</SelectItem>
+                      <SelectItem value="article" className="text-xs">
+                        <span className="flex items-center gap-2">
+                          <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+                          Artículo (texto)
+                        </span>
+                      </SelectItem>
+                      <SelectItem value="file" className="text-xs">
+                        <span className="flex items-center gap-2">
+                          <Download className="h-3.5 w-3.5 text-muted-foreground" />
+                          Archivo (recurso)
+                        </span>
+                      </SelectItem>
+                      <SelectItem value="video" className="text-xs">
+                        <span className="flex items-center gap-2">
+                          <Play className="h-3.5 w-3.5 text-muted-foreground" />
+                          Vídeo instructivo
+                        </span>
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -2580,88 +2628,63 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
 
                 <Separator />
 
-                {/* Related lesson section — deep-links the explanation back to
-                    the lesson, with a short quote pulled from the chosen section.
-                    Lives inside the same card as the explanation. */}
+                {/* Cita de la lección — an OPTIONAL deep-link back into the
+                    lesson. Not a second textarea: empty by default behind a
+                    button, and once linked it renders as the read-only styled
+                    blockquote the student actually sees. The exact fragment is
+                    chosen from the lesson (sidebar), never re-typed here. */}
                 <div className="space-y-2">
                 <Label className="text-xs font-semibold text-foreground">
-                  Sección de la lección relacionada
+                  Cita de la lección
+                  <span className="ml-1.5 font-normal text-muted-foreground/70">
+                    · opcional
+                  </span>
                 </Label>
-                <Select
-                  value={lessonRef?.section ?? "none"}
-                  onValueChange={(val) => {
-                    if (val === "none") {
-                      handleQuestionChange({ lessonRef: null });
-                      return;
-                    }
-                    const sec = lessonSections.find((s) => s.heading === val);
-                    handleQuestionChange({
-                      lessonRef: {
-                        section: val,
-                        quote: sec?.excerpt ?? "",
-                        color: lessonRef?.color ?? DEFAULT_HL,
-                      },
-                    });
-                  }}
-                >
-                  <SelectTrigger className="h-10 text-sm focus-ring">
-                    <SelectValue placeholder="Sin sección vinculada" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Sin sección vinculada</SelectItem>
-                    {lessonSections.map((s) => (
-                      <SelectItem key={s.heading} value={s.heading}>
-                        {s.heading}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
 
-                {lessonRef && (
-                  <div className="space-y-2.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <Label className="text-[11px] font-semibold text-muted-foreground">
-                        Cita mostrada al estudiante
-                      </Label>
+                {!lessonRef ? (
+                  // Empty state — opens the lesson picker directly. No section
+                  // step: the question already belongs to a specific lesson.
+                  <UIButton
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => openQuotePicker()}
+                    className="h-9 w-full justify-center border-dashed text-xs font-semibold text-muted-foreground hover:text-foreground"
+                  >
+                    <BookOpen className="mr-1.5 h-3.5 w-3.5" />
+                    Citar de la lección
+                  </UIButton>
+                ) : (
+                  // Linked — read-only quote exactly as the student sees it
+                  // (same shared card as the quiz review, minus the deep link).
+                  <div className="space-y-2">
+                    <LessonQuoteCard
+                      label={`Lección 2.${activeQuestionLesson?.order} · ${lessonRef.section}`}
+                      quote={lessonRef.quote}
+                      sentence={lessonRef.sentence}
+                      color={lessonRef.color}
+                    />
+                    <div className="flex items-center gap-2">
                       <UIButton
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => {
-                          setPendingQuote("");
-                          setPendingColor(lessonRef.color);
-                          setRefSheetOpen(true);
-                        }}
+                        onClick={() => openQuotePicker(lessonRef.color)}
                         className="h-8 text-xs font-semibold"
                       >
                         <BookOpen className="mr-1.5 h-3.5 w-3.5" />
-                        Seleccionar de la lección
+                        Cambiar cita
                       </UIButton>
-                    </div>
-                    <Textarea
-                      rows={2}
-                      value={lessonRef.quote}
-                      onChange={(e) =>
-                        handleQuestionChange({
-                          lessonRef: {
-                            section: lessonRef.section,
-                            quote: e.target.value,
-                            color: lessonRef.color,
-                          },
-                        })
-                      }
-                      placeholder="Cita breve de la lección que verá el estudiante…"
-                      className="text-sm focus-ring leading-relaxed placeholder:text-muted-foreground/30"
-                    />
-                    {/* Preview of how the reference renders in the quiz review */}
-                    <div className="rounded-card border-l-2 border-brand-primary bg-brand-primary/5 px-3 py-2.5">
-                      <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-brand-primary font-sans">
-                        <BookOpen className="h-3 w-3" />
-                        Repasar · 2.{activeQuestionLesson?.order} · {lessonRef.section}
-                      </p>
-                      <p className="mt-1 text-xs italic leading-relaxed text-muted-foreground font-sans">
-                        “{lessonRef.quote}”
-                      </p>
+                      <UIButton
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleQuestionChange({ lessonRef: null })}
+                        className="h-8 text-xs font-semibold text-muted-foreground hover:text-destructive"
+                      >
+                        <X className="mr-1.5 h-3.5 w-3.5" />
+                        Quitar
+                      </UIButton>
                     </div>
                   </div>
                 )}
@@ -2767,91 +2790,61 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                     Seleccionar cita de la lección
                   </SheetTitle>
                   <SheetDescription className="text-xs">
-                    Resalta (o pulsa) el texto de «{lessonRef?.section}» que verá el
-                    estudiante. Al revisar la pregunta abrirá la lección en ese punto
-                    exacto.
+                    Arrastra para resaltar (o pulsa) el texto exacto de «
+                    {activeQuestionLesson?.title ?? "la lección"}» que verá el
+                    estudiante. La sección y la frase se detectan solas.
                   </SheetDescription>
                 </SheetHeader>
+                {/* Real student-rendered lesson. Text is selectable; multimedia
+                    (charts, diagrams, images, video) renders for context but is
+                    not selectable, so a drag only ever captures clean prose. */}
                 <div
-                  className="flex-1 overflow-y-auto px-6 py-4"
-                  onMouseUp={(e) => {
-                    // Catch the release anywhere in the panel (drags often end
-                    // in a line's padding or the gap between lines).
-                    const sel = window
-                      .getSelection()
-                      ?.toString()
-                      .replace(/\s+/g, " ")
-                      .trim();
-                    if (sel) {
-                      // Custom drag selection → use that exact portion, then
-                      // clear the native (blue) selection so our color shows.
-                      setPendingQuote(sel);
-                      window.getSelection()?.removeAllRanges();
-                    } else {
-                      // Plain click → take the whole clicked line.
-                      const p = (e.target as HTMLElement).closest<HTMLElement>(
-                        "p[data-line]",
-                      );
-                      if (p) setPendingQuote(p.dataset.line ?? "");
-                    }
-                  }}
+                  ref={pickerScrollRef}
+                  onScroll={handlePickerScroll}
+                  onMouseUp={capturePickerSelection}
+                  className="quote-picker relative flex-1 overflow-y-auto"
                 >
-                  <p className="mb-3 text-[11px] font-bold uppercase tracking-wide text-brand-primary font-sans">
-                    {refSection?.heading}
-                  </p>
-                  <div className="space-y-2 font-reader text-sm leading-relaxed text-foreground">
-                    {refSection?.lines.map((line, i) => {
-                      // Highlight the part of THIS line that falls inside the
-                      // selection. A drag often spills past a paragraph, so the
-                      // captured text spans lines — handle full containment and
-                      // the partial overlap at each boundary.
-                      const norm = (s: string) => s.replace(/\s+/g, " ").trim();
-                      const L = norm(line);
-                      const sel = norm(pendingQuote);
-                      let hi = "";
-                      if (sel && L) {
-                        if (sel.includes(L)) hi = L;
-                        else if (L.includes(sel)) hi = sel;
-                        else {
-                          const max = Math.min(L.length, sel.length);
-                          for (let k = max; k >= 4; k--) {
-                            if (sel.startsWith(L.slice(L.length - k))) {
-                              hi = L.slice(L.length - k);
-                              break;
-                            }
-                            if (sel.endsWith(L.slice(0, k))) {
-                              hi = L.slice(0, k);
-                              break;
-                            }
-                          }
-                        }
-                      }
-                      const idx = hi ? L.indexOf(hi) : -1;
-                      return (
-                        <p
-                          key={i}
-                          data-line={L}
-                          className="cursor-text rounded-md px-2 py-1 transition-colors duration-fast hover:bg-muted/60"
-                        >
-                          {idx >= 0 ? (
-                            <>
-                              {L.slice(0, idx)}
-                              <span
-                                className="rounded-[3px]"
-                                style={{
-                                  backgroundColor: `rgba(${pendingColor}, 0.4)`,
-                                }}
-                              >
-                                {L.slice(idx, idx + hi.length)}
-                              </span>
-                              {L.slice(idx + hi.length)}
-                            </>
-                          ) : (
-                            L
-                          )}
-                        </p>
-                      );
-                    })}
+                  <style>{`
+                    .quote-picker [data-slate-void="true"] {
+                      user-select: none;
+                      opacity: 0.6;
+                    }
+                    /* Scale the rendered lesson down so its reader typography
+                       sits closer to the sidebar's scale (the shared READER
+                       classes that drive the real student page stay untouched). */
+                    .quote-picker-doc :is(p, ul, ol, blockquote, li) {
+                      font-size: 13.5px;
+                      line-height: 1.6;
+                    }
+                    .quote-picker-doc :is(p, ul, ol, blockquote) {
+                      margin-top: 0.5rem;
+                      margin-bottom: 0.5rem;
+                    }
+                    .quote-picker-doc :is(h1, h2) {
+                      font-size: 1.05rem;
+                      margin: 1rem 0 0.35rem;
+                    }
+                    .quote-picker-doc :is(h3, h4, h5, h6) {
+                      font-size: 0.95rem;
+                      margin: 0.85rem 0 0.3rem;
+                    }
+                  `}</style>
+                  {pickerSection && (
+                    <div className="sticky top-0 z-10 border-b bg-background/95 px-6 py-1.5 backdrop-blur">
+                      <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-brand-primary font-sans">
+                        <BookOpen className="h-3 w-3" />
+                        Estás en · {pickerSection}
+                      </p>
+                    </div>
+                  )}
+                  <div className="quote-picker-doc px-6 py-4">
+                    {activeQuestionLesson ? (
+                      <LessonPreview content={activeQuestionLesson.content} />
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        Esta pregunta no tiene una lección asociada.
+                      </p>
+                    )}
                   </div>
                 </div>
                 <SheetFooter className="flex-col gap-2.5 border-t px-6 py-3 sm:flex-col sm:space-x-0">
@@ -2886,16 +2879,28 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                       })}
                     </div>
                   </div>
-                  <div className="rounded-md bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
-                    {pendingQuote ? (
-                      <>
-                        Cita:{" "}
-                        <span className="italic text-foreground">“{pendingQuote}”</span>
-                      </>
-                    ) : (
-                      "Selecciona o pulsa un texto arriba…"
-                    )}
-                  </div>
+                  {/* Live preview — the fragment in its sentence, as the
+                      student's quote box (Variant A) will render it. */}
+                  {pendingQuote ? (
+                    <div className="rounded-md bg-muted/50 px-3 py-2">
+                      {pendingSection && (
+                        <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-brand-primary font-sans">
+                          {pendingSection}
+                        </p>
+                      )}
+                      <p className="text-xs leading-relaxed text-foreground font-sans">
+                        <QuoteSentence
+                          quote={pendingQuote}
+                          sentence={pendingSentence}
+                          color={pendingColor}
+                        />
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="rounded-md bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
+                      Selecciona o pulsa un texto arriba…
+                    </div>
+                  )}
                   <div className="flex justify-end gap-2">
                     <SheetClose asChild>
                       <UIButton variant="outline" size="sm" className="h-9">
@@ -2906,11 +2911,16 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                       size="sm"
                       disabled={!pendingQuote}
                       onClick={() => {
-                        if (lessonRef && pendingQuote) {
+                        if (pendingQuote) {
                           handleQuestionChange({
                             lessonRef: {
-                              section: lessonRef.section,
+                              section:
+                                pendingSection ||
+                                lessonRef?.section ||
+                                lessonSections[0]?.heading ||
+                                "",
                               quote: pendingQuote,
+                              sentence: pendingSentence || pendingQuote,
                               color: pendingColor,
                             },
                           });
@@ -3020,6 +3030,19 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
           >
             <Lightbulb className="h-3.5 w-3.5" />
           </UIButton>
+          <div className="mx-0.5 h-5 w-px self-center bg-border" />
+          <UIButton
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() =>
+              openQuoteToQuestion(bubbleMenu.targetId, bubbleMenu.x, bubbleMenu.y + 34)
+            }
+            className="h-7 w-7 rounded-full text-muted-foreground hover:bg-muted hover:text-brand-primary animate-none"
+            title="Usar como cita en una pregunta"
+          >
+            <MessageSquareQuote className="h-3.5 w-3.5" />
+          </UIButton>
         </div>
       )}
 
@@ -3097,6 +3120,88 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
             <Lightbulb className="h-3.5 w-3.5 text-brand-warm" />
             <span>Insertar Idea Clave</span>
           </button>
+
+          <Separator className="my-1.5" />
+
+          <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground font-sans">
+            Pregunta
+          </div>
+          <button
+            type="button"
+            onClick={() =>
+              openQuoteToQuestion(
+                contextMenu.targetId,
+                contextMenu.x + 12,
+                contextMenu.y + 12,
+              )
+            }
+            className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-foreground hover:bg-muted transition-colors text-left"
+          >
+            <MessageSquareQuote className="h-3.5 w-3.5 text-brand-primary" />
+            <span>Usar como cita en una pregunta</span>
+          </button>
+        </div>
+      )}
+
+      {/* Submenu: pick which question the selected quote attaches to */}
+      {quoteToQuestion && (
+        <div
+          className="quote-question-menu fixed z-50 w-64 rounded-xl border bg-background/95 backdrop-blur-md p-1.5 shadow-popover animate-in fade-in zoom-in-95 duration-100 text-left"
+          style={{ top: `${quoteToQuestion.y}px`, left: `${quoteToQuestion.x}px` }}
+        >
+          <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground font-sans">
+            Añadir cita a…
+          </div>
+          <p className="mb-1 px-2.5 text-[11px] italic leading-snug text-muted-foreground line-clamp-2">
+            “{quoteToQuestion.quote}”
+          </p>
+          <div className="max-h-56 overflow-y-auto">
+            {questionsList.filter((q) => q.lessonId === activeLesson?.id).length === 0 ? (
+              <p className="px-2.5 py-1.5 text-xs text-muted-foreground">
+                Esta lección aún no tiene preguntas.
+              </p>
+            ) : (
+              questionsList
+                .filter((q) => q.lessonId === activeLesson?.id)
+                .map((q, i) => (
+                  <button
+                    key={q.id}
+                    type="button"
+                    onClick={() => applyQuoteToQuestion(q.id)}
+                    className="flex w-full items-start gap-2 rounded-lg px-2.5 py-1.5 text-xs text-foreground hover:bg-muted transition-colors text-left"
+                  >
+                    <span className="mt-0.5 shrink-0 font-bold text-brand-primary">
+                      P{i + 1}
+                    </span>
+                    <span className="line-clamp-2 leading-snug">{q.text}</span>
+                    {q.lessonRef && (
+                      <BookOpen className="ml-auto mt-0.5 h-3 w-3 shrink-0 text-muted-foreground/60" />
+                    )}
+                  </button>
+                ))
+            )}
+          </div>
+
+          <Separator className="my-1.5" />
+
+          <button
+            type="button"
+            onClick={createQuestionWithQuote}
+            className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-brand-primary hover:bg-brand-primary/10 transition-colors text-left"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            <span>Nueva pregunta con esta cita</span>
+          </button>
+        </div>
+      )}
+
+      {/* Transient confirmation after pushing a quote to a question */}
+      {quoteConfirm && (
+        <div className="fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 animate-in fade-in slide-in-from-bottom-2 duration-200">
+          <div className="flex items-center gap-2 rounded-full border bg-foreground px-4 py-2 text-xs font-semibold text-background shadow-popover">
+            <MessageSquareQuote className="h-3.5 w-3.5" />
+            {quoteConfirm}
+          </div>
         </div>
       )}
 

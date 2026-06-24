@@ -25,6 +25,11 @@ import remarkGfm from 'remark-gfm';
 export const OBJECTIVES = 'Objectives';
 export const KEY_IDEA = 'KeyIdea';
 export const VIDEO = 'Video';
+export const DIAGRAM = 'Diagram';
+export const CHART = 'Chart';
+export const DEFINITION = 'Definition';
+export const CITE = 'Cite';
+export const RESOURCE = 'Resource';
 
 // A block whose children are regular markdown (a list, paragraphs, ...).
 const blockRule = (name: string) => ({
@@ -69,6 +74,51 @@ export const lessonMarkdownRules = {
         options,
       ),
   },
+  // Definition (glossary term) — an inline element wrapping a run of text, with the
+  // definition in a `def` attribute. Serializes to <Definition def="…">term</Definition>
+  // (capitalized JSX so MDX routes it through the components map, like Highlight).
+  [DEFINITION]: {
+    deserialize: (mdastNode: any, deco: any, options: any) => ({
+      type: DEFINITION,
+      def: parseAttributes(mdastNode.attributes).def,
+      children: convertChildrenDeserialize(mdastNode.children, { ...deco }, options),
+    }),
+    serialize: (node: any, options: any) => ({
+      type: 'mdxJsxTextElement',
+      name: DEFINITION,
+      attributes: [{ type: 'mdxJsxAttribute', name: 'def', value: node.def ?? '' }],
+      children: convertNodesSerialize(node.children, options),
+    }),
+  },
+  // Diagram (Mermaid) — stored as a fenced ```mermaid code block, the de-facto
+  // standard for embedding Mermaid in markdown. A mermaid fence deserializes to a
+  // void Diagram node holding the source in `code`; the Diagram node serializes
+  // back to the same fence. Round-trip proven idempotent in scripts/diagram-discover.mjs.
+  // Non-mermaid fences are rebuilt as the default code_block node so they are not lost.
+  code_block: {
+    deserialize: (mdastNode: any) => {
+      if (mdastNode.lang === 'mermaid') {
+        return { type: DIAGRAM, code: mdastNode.value ?? '', children: [{ text: '' }] };
+      }
+      // Data charts are stored as a ```chart fence holding JSON config — same
+      // lossless round-trip as the diagram fence (attributes don't round-trip).
+      if (mdastNode.lang === 'chart') {
+        return { type: CHART, config: mdastNode.value ?? '', children: [{ text: '' }] };
+      }
+      const lines = String(mdastNode.value ?? '').split('\n');
+      return {
+        type: 'code_block',
+        ...(mdastNode.lang ? { lang: mdastNode.lang } : {}),
+        children: lines.map((line: string) => ({ type: 'code_line', children: [{ text: line }] })),
+      };
+    },
+  },
+  [DIAGRAM]: {
+    serialize: (node: any) => ({ type: 'code', lang: 'mermaid', value: node.code ?? '' }),
+  },
+  [CHART]: {
+    serialize: (node: any) => ({ type: 'code', lang: 'chart', value: node.config ?? '' }),
+  },
   // Self-closing void element: attributes (url, label) become element props.
   [VIDEO]: {
     deserialize: (mdastNode: any) => ({
@@ -81,6 +131,45 @@ export const lessonMarkdownRules = {
       return {
         type: 'mdxJsxFlowElement',
         name: VIDEO,
+        attributes: propsToAttributes(rest),
+        children: [],
+      };
+    },
+  },
+  // Downloadable resource — a self-closing void block rendering a download card.
+  // Attributes (url, name, size, ext) become element props; round-trips exactly
+  // like <Video> (proven idempotent in scripts/resource-discover.mjs).
+  [RESOURCE]: {
+    deserialize: (mdastNode: any) => ({
+      type: RESOURCE,
+      children: [{ text: '' }],
+      ...parseAttributes(mdastNode.attributes),
+    }),
+    serialize: (node: any) => {
+      const { id, children, type, ...rest } = node;
+      return {
+        type: 'mdxJsxFlowElement',
+        name: RESOURCE,
+        attributes: propsToAttributes(rest),
+        children: [],
+      };
+    },
+  },
+  // Citation marker — an inline, self-closing void element rendering a superscript
+  // number. `cid` groups markers that cite the same source (within-lesson reuse);
+  // `source` (text, may contain inline markdown) and optional `url` describe the
+  // reference shown in the end-of-lesson list.
+  [CITE]: {
+    deserialize: (mdastNode: any) => ({
+      type: CITE,
+      children: [{ text: '' }],
+      ...parseAttributes(mdastNode.attributes),
+    }),
+    serialize: (node: any) => {
+      const { id, children, type, ...rest } = node;
+      return {
+        type: 'mdxJsxTextElement',
+        name: CITE,
         attributes: propsToAttributes(rest),
         children: [],
       };
