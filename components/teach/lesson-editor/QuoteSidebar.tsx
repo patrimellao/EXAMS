@@ -1,7 +1,9 @@
 'use client';
 
 import * as React from 'react';
+import { Quote, AlertTriangle, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
 import type { QuoteStatus } from '@/lib/lesson-quotes';
 
 export interface QuoteRow {
@@ -57,7 +59,7 @@ function Row(props: { row: QuoteRow } & Omit<QuoteSidebarProps, 'rows'>) {
   return (
     <div
       className={cn(
-        'rounded-lg border bg-card p-2.5',
+        'rounded-lg border border-input bg-card p-2.5 transition-colors duration-fast',
         row.status === 'drift' && 'border-amber-200 bg-amber-50/40',
         row.status === 'orphan' && 'opacity-90',
       )}
@@ -139,36 +141,46 @@ function Row(props: { row: QuoteRow } & Omit<QuoteSidebarProps, 'rows'>) {
 export function QuoteSidebar(props: QuoteSidebarProps) {
   const [filter, setFilter] = React.useState<'all' | 'review'>('all');
   const review = props.rows.filter((r) => r.status !== 'synced').length;
+  const firstReview = props.rows.find((r) => r.status !== 'synced');
   const shown = filter === 'all' ? props.rows : props.rows.filter((r) => r.status !== 'synced');
   return (
     <aside
       aria-label="Citas de la lección"
-      className="flex w-80 shrink-0 flex-col rounded-card border bg-card shadow-card lg:max-h-[680px] lg:self-start"
+      className="flex w-80 shrink-0 flex-col border-l bg-card"
     >
-      <div className="flex items-center justify-between gap-2 border-b px-3 py-2.5">
-        <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+      {/* Header — icon + uppercase label + count, mirroring the lesson-config sections */}
+      <div className="flex items-center justify-between gap-2 px-3 py-2.5">
+        <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+          <Quote className="h-3.5 w-3.5 text-primary/80" />
           Citas de la lección
         </span>
         <span className="rounded-pill bg-muted px-1.5 py-0.5 text-[10px] font-bold tabular-nums text-muted-foreground">
           {props.rows.length}
         </span>
       </div>
-      <div className="flex gap-1.5 border-b px-3 py-2">
-        <button type="button" onClick={() => setFilter('all')}
-          className={cn('rounded-pill border px-2.5 py-0.5 text-[11px] font-semibold transition-colors duration-fast focus-ring',
-            filter === 'all'
-              ? 'border-primary/30 bg-primary/10 text-primary'
-              : 'border-transparent bg-card text-muted-foreground hover:bg-muted hover:text-foreground')}>
-          Todas
-        </button>
-        <button type="button" onClick={() => setFilter('review')}
-          className={cn('rounded-pill border px-2.5 py-0.5 text-[11px] font-semibold transition-colors duration-fast focus-ring',
-            filter === 'review'
-              ? 'border-amber-300 bg-amber-100 text-amber-700'
-              : 'border-transparent bg-card text-muted-foreground hover:bg-muted hover:text-foreground')}>
-          ⚠ A revisar ({review})
-        </button>
+      <Separator />
+
+      {/* Filters — neutral segmented control instead of loud colored pills */}
+      <div className="px-3 py-2">
+        <div className="flex items-center gap-0.5 rounded-md border border-input bg-muted/30 p-0.5">
+          <button type="button" onClick={() => setFilter('all')}
+            className={cn('flex-1 rounded px-2 py-1 text-[11px] font-semibold transition-colors duration-fast focus-ring',
+              filter === 'all'
+                ? 'bg-card text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground')}>
+            Todas
+          </button>
+          <button type="button" onClick={() => setFilter('review')}
+            className={cn('flex-1 rounded px-2 py-1 text-[11px] font-semibold transition-colors duration-fast focus-ring',
+              filter === 'review'
+                ? 'bg-card text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground')}>
+            A revisar ({review})
+          </button>
+        </div>
       </div>
+      <Separator />
+
       <div className="flex-1 space-y-2 overflow-y-auto p-2">
         {shown.length === 0 ? (
           <p className="px-2 py-6 text-center text-xs text-muted-foreground">
@@ -176,6 +188,26 @@ export function QuoteSidebar(props: QuoteSidebarProps) {
           </p>
         ) : (
           shown.map((r) => <Row key={r.questionId} row={r} {...props} />)
+        )}
+      </div>
+
+      {/* Footer — top-and-tail band matching the lesson-config sheet */}
+      <Separator />
+      <div className="px-3 py-2.5">
+        {review > 0 && firstReview ? (
+          <button
+            type="button"
+            onClick={() => props.onGoToQuestion(firstReview)}
+            className="inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-input px-3 py-2 text-xs font-semibold text-foreground transition-colors duration-fast hover:bg-muted/30 focus-ring"
+          >
+            <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />
+            Revisar {review} {review === 1 ? 'cita' : 'citas'}
+          </button>
+        ) : (
+          <p className="flex items-center justify-center gap-1.5 py-1 text-[11px] font-medium text-muted-foreground">
+            <Check className="h-3.5 w-3.5 text-brand-primary" />
+            Todo sincronizado
+          </p>
         )}
       </div>
     </aside>
