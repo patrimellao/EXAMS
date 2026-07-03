@@ -114,3 +114,30 @@ test('"Quitar cita" removes the quote row and its anchor from the editor', async
   await expect(panel.getByRole('button', { name: 'Quitar cita' })).toHaveCount(0);
   await expect(page.locator('[data-quote-anchor]')).toHaveCount(0);
 });
+
+test('"Citas" is a view mode showing the editor and quote panel together', async ({ page }) => {
+  await page.goto(BUILDER_URL);
+
+  // Dismiss cookie banner if present so it doesn't block UI interactions.
+  const cookieDismiss = page.getByRole('button', { name: /Solo necesarias/i });
+  if (await cookieDismiss.isVisible({ timeout: 2000 }).catch(() => false)) {
+    await cookieDismiss.click();
+  }
+
+  const citas = page.getByRole('button', { name: /Citas de la lección/i });
+  const escribir = page.getByRole('button', { name: 'Escribir' });
+  await expect(escribir).toHaveAttribute('aria-pressed', 'true');
+
+  await citas.click();
+
+  // It's a mutually-exclusive mode, not an independent toggle: selecting Citas
+  // un-presses the other view modes.
+  await expect(citas).toHaveAttribute('aria-pressed', 'true');
+  await expect(escribir).toHaveAttribute('aria-pressed', 'false');
+
+  // Panel and editor are visible at the same time (co-visibility).
+  await expect(
+    page.getByRole('complementary', { name: /Citas de la lección/i }),
+  ).toBeVisible();
+  await expect(page.locator('[data-slate-editor="true"]')).toBeVisible();
+});

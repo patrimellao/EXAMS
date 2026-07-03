@@ -662,8 +662,7 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
   const [activeLessonId, setActiveLessonId] = useState(1);
   const [configSheetOpen, setConfigSheetOpen] = useState(false);
   const [historySheetOpen, setHistorySheetOpen] = useState(false);
-  const [editorMode, setEditorMode] = useState<"edit" | "preview" | "split">("edit");
-  const [quoteSidebarOpen, setQuoteSidebarOpen] = useState(false);
+  const [editorMode, setEditorMode] = useState<"edit" | "preview" | "split" | "quotes">("edit");
   const [isUploading, setIsUploading] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "dirty" | "saving" | "saved">("idle");
 
@@ -1597,17 +1596,7 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                   </>
                 )}
               </Button>
-              {/* Quote sidebar toggle */}
-              <UIButton
-                type="button"
-                variant={quoteSidebarOpen ? "secondary" : "outline"}
-                aria-pressed={quoteSidebarOpen}
-                onClick={() => setQuoteSidebarOpen((v) => !v)}
-              >
-                <BookOpen className="mr-1.5 h-3.5 w-3.5" />
-                Citas de la lección
-              </UIButton>
-              {/* View mode segmented control (Escribir · Vista previa · Dividido) */}
+              {/* View mode segmented control (Escribir · Vista previa · Dividido · Citas) */}
               <div
                 role="group"
                 aria-label="Modo de vista del editor"
@@ -1655,6 +1644,20 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                 >
                   <FlipHorizontal className="h-3.5 w-3.5" />
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setEditorMode("quotes")}
+                  aria-label="Citas de la lección"
+                  title="Citas"
+                  aria-pressed={editorMode === "quotes"}
+                  className={`flex h-8 items-center justify-center rounded-md px-2.5 transition-colors duration-fast focus-ring ${
+                    editorMode === "quotes"
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <MessageSquareQuote className="h-3.5 w-3.5" />
+                </button>
               </div>
               {/* Mobile fallback: cycle button */}
               <UIButton
@@ -1666,7 +1669,9 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                       ? "preview"
                       : editorMode === "preview"
                         ? "split"
-                        : "edit",
+                        : editorMode === "split"
+                          ? "quotes"
+                          : "edit",
                   )
                 }
                 aria-label={`Vista actual: ${editorMode}. Pulsa para cambiar.`}
@@ -1677,8 +1682,10 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                   <Pencil className="h-4 w-4" />
                 ) : editorMode === "preview" ? (
                   <Eye className="h-4 w-4" />
-                ) : (
+                ) : editorMode === "split" ? (
                   <FlipHorizontal className="h-4 w-4" />
+                ) : (
+                  <MessageSquareQuote className="h-4 w-4" />
                 )}
               </UIButton>
               <UIButton
@@ -1818,7 +1825,7 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
               <section className="relative -mx-4 flex min-h-[620px] flex-col bg-card md:-mx-8">
                 <div className="flex flex-1 w-full">
                 <div className="flex-1 min-w-0">
-                  {editorMode === "edit" && (
+                  {(editorMode === "edit" || editorMode === "quotes") && (
                     <LessonPlateEditor
                       key={activeLessonId}
                       value={activeLesson?.content || ""}
@@ -2073,8 +2080,8 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
                     </div>
                   )}
                 </div>
-                {/* Quote sidebar — docked to the right of the editor when open */}
-                {quoteSidebarOpen && (
+                {/* Quote panel — right pane of the "Citas" view mode */}
+                {editorMode === "quotes" && (
                   <QuoteSidebar
                     rows={quoteRows}
                     onJump={onJump}
