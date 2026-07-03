@@ -1753,9 +1753,10 @@ export function BuilderWorkspace({ mode }: { mode: BuilderMode }) {
 
       {/* Full-width editor tool bar — pinned flush under the header (WordPress-style).
           Edit/split: markdown tools. Preview: the "what the student sees" banner. */}
-      {/* In "edit" mode the Plate editor renders its own WYSIWYG toolbar, so this
-          legacy markdown toolbar is only shown for preview (banner) and split (source). */}
-      {mode === "lessons" && editorMode !== "edit" && (
+      {/* In "edit" and "quotes" modes the Plate editor renders its own WYSIWYG
+          toolbar, so this legacy markdown toolbar is only shown for preview
+          (banner) and split (source) — else it would stack a second toolbar. */}
+      {mode === "lessons" && (editorMode === "preview" || editorMode === "split") && (
         <div className="sticky -top-6 z-30 -mx-4 -mt-6 border-b bg-card/95 px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-card/80 md:-mx-8 md:px-8">
           {editorMode === "preview" ? (
             <div className="flex items-center gap-2">

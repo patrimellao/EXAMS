@@ -140,4 +140,9 @@ test('"Citas" is a view mode showing the editor and quote panel together', async
     page.getByRole('complementary', { name: /Citas de la lección/i }),
   ).toBeVisible();
   await expect(page.locator('[data-slate-editor="true"]')).toBeVisible();
+
+  // Only the Plate editor's own toolbar renders — the legacy markdown toolbar
+  // (preview/split only) must NOT stack a second one. Both would expose a
+  // "Negrita (⌘B)" button, so a duplicate shows up as count 2.
+  await expect(page.getByRole('button', { name: 'Negrita (⌘B)' })).toHaveCount(1);
 });
