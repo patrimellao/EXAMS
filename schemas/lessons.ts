@@ -1,10 +1,12 @@
-import { pgTable, serial, timestamp, integer, varchar, smallint, text, boolean, index } from "drizzle-orm/pg-core";
+import { pgTable, serial, timestamp, integer, varchar, smallint, text, boolean, index, jsonb } from "drizzle-orm/pg-core";
 import { units } from "./units";
 
 export const lessons = pgTable("lessons", {
   id: serial("id").primaryKey().notNull(),
   unitId: integer("unit_id").notNull().references(() => units.id, { onDelete: "cascade", onUpdate: "cascade" }),
   title: varchar("title", { length: 256 }).notNull(),
+  subtitle: varchar("subtitle", { length: 256 }),        // NEW — optional lesson subtitle
+  hero: jsonb("hero"),                                    // NEW — { type, gradient, color, image:{url,alt} }
   order: smallint("order").notNull(),
   type: varchar("type", { length: 20 }).default('article').notNull(), // 'article' | 'video'
   contentText: text("content_text"),           // markdown body

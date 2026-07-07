@@ -30,6 +30,7 @@ export const quizDetailsRelations = relations(quizDetails, ({ one }) => ({
 
 export const questionsRelations = relations(questions, ({ one, many }) => ({
   unit: one(units, { fields: [questions.unitId], references: [units.id] }),
+  lesson: one(lessons, { fields: [questions.lessonId], references: [lessons.id] }),
   answers: many(answers),
 }));
 
@@ -37,6 +38,7 @@ export const answersRelations = relations(answers, ({ one }) => ({
   question: one(questions, { fields: [answers.questionId], references: [questions.id] }),
 }));
 
-export const lessonsRelations = relations(lessons, ({ one }) => ({
+export const lessonsRelations = relations(lessons, ({ one, many }) => ({
   unit: one(units, { fields: [lessons.unitId], references: [units.id] }),
+  questions: many(questions),
 }));

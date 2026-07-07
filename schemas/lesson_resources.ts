@@ -7,6 +7,8 @@ export const lessonResources = pgTable("lesson_resources", {
   title: varchar("title", { length: 256 }).notNull(),
   type: varchar("type", { length: 20 }).notNull(), // 'pdf' | 'file' | 'link'
   url: varchar("url", { length: 512 }).notNull(),
+  size: integer("size"),                                 // NEW — bytes, nullable
+  status: varchar("status", { length: 20 }),             // NEW — 'ready' | 'uploading' | 'error', nullable
   order: smallint("order").default(1).notNull(),
   createdAt: timestamp("created_at", { mode: 'string' }).defaultNow().notNull(),
 });
