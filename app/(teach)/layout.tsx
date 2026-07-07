@@ -20,9 +20,9 @@ export default async function TeachLayout({
       </aside>
 
       <div className="flex w-full min-w-0 flex-1 flex-col md:ml-60">
-        <main className="min-h-0 flex-1 overflow-y-auto px-4 py-6 md:px-8">
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-6 md:px-8">
           {children}
-        </main>
+        </div>
       </div>
     </div>
   );
