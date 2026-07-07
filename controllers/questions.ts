@@ -5,45 +5,50 @@ import { eq, and } from "drizzle-orm";
 import { addAnswer, deleteQuestionAnswers, questionAnswers } from "./answers";
 
 
-export const addQuestionWithAnswers = async ({ question, answers, hard, unitId }: {
+type Difficulty = 'facil' | 'normal' | 'dificil';
+type QAnswer = { name: string; correct: boolean };
+
+export const addQuestionWithAnswers = async ({ question, label, explanation, difficulty, unitId, lessonId, lessonRef, answers }: {
   question: string;
-  hard: boolean;
+  label?: string;
+  explanation?: string;
+  difficulty: Difficulty;
   unitId: number;
-  answers: {
-    name: string;
-    correct: boolean;
-  }[];
-  id?: number | undefined;
+  lessonId?: number | null;
+  lessonRef?: unknown | null;
+  answers: QAnswer[];
 }) => {
-  const newQuestion = await addQuestion({ question: question, hard, unitId })
-
+  const newQuestion = await addQuestion({
+    question, label, explanation, difficulty,
+    hard: difficulty === 'dificil',
+    unitId, lessonId: lessonId ?? null, lessonRef: lessonRef ?? null,
+  });
   for (const answer of answers) {
-    addAnswer({ ...answer, questionId: newQuestion[0].id })
-  };
-
-  return newQuestion[0].id
-}
-
-export const updateQuestionWithAnswers = async ({ question, answers, hard, id }: {
-  question: string;
-  hard: boolean;
-  answers: {
-    name: string;
-    correct: boolean;
-  }[];
-  id: number;
-}) => {
-  // Update the question
-  await updateQuestion(id, { question: question, hard });
-
-  // Delete all existing answers related to the question
-  await deleteQuestionAnswers(id)
-
-  // Add new answers
-  for (const answer of answers) {
-    addAnswer({ ...answer, questionId: id });
+    await addAnswer({ ...answer, questionId: newQuestion[0].id });
   }
-}
+  return newQuestion[0].id;
+};
+
+export const updateQuestionWithAnswers = async ({ id, question, label, explanation, difficulty, lessonId, lessonRef, answers }: {
+  id: number;
+  question: string;
+  label?: string;
+  explanation?: string;
+  difficulty: Difficulty;
+  lessonId?: number | null;
+  lessonRef?: unknown | null;
+  answers: QAnswer[];
+}) => {
+  await updateQuestion(id, {
+    question, label, explanation, difficulty,
+    hard: difficulty === 'dificil',
+    lessonId: lessonId ?? null, lessonRef: lessonRef ?? null,
+  });
+  await deleteQuestionAnswers(id);
+  for (const answer of answers) {
+    await addAnswer({ ...answer, questionId: id });
+  }
+};
 
 export const addQuestion = async (question: InsertQuestion) => {
   return await db

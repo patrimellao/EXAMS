@@ -112,18 +112,26 @@ export default function QuestionForm({
   };
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
+    const difficulty = data.hard ? 'dificil' : 'normal';
+
     if (!data.id) {
-      //@ts-ignore
-      data.unitId = unitId;
-      //@ts-ignore
-      const id = await addQuestionWithAnswers(data);
+      const id = await addQuestionWithAnswers({
+        question: data.question,
+        difficulty,
+        unitId,
+        answers: data.answers,
+      });
       toast({
         title: 'Question created successfully',
       });
       data.id = id;
     } else {
-      //@ts-ignore
-      await updateQuestionWithAnswers(data);
+      await updateQuestionWithAnswers({
+        id: data.id,
+        question: data.question,
+        difficulty,
+        answers: data.answers,
+      });
       toast({
         title: 'Question updated successfully',
       });
