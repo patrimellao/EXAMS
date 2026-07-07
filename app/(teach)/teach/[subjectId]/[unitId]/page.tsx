@@ -9,6 +9,7 @@
 import { getQuestionsFromUnit } from "@/controllers/questions";
 import { getLessonsForUnit, getLessonResources } from "@/controllers/lessons";
 import { DEFAULT_HERO } from "@/lib/teach/hero";
+import { deriveLessonRefStatus, type LessonRef } from "@/lib/teach/lesson-ref";
 import {
   BuilderWorkspaceLive,
   type BuilderQuestion,
@@ -60,21 +61,41 @@ export default async function BuilderPage({
     getLessonsForUnit(unitId),
   ]);
 
-  const initialQuestions: BuilderQuestion[] = rawQuestions.map((q) => ({
-    id: q.id,
-    label: q.label ?? "",
-    dirty: false,
-    text: q.question ?? "",
-    difficulty: DB_TO_DIFFICULTY[q.difficulty ?? "normal"] ?? "normal",
-    lessonId: q.lessonId ?? null,
-    lessonRef: (q.lessonRef as BuilderLessonRef) ?? null,
-    explanation: q.explanation ?? "",
-    answers: (q.answers ?? []).map((a) => ({
-      id: a.id,
-      text: a.name ?? "",
-      correct: !!a.correct,
-    })),
-  }));
+  // Lesson markdown keyed by id — used to derive each quote-anchored question's
+  // sync status at load time (the anchor markers live inside contentText).
+  const lessonMarkdownById = new Map<number, string>(
+    rawLessons.map((l) => [l.id, l.contentText ?? ""]),
+  );
+
+  const initialQuestions: BuilderQuestion[] = rawQuestions.map((q) => {
+    const lessonRef = (q.lessonRef as BuilderLessonRef) ?? null;
+    // Derive synced|drift|orphan from the linked lesson's markdown so the
+    // builder shows the quote's status immediately on load (not just after an
+    // edit). Questions with no lessonRef carry a null status.
+    const refStatus =
+      lessonRef && q.lessonId != null
+        ? deriveLessonRefStatus(
+            lessonRef as LessonRef,
+            lessonMarkdownById.get(q.lessonId) ?? "",
+          )
+        : null;
+    return {
+      id: q.id,
+      label: q.label ?? "",
+      dirty: false,
+      text: q.question ?? "",
+      difficulty: DB_TO_DIFFICULTY[q.difficulty ?? "normal"] ?? "normal",
+      lessonId: q.lessonId ?? null,
+      lessonRef,
+      refStatus,
+      explanation: q.explanation ?? "",
+      answers: (q.answers ?? []).map((a) => ({
+        id: a.id,
+        text: a.name ?? "",
+        correct: !!a.correct,
+      })),
+    };
+  });
 
   // Lesson counts per unit are small, so loading resources per lesson is fine.
   const initialLessons: BuilderLesson[] = await Promise.all(

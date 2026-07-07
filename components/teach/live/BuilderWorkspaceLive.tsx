@@ -112,7 +112,8 @@ import {
   QuoteSentence,
   LessonQuoteCard,
 } from "@/components/lesson/quote-reference";
-import { findAnchors, deriveQuoteStatus, unwrapAnchor, wrapAnchorAt, newAnchorId } from '@/lib/lesson-quotes';
+import { findAnchors, deriveQuoteStatus, unwrapAnchor, wrapAnchorAt, newAnchorId, type QuoteStatus } from '@/lib/lesson-quotes';
+import { deriveLessonRefStatus } from '@/lib/teach/lesson-ref';
 import { QuoteSidebar, type QuoteRow } from '@/components/teach/lesson-editor/QuoteSidebar';
 import type { AnchorMeta } from '@/components/teach/lesson-editor/blocks';
 import {
@@ -158,6 +159,10 @@ export type BuilderQuestion = {
   difficulty: BuilderDifficulty;
   lessonId: number | null;
   lessonRef: BuilderLessonRef;
+  // Load-time-derived sync status of the quote-anchor (synced|drift|orphan),
+  // computed server-side against the linked lesson's markdown. Null when the
+  // question has no lessonRef. Recomputed live once the ref is edited client-side.
+  refStatus?: QuoteStatus | null;
   explanation: string;
   answers: BuilderAnswer[];
 };
@@ -812,6 +817,15 @@ export function BuilderWorkspaceLive({
     ? parseLessonSections(activeQuestionLesson.content)
     : [];
   const lessonRef = activeQuestion?.lessonRef ?? null;
+  // Sync status of the active question's quote-anchor. Once the ref has been
+  // edited client-side (dirty) we recompute live against the current lesson
+  // markdown; otherwise we trust the server-derived load-time status.
+  const lessonRefStatus: QuoteStatus | null = lessonRef
+    ? activeQuestion?.dirty
+      ? deriveLessonRefStatus(lessonRef, activeQuestionLesson?.content ?? '')
+      : activeQuestion?.refStatus ??
+        deriveLessonRefStatus(lessonRef, activeQuestionLesson?.content ?? '')
+    : null;
 
   // Single shared derivation pass: sort by lesson position FIRST, then assign
   // P{n} labels so chip (in-body) and sidebar always agree.
@@ -1119,7 +1133,15 @@ export function BuilderWorkspaceLive({
     setQuestionsList((prev) =>
       prev.map((q) =>
         q.id === questionId
-          ? { ...q, lessonRef: { section, quote, sentence, color, anchorId }, dirty: true }
+          ? {
+              ...q,
+              // A quote lives inside a specific lesson — pin the link to it so
+              // status derivation can find the markdown and the syllabus counts
+              // the question against that lesson.
+              lessonId: activeLesson?.id ?? q.lessonId,
+              lessonRef: { section, quote, sentence, color, anchorId },
+              dirty: true,
+            }
           : q,
       ),
     );
@@ -1132,12 +1154,15 @@ export function BuilderWorkspaceLive({
   const createQuestionWithQuote = () => {
     if (!quoteToQuestion) return;
     const { section, quote, sentence, color, anchorId } = quoteToQuestion;
-    const nextId = Math.max(...questionsList.map((q) => q.id), 0) + 1;
+    // Temp NEGATIVE id marks an unsaved question so saveQuestion() routes it to
+    // an INSERT (it treats only id < 0 as new). A positive id would be mistaken
+    // for a real row and routed to an UPDATE of a non-existent question.
+    const nextId = Math.min(0, ...questionsList.map((q) => q.id)) - 1;
     setQuestionsList((prev) => [
       ...prev,
       {
         id: nextId,
-        label: `Nueva pregunta ${nextId}`,
+        label: `Nueva pregunta`,
         dirty: true,
         text: "¿Enunciado de la nueva pregunta?",
         difficulty: "normal",
@@ -2991,6 +3016,28 @@ export function BuilderWorkspaceLive({
                   // Linked — read-only quote exactly as the student sees it
                   // (same shared card as the quiz review, minus the deep link).
                   <div className="space-y-2">
+                    {lessonRefStatus && (
+                      <span
+                        data-testid="lesson-ref-status"
+                        data-status={lessonRefStatus}
+                        className={cn(
+                          "inline-flex items-center gap-1 rounded-pill border px-2 py-0.5 text-[11px] font-semibold",
+                          lessonRefStatus === "synced" &&
+                            "border-success/20 bg-success/10 text-success",
+                          lessonRefStatus === "drift" &&
+                            "border-brand-warm/20 bg-brand-warm/10 text-brand-warm",
+                          lessonRefStatus === "orphan" &&
+                            "border-border bg-muted text-muted-foreground",
+                        )}
+                      >
+                        <MessageSquareQuote className="h-3 w-3" />
+                        {lessonRefStatus === "synced"
+                          ? "Cita sincronizada"
+                          : lessonRefStatus === "drift"
+                            ? "Cita desincronizada"
+                            : "Cita sin ancla"}
+                      </span>
+                    )}
                     <LessonQuoteCard
                       label={`Lección 2.${activeQuestionLesson?.order} · ${lessonRef.section}`}
                       quote={lessonRef.quote}
