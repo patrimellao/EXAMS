@@ -1,4 +1,6 @@
 import { pgTable, serial, timestamp, integer, varchar, smallint, text, boolean, index, jsonb } from "drizzle-orm/pg-core";
+import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+import { z } from "zod";
 import { units } from "./units";
 
 export const lessons = pgTable("lessons", {
@@ -24,3 +26,8 @@ export const lessons = pgTable("lessons", {
 
 export type Lesson = typeof lessons.$inferSelect;
 export type InsertLesson = typeof lessons.$inferInsert;
+
+export const insertLessonSchema = createInsertSchema(lessons, {
+  unitId: z.optional(z.number()),
+});
+export const selectLessonSchema = createSelectSchema(lessons);
