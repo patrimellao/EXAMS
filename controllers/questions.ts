@@ -112,10 +112,21 @@ export const getQuestionsFromUnit = async (unit_id: number) => {
     where: (questions, { eq }) => (and(
       eq(questions.unitId, unit_id),
     )),
-    columns: { id: true, question: true },
+    // Task 7 (§3.12): the wired builder needs the full authoring shape, not just
+    // { id, question }. Return label/difficulty/explanation/lessonId/lessonRef and
+    // the answer ids so the client can map DB rows → BuilderQuestion view-models.
+    columns: {
+      id: true,
+      question: true,
+      label: true,
+      difficulty: true,
+      explanation: true,
+      lessonId: true,
+      lessonRef: true,
+    },
     with: {
       answers: {
-        columns: { name: true, correct: true },
+        columns: { id: true, name: true, correct: true },
       },
     }
   })
