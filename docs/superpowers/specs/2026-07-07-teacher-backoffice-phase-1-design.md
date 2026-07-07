@@ -39,30 +39,48 @@ wireframes and retire the old screens.
   analytics — remain "Próximamente" (disabled sidebar items), no wireframe yet.
 - Self-serve teacher onboarding / role-request screen.
 
-## Approach: A — Promote the wireframes
+## Approach: A — Duplicate the wireframes into real routes
 
-Move `app/wireframes/(teach)/*` into a real `(teach)` route group, wire the
-components to existing controllers, apply additive schema changes, gate by role,
-and retire the old `(main)/teach` + `(main)/build` screens.
+**Duplicate** (do not move) `app/wireframes/(teach)/*` into a real `(teach)` route
+group, wire the **copies** to existing controllers, apply additive schema changes,
+and gate by role. The original `app/wireframes/(teach)/*` pages stay **untouched**
+as a living design source that keeps iterating independently — production must not
+break when the wireframes change. The old `(main)/teach` + `(main)/build` screens
+are superseded by the new wired routes and retired once verified.
+
+### What gets duplicated vs shared
+
+- **Duplicated** (so the wireframe versions can keep iterating freely): the
+  `(teach)` page shells and the `BuilderWorkspace` orchestrator. The real copy
+  (e.g. `BuilderWorkspaceLive` / a `(teach)`-group builder) is wired to data; the
+  wireframe copy keeps its hard-coded seed arrays.
+- **Shared, untouched leaf components:** `LessonPlateEditor`, `LessonPreview`,
+  `QuoteSidebar`, `TeachSidebar`, `MediaLibraryPanel` (picker use only). These are
+  stable and reused by both the wireframe and the real page.
+- If the shared `BuilderWorkspace` is refactored to be data-source-agnostic
+  (data + persistence handlers via props) that is acceptable *as long as* the
+  wireframe page keeps working unchanged; but the default is duplication to avoid
+  coupling production to the iterating wireframe.
 
 ## Architecture
 
 ### Route map
 
-Promote the wireframe `(teach)` group to a real top-level route group with its own
-slate "no-gamification" shell (TeachSidebar). The builder is **scoped to a unit**
-(questions and lessons both belong to a unit), replacing the flat `/teach/build`
-of the wireframe.
+**Duplicate** the wireframe `(teach)` group into a real top-level route group with
+its own slate "no-gamification" shell (TeachSidebar). The builder is **scoped to a
+unit** (questions and lessons both belong to a unit), replacing the flat
+`/teach/build` of the wireframe. The wireframe pages listed as "copied from" stay
+in place and keep iterating.
 
-| New real route | Wireframe source | Replaces |
+| New real route | Copied from (left untouched) | Retires |
 |---|---|---|
-| `app/(teach)/layout.tsx` — teacher shell + sidebar, role gate | `(teach)` layout | — |
-| `app/(teach)/teach/page.tsx` — Subjects (§3.10) | `(teach)/teach/page.tsx` | `(main)/teach/page.tsx` |
-| `app/(teach)/teach/[subjectId]/page.tsx` — Syllabus: units + lessons (§3.11) | `(teach)/teach/[id]/page.tsx` | `(main)/teach/[id]/page.tsx` |
-| `app/(teach)/teach/[subjectId]/[unitId]/page.tsx` — Builder, tabs Preguntas/Lecciones (§3.12) | `(teach)/teach/build/*` + `BuilderWorkspace` | `(main)/build/[id]/[unitId]/*` |
+| `app/(teach)/layout.tsx` — teacher shell + sidebar, role gate | `wireframes/(teach)` layout | — |
+| `app/(teach)/teach/page.tsx` — Subjects (§3.10) | `wireframes/(teach)/teach/page.tsx` | `(main)/teach/page.tsx` |
+| `app/(teach)/teach/[subjectId]/page.tsx` — Syllabus: units + lessons (§3.11) | `wireframes/(teach)/teach/[id]/page.tsx` | `(main)/teach/[id]/page.tsx` |
+| `app/(teach)/teach/[subjectId]/[unitId]/page.tsx` — Builder, tabs Preguntas/Lecciones (§3.12) | `wireframes/(teach)/teach/build/*` + `BuilderWorkspace` | `(main)/build/[id]/[unitId]/*` |
 
-Retire `app/(main)/build/*` and the old `(main)/teach` pages. Media stays a
-"Próximamente" sidebar item.
+The `app/wireframes/(teach)/*` originals remain as the iterating design source.
+Media stays a "Próximamente" sidebar item.
 
 Route-group note: the URL paths stay `/teach/...`, so `middleware.ts` gating of
 `/teach` is unaffected. `/build` disappears (its middleware matcher can be
@@ -120,13 +138,16 @@ teacher role server-side as defense in depth.
 
 ## Components affected
 
-- **Reused as-is (already embed real editor):** `BuilderWorkspace.tsx`,
-  `LessonPlateEditor.tsx`, `LessonPreview.tsx`, `QuoteSidebar.tsx`,
-  `TeachSidebar.tsx`, `MediaLibraryPanel.tsx` (its in-builder picker usage only;
-  the standalone library page is Phase 2).
-- **Rewired:** the wireframe page shells (`(teach)/teach/*`) become server
-  components loading real data.
-- **Retired:** `(main)/build/[id]/[unitId]/{QuestionBuilder,LessonBuilder,questionForm,SidebarQuestions}.tsx`,
+- **Shared, untouched (already embed real editor):** `LessonPlateEditor.tsx`,
+  `LessonPreview.tsx`, `QuoteSidebar.tsx`, `TeachSidebar.tsx`,
+  `MediaLibraryPanel.tsx` (in-builder picker use only; standalone library is
+  Phase 2).
+- **Duplicated + wired:** the `(teach)` page shells and the `BuilderWorkspace`
+  orchestrator get real copies under `app/(teach)/*` that are server-loaded from
+  controllers and persist via server actions. The `app/wireframes/(teach)/*`
+  originals (and their seed-fed `BuilderWorkspace`) are left untouched.
+- **Retired (superseded, remove after verification):**
+  `(main)/build/[id]/[unitId]/{QuestionBuilder,LessonBuilder,questionForm,SidebarQuestions}.tsx`,
   old `(main)/teach/[id]/{data-table,columns}.tsx` DataTable screens.
 - **Controllers extended:** `questions.ts` (explanation, difficulty, label,
   lessonId, lessonRef), `lessons.ts` (subtitle, hero), resource handling (size,
