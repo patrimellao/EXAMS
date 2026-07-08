@@ -2,8 +2,10 @@
 import { InsertAnswer, answers } from "@/schemas/answers";
 import { db } from "@/utils/drizzle/db";
 import { eq, and } from "drizzle-orm";
+import { assertTeacher } from "@/lib/assertTeacher";
 
 export const addAnswer = async (answer: InsertAnswer) => {
+  await assertTeacher();
   await db
     .insert(answers)
     .values(answer);
@@ -25,6 +27,7 @@ export const questionAnswers = async (questionId: number) => {
 };
 
 export const deleteQuestionAnswers = async (questionId: number) => {
+  await assertTeacher();
   await db
   .delete(answers)
   .where(
@@ -32,6 +35,7 @@ export const deleteQuestionAnswers = async (questionId: number) => {
   );
 };
 export const deleteAnswer = async (id: number) => {
+  await assertTeacher();
   await db
   .delete(answers)
   .where(
@@ -40,6 +44,7 @@ export const deleteAnswer = async (id: number) => {
 };
 
 export const updateAnswer = async (id: number, answer: InsertAnswer) => {
+  await assertTeacher();
   await db
     .update(answers)
     .set({

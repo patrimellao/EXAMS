@@ -4,8 +4,10 @@ import { InsertUnit, units } from "@/schemas/units";
 import { db } from "@/utils/drizzle/db";
 import { UUID } from "crypto";
 import { eq, and, sql, asc, count } from "drizzle-orm";
+import { assertTeacher } from "@/lib/assertTeacher";
 
 export const addUnit = async (unit: InsertUnit) => {
+  await assertTeacher();
   await db
     .insert(units)
     .values(unit);
@@ -17,12 +19,14 @@ export const allUnits = async () => {
 };
 
 export const deleteUnit = async (id: number) => {
+  await assertTeacher();
   await db
     .delete(units)
     .where(eq(units.id, id));
 };
 
 export const updateUnit = async (id: number, unit: InsertUnit) => {
+  await assertTeacher();
   await db
     .update(units)
     .set({
@@ -82,6 +86,7 @@ export const getQuestionsAndAnswers = async (unitId : number) => {
 }
 
 export const activateUnit = async (unitId : number) => {
+  await assertTeacher();
   await db
   .update(units)
   .set({active : true})

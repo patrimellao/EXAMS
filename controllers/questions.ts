@@ -3,6 +3,7 @@ import { InsertQuestion, questions } from "@/schemas/questions";
 import { db } from "@/utils/drizzle/db";
 import { eq, and } from "drizzle-orm";
 import { addAnswer, deleteQuestionAnswers, questionAnswers } from "./answers";
+import { assertTeacher } from "@/lib/assertTeacher";
 
 
 type Difficulty = 'facil' | 'normal' | 'dificil';
@@ -18,6 +19,7 @@ export const addQuestionWithAnswers = async ({ question, label, explanation, dif
   lessonRef?: unknown | null;
   answers: QAnswer[];
 }) => {
+  await assertTeacher();
   const newQuestion = await addQuestion({
     question, label, explanation, difficulty,
     hard: difficulty === 'dificil',
@@ -39,6 +41,7 @@ export const updateQuestionWithAnswers = async ({ id, question, label, explanati
   lessonRef?: unknown | null;
   answers: QAnswer[];
 }) => {
+  await assertTeacher();
   await updateQuestion(id, {
     question, label, explanation, difficulty,
     hard: difficulty === 'dificil',
@@ -51,6 +54,7 @@ export const updateQuestionWithAnswers = async ({ id, question, label, explanati
 };
 
 export const addQuestion = async (question: InsertQuestion) => {
+  await assertTeacher();
   return await db
     .insert(questions)
     .values(question)
@@ -75,6 +79,7 @@ export const allActiveQuestions = async () => {
 };
 
 export const deleteQuestion = async (id: number) => {
+  await assertTeacher();
   await db
     .delete(questions)
     .where(
@@ -83,6 +88,7 @@ export const deleteQuestion = async (id: number) => {
 };
 
 export const updateQuestion = async (id: number, question: InsertQuestion) => {
+  await assertTeacher();
   await db
     .update(questions)
     .set({
@@ -95,6 +101,7 @@ export const updateQuestion = async (id: number, question: InsertQuestion) => {
 };
 
 export const disableQuestion = async (id: number) => {
+  await assertTeacher();
   await db
     .update(questions)
     .set({

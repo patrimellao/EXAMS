@@ -5,8 +5,10 @@ import { db } from "@/utils/drizzle/db";
 import { units, userSubjects } from "@/drizzle/schema";
 import { eq, and, notInArray, asc, inArray } from "drizzle-orm";
 import { Unit } from "@/schemas/units";
+import { assertTeacher } from "@/lib/assertTeacher";
 
 export const addSubject = async (subject: InsertSubject) => {
+  await assertTeacher();
   return await db
     .insert(subjects)
     .values(subject)
@@ -31,6 +33,7 @@ export const allActiveSubjects = async () => {
 };
 
 export const deleteSubject = async (id: number) => {
+  await assertTeacher();
   await db
     .delete(subjects)
     .where(
@@ -39,6 +42,7 @@ export const deleteSubject = async (id: number) => {
 };
 
 export const updateSubject = async (id: number, subject: InsertSubject) => {
+  await assertTeacher();
   return await db
     .update(subjects)
     .set({
@@ -164,6 +168,7 @@ export const enrollSubjects = async (userId: string, subjectIds: number[]) => {
 }
 
 export const activateSubject = async (subjectId : number) => {
+  await assertTeacher();
   await db
   .update(subjects)
   .set({active : true})

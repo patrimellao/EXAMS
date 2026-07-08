@@ -6,6 +6,7 @@ import { InsertLessonProgress } from "@/schemas/lesson_progress";
 import { InsertLessonResource } from "@/schemas/lesson_resources";
 import { eq, and, asc, count } from "drizzle-orm";
 import { getUser } from "@/lib/getUser";
+import { assertTeacher } from "@/lib/assertTeacher";
 
 // ─── CRUD ────────────────────────────────────────────────────────────────────
 
@@ -18,11 +19,13 @@ export async function getLessonsForUnit(unitId: number) {
 }
 
 export async function addLesson(data: InsertLesson) {
+  await assertTeacher();
   const [lesson] = await db.insert(lessons).values(data).returning();
   return lesson;
 }
 
 export async function updateLesson(id: number, data: Partial<InsertLesson>) {
+  await assertTeacher();
   const [lesson] = await db
     .update(lessons)
     .set({ ...data, updatedAt: new Date().toISOString() })
@@ -32,6 +35,7 @@ export async function updateLesson(id: number, data: Partial<InsertLesson>) {
 }
 
 export async function deleteLesson(id: number) {
+  await assertTeacher();
   await db.delete(lessons).where(eq(lessons.id, id));
 }
 
@@ -146,11 +150,13 @@ export async function markLessonComplete(
 // ─── RESOURCES ───────────────────────────────────────────────────────────────
 
 export async function addLessonResource(data: InsertLessonResource) {
+  await assertTeacher();
   const [resource] = await db.insert(lessonResources).values(data).returning();
   return resource;
 }
 
 export async function deleteLessonResource(id: number) {
+  await assertTeacher();
   await db.delete(lessonResources).where(eq(lessonResources.id, id));
 }
 
