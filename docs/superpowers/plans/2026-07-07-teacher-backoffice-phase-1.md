@@ -695,41 +695,58 @@ git push origin feature/phase-2b
 
 ---
 
-## Task 9: Retire old screens + full-suite green
+## Task 9: Safe orphan cleanup + full-suite green (REVISED — /build deferred)
+
+> **Decision (2026-07-08):** `/build` (the legacy editor) and its dependent specs
+> (`uc-04`, `uc-10`, `journey-teacher-crud`, `lesson-plate-editor`, `quote-sidebar`)
+> are LEFT INTACT as a working fallback. Deleting `/build` would require repointing
+> all of those specs to the new editor — deferred to a later cleanup to protect the
+> shippable branch. This task only removes truly-orphaned files and gets the full
+> suite green. Tasks 4 & 6 already removed the old `(main)/teach` page/layout/[id]
+> screens (forced by Next route collisions).
 
 **Files:**
-- Delete: `app/(main)/build/` (whole subtree)
-- Delete: old `app/(main)/teach/[id]/` DataTable screens (`data-table.tsx`, `columns.tsx`, and the page if fully replaced) — keep whatever `(main)` still legitimately needs; the canonical teacher UI is now `(teach)`.
-- Modify: `middleware.ts` — drop the `/build` matcher; keep `/teach`.
-- Modify: any nav/links pointing at `/build/*` or old teach routes.
-- Test: existing `tests/e2e/uc-04-teacher-backoffice.spec.ts` — update its paths to the new `(teach)` routes (or supersede it with uc-21..25).
+- Delete ONLY if verified unimported: `app/(main)/teach/create-subject.tsx`,
+  `subject-form.tsx`, `create-unit.tsx`, `loading.tsx`, and the now-empty
+  `app/(main)/teach/[id]/` directory (Task 6 deleted its files).
+- Do NOT touch: `app/(main)/build/*`, `middleware.ts` (`/build` matcher stays —
+  students must remain blocked from `/build`), `components/StudyLink.tsx`.
+- Fix only genuinely broken nav links (not `/build`, which stays).
 
 **Interfaces:**
-- Produces: a single canonical teacher backoffice under `/teach`; no dead `/build` routes.
+- Produces: the new `/teach` backoffice as the canonical authoring UI, with the
+  legacy `/build` kept as a working fallback and no orphaned dead files.
 
-- [ ] **Step 1: Find all references to the old routes**
+- [ ] **Step 1: Verify each candidate file is truly orphaned**
 
-Run: `grep -rn "/build/\|(main)/teach\|/teach/\[id\]" app components middleware.ts`
-List every hit; each must be repointed to `/teach/[subjectId]` / `/teach/[subjectId]/[unitId]` or removed.
+For each of `create-subject.tsx`, `subject-form.tsx`, `create-unit.tsx`,
+`loading.tsx` under `app/(main)/teach/`, run
+`grep -rn "<filename-without-ext>\|from ['\"].*teach/<name>" app components` and
+confirm ZERO live importers. KEEP any file that is still imported (e.g. by
+`/build`). Check whether `app/(main)/teach/[id]/` is empty (git tracks no empty
+dirs — if empty on disk, nothing to delete).
 
-- [ ] **Step 2: Update `uc-04` spec (or supersede)**
+- [ ] **Step 2: Delete only the confirmed-orphaned files**
 
-Point `tests/e2e/uc-04-teacher-backoffice.spec.ts` at the new routes, or delete it in favor of uc-21..25 if fully covered. Do not leave it asserting retired routes.
+Delete the verified-unimported files from Step 1. Do not delete anything still referenced.
 
-- [ ] **Step 3: Delete retired files + fix middleware/links**
+- [ ] **Step 3: Full validation (get the suite green)**
 
-Delete the `(main)/build` subtree and old DataTable teach screens; remove the `/build` middleware matcher; repoint links found in Step 1.
+Run: `npm run typecheck && npm run build`
+Expected: PASS.
+Run: `npm run test:ralph` (seeds + full E2E).
+Expected: all PASS. **Seeding caveat:** the global-setup auto-reseed may fail in
+this env (missing `dotenv` CLI) and `.env.test` may be stale — if reseed fails,
+seed manually / `touch .env.test` (ids unchanged) so the suite runs against a
+seeded DB. If any pre-existing spec is red for reasons UNRELATED to this branch's
+changes (e.g. environment/seeding), report it explicitly rather than forcing a
+green — do not silently skip.
 
-- [ ] **Step 4: Full validation**
-
-Run: `npm run typecheck && npm run build && npm run test:ralph`
-Expected: all PASS, full E2E suite green.
-
-- [ ] **Step 5: Commit**
+- [ ] **Step 4: Commit**
 
 ```bash
 git add -A
-git commit -m "chore(teach): retire (main)/build + old teach DataTable screens; repoint links"
+git commit -m "chore(teach): remove orphaned legacy (main)/teach form files; /build retirement deferred"
 git push origin feature/phase-2b
 ```
 
