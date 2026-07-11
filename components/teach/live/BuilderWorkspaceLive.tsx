@@ -604,6 +604,7 @@ export function BuilderWorkspaceLive({
     if (initialLessons.some((l) => l.id === parsed)) return parsed;
     return initialLessons[0]?.id ?? -1;
   });
+  const didAutoCreateLesson = useRef(false);
   const [configSheetOpen, setConfigSheetOpen] = useState(false);
   const [historySheetOpen, setHistorySheetOpen] = useState(false);
   const [editorMode, setEditorMode] = useState<"edit" | "preview" | "split" | "quotes">("edit");
@@ -947,6 +948,18 @@ export function BuilderWorkspaceLive({
       });
     }
   };
+
+  // Arriving from the subject page's "Nueva lección" (?new=1): create a fresh
+  // lesson once. createNewLesson() replaces the URL to ?lessonId=, dropping
+  // new=1, so a reload won't re-create.
+  useEffect(() => {
+    if (didAutoCreateLesson.current) return;
+    if (mode !== "lessons") return;
+    if (searchParams.get("new") !== "1") return;
+    didAutoCreateLesson.current = true;
+    void createNewLesson();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const saveLesson = async () => {
     if (saveStatus !== "dirty" || !activeLesson) return;
@@ -1610,7 +1623,8 @@ export function BuilderWorkspaceLive({
   const onGoToQuestion = (row: QuoteRow) => {
     const next = new URLSearchParams(searchParams.toString());
     next.set('questionId', String(row.questionId));
-    router.push(`/wireframes/teach/build/questions?${next.toString()}`);
+    next.set('tab', 'questions');
+    router.push(`/teach/${subjectId}/${unitId}?${next.toString()}`);
   };
 
   // ────────────────────────────────────────────────────────────────────────
@@ -1624,7 +1638,7 @@ export function BuilderWorkspaceLive({
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link href="/wireframes/teach" className="transition-colors duration-fast hover:text-foreground">
+                  <Link href="/teach" className="transition-colors duration-fast hover:text-foreground">
                     Asignaturas
                   </Link>
                 </BreadcrumbLink>
@@ -1632,8 +1646,8 @@ export function BuilderWorkspaceLive({
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link href="/wireframes/teach/derecho-civil" className="transition-colors duration-fast hover:text-foreground">
-                    Derecho Civil
+                  <Link href={`/teach/${subjectId}`} className="transition-colors duration-fast hover:text-foreground">
+                    Asignatura
                   </Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
@@ -1641,12 +1655,12 @@ export function BuilderWorkspaceLive({
               <BreadcrumbItem>
                 {mode === "lessons" ? (
                   <BreadcrumbLink asChild>
-                    <Link href="/wireframes/teach/derecho-civil" className="transition-colors duration-fast hover:text-foreground">
-                      U2 · Lecciones
+                    <Link href={`/teach/${subjectId}/${unitId}?tab=lessons`} className="transition-colors duration-fast hover:text-foreground">
+                      Lecciones
                     </Link>
                   </BreadcrumbLink>
                 ) : (
-                  <BreadcrumbPage>U2 · Preguntas</BreadcrumbPage>
+                  <BreadcrumbPage>Preguntas</BreadcrumbPage>
                 )}
               </BreadcrumbItem>
               {mode === "lessons" && (

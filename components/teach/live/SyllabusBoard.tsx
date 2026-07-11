@@ -85,9 +85,9 @@ import {
 import { PageHeader } from "@/components/teach/PageHeader";
 import type { Subject } from "@/schemas/subjects";
 import { insertUnitSchema, type Unit } from "@/schemas/units";
-import { insertLessonSchema, type Lesson } from "@/schemas/lessons";
+import { type Lesson } from "@/schemas/lessons";
 import { addUnit, updateUnit, deleteUnit } from "@/controllers/unit";
-import { updateLesson, deleteLesson } from "@/controllers/lessons";
+import { deleteLesson } from "@/controllers/lessons";
 
 const PAGE_SIZE = 10;
 
@@ -276,152 +276,6 @@ function UnitFormDialog({
   );
 }
 
-// ─── Lesson form dialog (edit only — creation happens in the unit builder) ──
-
-const lessonFormSchema = insertLessonSchema.pick({
-  title: true,
-  order: true,
-  type: true,
-  contentText: true,
-  estimatedDurationMinutes: true,
-  xpReward: true,
-});
-type LessonFormInputs = z.infer<typeof lessonFormSchema>;
-
-function LessonFormDialog({
-  open,
-  onOpenChange,
-  lesson,
-  onSaved,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  lesson: Lesson | null;
-  onSaved: () => void;
-}) {
-  const [isPending, startTransition] = useTransition();
-
-  const form = useForm<LessonFormInputs>({
-    resolver: zodResolver(lessonFormSchema),
-    values: {
-      title: lesson?.title ?? "",
-      order: lesson?.order ?? 1,
-      type: lesson?.type ?? "article",
-      contentText: lesson?.contentText ?? "",
-      estimatedDurationMinutes: lesson?.estimatedDurationMinutes ?? 5,
-      xpReward: lesson?.xpReward ?? 10,
-    },
-  });
-
-  const onSubmit = (values: LessonFormInputs) => {
-    if (!lesson) return;
-    startTransition(async () => {
-      try {
-        await updateLesson(lesson.id, values);
-        toast({ title: "Lección actualizada", variant: "primary" });
-        onOpenChange(false);
-        onSaved();
-      } catch (error) {
-        toast({
-          variant: "destructive",
-          title: "No se pudo actualizar la lección",
-          description: (error as Error).message,
-        });
-      }
-    });
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>Editar lección</DialogTitle>
-          <DialogDescription>
-            Actualiza el título, el orden y el contenido de la lección.
-          </DialogDescription>
-        </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Título</FormLabel>
-                  <FormControl>
-                    <Input {...field} autoFocus />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="order"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Orden</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min={1}
-                        value={field.value}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tipo</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="article">Artículo</SelectItem>
-                        <SelectItem value="video">Vídeo</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <FormField
-              control={form.control}
-              name="contentText"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Contenido (Markdown)</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} value={field.value ?? ""} rows={6} className="font-mono text-sm" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <DialogFooter>
-              <UIButton type="submit" disabled={isPending}>
-                {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
-                Guardar cambios
-              </UIButton>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
 // ─── Board ───────────────────────────────────────────────────────────────
 
 type LessonWithUnit = Lesson & { unit: Unit };
@@ -448,9 +302,12 @@ export function SyllabusBoard({
   const [unitFormOpen, setUnitFormOpen] = useState(false);
   const [editingUnit, setEditingUnit] = useState<Unit | null>(null);
   const [deletingUnit, setDeletingUnit] = useState<Unit | null>(null);
+  const [manageUnitsOpen, setManageUnitsOpen] = useState(false);
 
-  const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
   const [deletingLesson, setDeletingLesson] = useState<Lesson | null>(null);
+
+  const [newLessonOpen, setNewLessonOpen] = useState(false);
+  const [newLessonUnitId, setNewLessonUnitId] = useState<string>("");
 
   const sortedUnits = useMemo(
     () => [...units].sort((a, b) => a.order - b.order),
@@ -508,6 +365,20 @@ export function SyllabusBoard({
     router.refresh();
   }
 
+  function goToBuilderNewLesson(unitId: number) {
+    router.push(`/teach/${subject.id}/${unitId}?tab=lessons&new=1`);
+  }
+
+  function openNewLessonDialog() {
+    // If a unit is already filtered, create straight there — no picker needed.
+    if (unitFilter !== "all") {
+      goToBuilderNewLesson(Number(unitFilter));
+      return;
+    }
+    setNewLessonUnitId(sortedUnits[0] ? String(sortedUnits[0].id) : "");
+    setNewLessonOpen(true);
+  }
+
   function confirmDeleteUnit() {
     if (!deletingUnit) return;
     const unit = deletingUnit;
@@ -525,10 +396,6 @@ export function SyllabusBoard({
         });
       }
     });
-  }
-
-  function handleLessonSaved() {
-    router.refresh();
   }
 
   function confirmDeleteLesson() {
@@ -580,15 +447,35 @@ export function SyllabusBoard({
           units.length === 1 ? "unidad" : "unidades"
         } · ${allLessons.length} ${allLessons.length === 1 ? "lección" : "lecciones"}`}
         actions={
-          <Button variant="learning" onClick={openCreateUnitDialog}>
-            <Plus className="mr-2 h-4 w-4" />
-            Nueva unidad
-          </Button>
+          <div className="flex items-center gap-2">
+            <UIButton variant="outline" onClick={() => setManageUnitsOpen(true)}>
+              <SlidersHorizontal className="mr-2 h-4 w-4" />
+              Gestionar unidades
+            </UIButton>
+            <Button variant="learning" onClick={openNewLessonDialog}>
+              <Plus className="mr-2 h-4 w-4" />
+              Nueva lección
+            </Button>
+          </div>
         }
       />
 
-      {/* Units table — order, name, access, gratis, actions */}
-      <div className="overflow-hidden rounded-card border bg-card shadow-card">
+      {/* Units are managed in a dialog; the subject page shows only lessons. */}
+      <Dialog open={manageUnitsOpen} onOpenChange={setManageUnitsOpen}>
+        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Gestionar unidades</DialogTitle>
+            <DialogDescription>
+              Las unidades agrupan las lecciones. Crea, ordena o edita sus reglas de acceso.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mb-3 flex justify-end">
+            <Button variant="learning" size="sm" onClick={openCreateUnitDialog}>
+              <Plus className="mr-2 h-4 w-4" />
+              Nueva unidad
+            </Button>
+          </div>
+          <div className="overflow-hidden rounded-card border bg-card shadow-card">
         <Table>
           <TableHeader>
             <TableRow>
@@ -627,7 +514,7 @@ export function SyllabusBoard({
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-1">
                     <UIButton variant="outline" size="sm" asChild className="h-8">
-                      <Link href={`/teach/${subject.id}/${unit.id}`}>
+                      <Link href={`/teach/${subject.id}/${unit.id}?tab=lessons`}>
                         <SlidersHorizontal className="mr-1.5 h-3.5 w-3.5" />
                         Abrir builder
                       </Link>
@@ -673,7 +560,9 @@ export function SyllabusBoard({
             </p>
           </div>
         )}
-      </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Toolbar: buscador + filtros */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -768,9 +657,11 @@ export function SyllabusBoard({
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
                       <UIButton variant="outline" size="sm" asChild className="h-8">
-                        <Link href={`/teach/${subject.id}/${lesson.unit.id}`}>
-                          <SlidersHorizontal className="mr-1.5 h-3.5 w-3.5" />
-                          Builder
+                        <Link
+                          href={`/teach/${subject.id}/${lesson.unit.id}?tab=lessons&lessonId=${lesson.id}`}
+                        >
+                          <Pencil className="mr-1.5 h-3.5 w-3.5" />
+                          Editar
                         </Link>
                       </UIButton>
                       <DropdownMenu>
@@ -785,9 +676,13 @@ export function SyllabusBoard({
                           </UIButton>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-44">
-                          <DropdownMenuItem onClick={() => setEditingLesson(lesson)}>
-                            <Pencil className="mr-2 h-4 w-4" />
-                            Editar lección
+                          <DropdownMenuItem asChild>
+                            <Link
+                              href={`/teach/${subject.id}/${lesson.unit.id}?tab=lessons&lessonId=${lesson.id}`}
+                            >
+                              <Pencil className="mr-2 h-4 w-4" />
+                              Abrir en el builder
+                            </Link>
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
@@ -886,14 +781,58 @@ export function SyllabusBoard({
         </AlertDialogContent>
       </AlertDialog>
 
-      <LessonFormDialog
-        open={!!editingLesson}
-        onOpenChange={(open) => {
-          if (!open) setEditingLesson(null);
-        }}
-        lesson={editingLesson}
-        onSaved={handleLessonSaved}
-      />
+      <Dialog open={newLessonOpen} onOpenChange={setNewLessonOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Nueva lección</DialogTitle>
+            <DialogDescription>
+              Elige la unidad en la que quieres crear la lección.
+            </DialogDescription>
+          </DialogHeader>
+          {sortedUnits.length === 0 ? (
+            <div className="space-y-3 py-2 text-sm text-muted-foreground">
+              <p>Todavía no hay unidades. Crea una primero.</p>
+              <Button
+                variant="learning"
+                size="sm"
+                onClick={() => {
+                  setNewLessonOpen(false);
+                  setManageUnitsOpen(true);
+                }}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Gestionar unidades
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <Select value={newLessonUnitId} onValueChange={setNewLessonUnitId}>
+                <SelectTrigger aria-label="Unidad">
+                  <SelectValue placeholder="Unidad" />
+                </SelectTrigger>
+                <SelectContent>
+                  {sortedUnits.map((u) => (
+                    <SelectItem key={u.id} value={String(u.id)}>
+                      {u.order}. {u.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <DialogFooter>
+                <UIButton
+                  onClick={() => {
+                    if (!newLessonUnitId) return;
+                    setNewLessonOpen(false);
+                    goToBuilderNewLesson(Number(newLessonUnitId));
+                  }}
+                >
+                  Crear
+                </UIButton>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog
         open={!!deletingLesson}

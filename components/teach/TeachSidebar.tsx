@@ -31,8 +31,8 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  { href: "/wireframes/teach", label: "Asignaturas", icon: Layers },
-  { href: "/wireframes/teach/media", label: "Media", icon: Images },
+  { href: "/teach", label: "Asignaturas", icon: Layers },
+  { href: "#media", label: "Media", icon: Images, soon: true },
   { href: "#students", label: "Estudiantes", icon: Users, soon: true },
   { href: "#analytics", label: "Analítica", icon: BarChart3, soon: true },
 ];
@@ -154,7 +154,7 @@ export function TeachSidebar({ onNavigate }: { onNavigate?: () => void }) {
             <DropdownMenuSeparator />
             <DropdownMenuItem>Mi perfil</DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href="/wireframes/home">Modo estudiante</Link>
+              <Link href="/study">Modo estudiante</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>Cerrar sesión</DropdownMenuItem>

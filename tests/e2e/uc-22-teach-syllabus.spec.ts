@@ -33,15 +33,24 @@ async function signInAs(page: Page, email: string, password: string, role: 'stud
 test.describe('UC-22 · /teach/[subjectId] — wired syllabus page', () => {
   test.skip(!TEACHER_EMAIL, 'Set TEACHER_EMAIL and TEACHER_PASSWORD to run this test (run `npm run seed`)');
 
-  test('teacher adds a unit to a subject', async ({ page }) => {
+  test('teacher adds a unit via Gestionar unidades', async ({ page }) => {
     await signInAs(page, TEACHER_EMAIL, TEACHER_PASSWORD, 'teacher');
     await page.goto(`/teach/${TEST_SUBJECT_ID}`);
 
+    // The subject page shows a single lessons list; units are managed in a dialog.
+    await page.getByRole('button', { name: /gestionar unidades/i }).click();
     await page.getByRole('button', { name: /nueva unidad|añadir unidad/i }).click();
     const unitName = `Tema 1 E2E ${Date.now()}`;
     await page.getByLabel(/nombre/i).fill(unitName);
     await page.getByRole('button', { name: /guardar|crear/i }).click();
 
     await expect(page.getByText(unitName)).toBeVisible({ timeout: 8000 });
+  });
+
+  test('subject page shows a single lessons list (Lección header present)', async ({ page }) => {
+    await signInAs(page, TEACHER_EMAIL, TEACHER_PASSWORD, 'teacher');
+    await page.goto(`/teach/${TEST_SUBJECT_ID}`);
+    // The primary table is the lessons table, headed by the "Lección" column.
+    await expect(page.getByRole('columnheader', { name: 'Lección' })).toBeVisible();
   });
 });
